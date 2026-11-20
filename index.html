@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NetApp Genie — Interaction Prototype</title>
+  </head>
+  <body>
+    <!--
+      Global interactive chrome (Nav Bar, Nav Modal, Account Modal, AI Prompt,
+      AI Chat Modal) is created in TypeScript and appended to <body> at runtime.
+      Only the scrollable page skeleton lives in markup here. The Persona Picker
+      is injected into #persona-picker-slot by PersonaPicker.ts.
+    -->
+    <main class="page">
+      <!-- Row 1: Hero -->
+      <section class="skeleton-row skeleton-row--hero">
+        <div class="skeleton-block skeleton-hero"></div>
+      </section>
+
+      <!-- Persona Picker gets injected here, between hero and first cards row -->
+      <div id="persona-picker-slot"></div>
+
+      <!-- Row 2: 3 cards -->
+      <section class="skeleton-row skeleton-row--cards">
+        <div class="skeleton-block skeleton-card"></div>
+        <div class="skeleton-block skeleton-card"></div>
+        <div class="skeleton-block skeleton-card"></div>
+      </section>
+
+      <!-- Row 3: Callout -->
+      <section class="skeleton-row skeleton-row--callout">
+        <div class="skeleton-block skeleton-callout"></div>
+      </section>
+
+      <!-- Row 4: 3 more cards -->
+      <section class="skeleton-row skeleton-row--cards">
+        <div class="skeleton-block skeleton-card"></div>
+        <div class="skeleton-block skeleton-card"></div>
+        <div class="skeleton-block skeleton-card"></div>
+      </section>
+
+      <!-- Row 5: Footer -->
+      <section class="skeleton-row skeleton-row--footer">
+        <div class="skeleton-block skeleton-footer"></div>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
