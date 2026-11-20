@@ -1,16 +1,35 @@
 /**
  * AccountModal
  * ---------------------------------------------------------------------------
- * A near-full-screen modal (z-index 20) activated by the account control. Uses
- * the same open/close animation pattern as NavModal. Placeholder layout only:
- * a header plus three labeled gray content blocks (sign-in form, create account
- * card, product sign-in card). Signed-in vs anonymous layouts are a Phase 2
- * iteration — for now a single placeholder layout.
+ * A near-full-screen modal (z-index 20) activated by the account control. Figma
+ * layout: a dark gradient panel with a centered persona-recap sentence and a
+ * three-section card grid, each section fronted by a cyan eyebrow label.
  *
- * Mutual exclusivity with NavModal is coordinated in main.ts.
+ * Uses the same open/close animation pattern as NavModal. Mutual exclusivity
+ * with NavModal is coordinated in main.ts.
  */
 import gsap from 'gsap';
 import { iconUrl } from '../utils/assets';
+
+interface AccountSection {
+  eyebrow: string;
+  body: string;
+}
+
+const ACCOUNT_SECTIONS: AccountSection[] = [
+  {
+    eyebrow: 'Dashboard',
+    body: 'Access support, communities and trainings. Sign in →',
+  },
+  {
+    eyebrow: 'Account',
+    body: "Don't have an account? Click here to create an account →",
+  },
+  {
+    eyebrow: 'Console',
+    body: 'Monitor and run hybrid cloud data services. NetApp Console →',
+  },
+];
 
 export class AccountModal {
   readonly el: HTMLDivElement;
@@ -25,24 +44,23 @@ export class AccountModal {
     this.el.setAttribute('aria-modal', 'true');
     this.el.setAttribute('aria-label', 'Account');
 
+    const cardsMarkup = ACCOUNT_SECTIONS.map(
+      (s) => `
+      <div class="account-block">
+        <p class="eyebrow account-block__eyebrow">${s.eyebrow}</p>
+        <p class="account-block__body">${s.body}</p>
+      </div>`
+    ).join('');
+
     this.el.innerHTML = `
       <button class="modal-close" type="button" aria-label="Close account"><img src="${iconUrl('ic_close.svg')}" alt="" aria-hidden="true" class="modal-close-icon" /></button>
       <div class="account-modal__inner">
-        <h2>Account</h2>
-        <div class="account-modal__grid">
-          <div class="account-block">
-            <h3>Sign in</h3>
-            <p>Email + password form placeholder. "Forgot password" link. (Phase 2)</p>
-          </div>
-          <div class="account-block">
-            <h3>Create account</h3>
-            <p>New-user registration card with a primary call-to-action. (Phase 2)</p>
-          </div>
-          <div class="account-block">
-            <h3>Product sign-in</h3>
-            <p>Jump to a product console (BlueXP, Cloud Manager, Support Site). (Phase 2)</p>
-          </div>
-        </div>
+        <p class="account-modal__recap">
+          I'm an <span class="persona-chip">information architect</span> focused on
+          <span class="persona-chip">managing data at scale</span> in the
+          <span class="persona-chip">space industry</span>.
+        </p>
+        <div class="account-modal__grid">${cardsMarkup}</div>
       </div>
     `;
 

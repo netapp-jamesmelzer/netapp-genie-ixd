@@ -28,18 +28,23 @@ export class AIPrompt {
     this.el = document.createElement('div');
     this.el.className = 'ai-prompt';
     this.el.innerHTML = `
-      <img src="${iconUrl('ic_AI.svg')}" alt="" aria-hidden="true" class="prompt-icon" />
-      <textarea
-        class="ai-prompt__textarea"
-        rows="3"
-        placeholder="Ask NetApp Genie anything…"
-        aria-label="AI prompt input"
-      ></textarea>
-      <div class="ai-prompt__controls">
+      <div class="ai-prompt__top">
+        <img src="${iconUrl('ic_AI.svg')}" alt="" aria-hidden="true" class="prompt-icon" />
+        <textarea
+          class="ai-prompt__textarea"
+          rows="3"
+          placeholder="Ask NetApp Genie anything…"
+          aria-label="AI prompt input"
+        ></textarea>
+        <button class="send-btn" type="button" aria-label="Send prompt">
+          <img src="${iconUrl('ic_arrow_right.svg')}" alt="" aria-hidden="true" class="send-icon" />
+        </button>
+      </div>
+      <div class="ai-prompt__bottom">
+        <span class="quick-action-chip">Solve problems</span>
         <button class="size-toggle" type="button" aria-label="Toggle prompt size" title="Toggle size">
           <img src="${iconUrl('ic_collapse.svg')}" alt="" aria-hidden="true" class="size-toggle-icon" />
         </button>
-        <button class="send-btn" type="button" aria-label="Send prompt">&rarr;</button>
       </div>
     `;
 
@@ -83,13 +88,12 @@ export class AIPrompt {
   private toggleSize(): void {
     this.isLarge = !this.isLarge;
     this.el.classList.toggle('is-small', !this.isLarge);
-    const targetVar = this.isLarge
-      ? 'var(--prompt-height-large)'
-      : 'var(--prompt-height-small)';
     this.textarea.rows = this.isLarge ? 3 : 1;
     this.updateToggleIcon(this.isLarge);
-    gsap.to(this.el, {
-      height: targetVar,
+    // Animate the textarea height between large (3 lines) and small (1 line).
+    // The bubble itself grows/shrinks to fit (flex column, auto height).
+    gsap.to(this.textarea, {
+      height: this.isLarge ? 75 : 25,
       duration: 0.25,
       ease: 'power2.inOut',
       overwrite: 'auto',

@@ -10,38 +10,45 @@
   inset: var(--modal-inset);
   z-index: var(--z-nav-modal);
   display: none; /* toggled to flex when open */
-  background: var(--color-modal-bg);
   border-radius: var(--radius-modal);
   box-shadow: var(--shadow-modal);
   overflow: hidden;
-  backdrop-filter: blur(4px);
 }
 
 .modal-close {
   position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 40px;
-  height: 40px;
+  top: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-round);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--text-xl);
   line-height: 1;
-  color: var(--color-text-primary);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-card);
-  z-index: 2;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  z-index: 3;
   transition: background var(--dur-fast) var(--ease-out);
 }
 
 .modal-close:hover {
-  background: var(--color-artifact-bg);
+  background: rgba(255, 255, 255, 0.22);
 }
 
-/* ---- Nav Modal: side-tabs ---- */
+.modal-close-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  filter: brightness(0) invert(1); /* dark source SVG -> white */
+}
+
+/* =============================================================== */
+/* Nav Modal — solid dark-purple, three columns of F37Judge Thin   */
+/* =============================================================== */
 .nav-modal {
+  background: var(--color-bg-dark-nav);
   padding: 0;
 }
 
@@ -49,219 +56,242 @@
   display: flex;
   width: 100%;
   height: 100%;
+  gap: 96px;
+  padding: 120px 191px 80px 254px;
+  overflow-y: auto;
 }
 
-.nav-modal__tabs {
-  flex: 0 0 240px;
+.nav-modal__col {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 72px 16px 24px;
-  border-right: 1px solid var(--color-artifact-border);
-  overflow-y: auto;
 }
 
-.tab-btn {
-  text-align: left;
-  padding: 14px 18px;
-  border-radius: var(--radius-card);
-  font-size: var(--text-base);
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  border-left: 3px solid transparent;
-  transition: background var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
+.nav-modal__col--primary {
+  flex: 0 0 auto;
+  min-width: 230px;
 }
 
-.tab-btn:hover {
-  background: var(--color-artifact-bg);
-  color: var(--color-text-primary);
+.nav-modal__col--secondary {
+  flex: 0 0 auto;
+  min-width: 360px;
 }
 
-.tab-btn.is-active {
-  color: var(--color-sidetab-active);
-  border-left-color: var(--color-sidetab-active);
-  background: var(--color-artifact-bg);
+.nav-modal__link--lg {
+  font-family: var(--font-body);
+  font-weight: 100;
+  font-size: 57px;
+  line-height: 1.4;
+  letter-spacing: var(--ls-display);
+  color: #ffffff;
 }
 
-.nav-modal__panels {
-  flex: 1 1 auto;
-  position: relative;
-  padding: 72px 48px 48px;
-  overflow-y: auto;
+.nav-modal__link--lg:hover {
+  color: var(--color-eyebrow-cyan);
 }
 
-.tab-panel {
-  display: none;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px 48px;
+.nav-modal__link--sm {
+  font-family: var(--font-body);
+  font-weight: 100;
+  font-size: var(--text-body-lg);
+  line-height: 2.1;
+  letter-spacing: var(--ls-display);
+  color: #ffffff;
 }
 
-.tab-panel.is-active {
-  display: grid;
+.nav-modal__link--sm:hover {
+  color: var(--color-eyebrow-cyan);
 }
 
-.tab-panel a {
-  font-size: var(--text-base);
-  padding: 8px 0;
-  border-bottom: 1px solid transparent;
+.nav-modal__gap {
+  display: block;
+  height: 46px; /* roughly one blank line at 22px * 2.1 lh */
 }
 
-.tab-panel a:hover {
-  border-bottom-color: var(--color-link-hover);
+/* =============================================================== */
+/* Account Modal — dark gradient, persona recap + 3-section grid    */
+/* =============================================================== */
+.account-modal {
+  background: linear-gradient(135deg, #110f1a, #1e252f);
 }
 
-/* ---- Account Modal ---- */
 .account-modal__inner {
   width: 100%;
   height: 100%;
-  padding: 72px 48px 48px;
+  padding: 120px 191px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   overflow-y: auto;
 }
 
-.account-modal h2 {
-  margin: 0 0 24px;
-  font-size: var(--text-xl);
+.account-modal__recap {
+  margin: 0 0 72px;
+  font-family: var(--font-body);
+  font-weight: 100;
+  font-size: var(--text-l);
+  line-height: 1.4;
+  letter-spacing: var(--ls-display);
+  color: #ffffff;
+  text-align: center;
+  max-width: 1100px;
 }
 
 .account-modal__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px;
+  width: 100%;
+  max-width: 1200px;
 }
 
 .account-block {
-  background: var(--color-artifact-bg);
-  border: 1px solid var(--color-artifact-border);
-  border-radius: var(--radius-card);
-  padding: 24px;
-  min-height: 180px;
+  padding: 8px 0 8px 32px;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.account-block h3 {
-  margin: 0 0 8px;
-  font-size: var(--text-lg);
+.account-block__eyebrow {
+  color: var(--color-eyebrow-cyan);
+  margin-bottom: 16px;
 }
 
-.account-block p {
+.account-block__body {
   margin: 0;
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-ui-lg);
+  line-height: 1.4;
+  color: #ffffff;
+  opacity: 0.8;
 }
 
-/* ---- AI Chat Modal (z-index 10, below nav/account modals) ---- */
+/* =============================================================== */
+/* AI Chat Modal (z-index 10) — dark vignette + inset white card   */
+/* =============================================================== */
 .ai-chat-modal {
   position: fixed;
   z-index: var(--z-chat-modal);
   display: none; /* toggled to flex on open */
   background: var(--color-modal-overlay);
   border-radius: var(--radius-modal);
-  box-shadow: var(--shadow-modal);
   overflow: hidden;
   /* initial geometry is set inline by JS to match the AI Prompt rect */
 }
 
 .ai-chat-modal .modal-close {
-  top: 20px;
-  right: 20px;
+  top: 70px;
+  right: 70px;
 }
 
 .chat-layout {
+  position: absolute;
+  inset: 50px;
   display: flex;
-  width: 100%;
-  height: 100%;
-  gap: 1px;
-  background: var(--color-artifact-border);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-modal);
+  box-shadow: var(--shadow-modal);
+  overflow: hidden;
 }
 
-/* 1 : 3 : 1 column proportions */
-.chat-history {
-  flex: 1 1 0;
-  min-width: 0;
-  background: var(--color-modal-bg);
-  padding: 64px 20px 24px;
-  overflow-y: auto;
-}
-
+/* Left: conversation (flex 3) */
 .chat-thread {
   flex: 3 3 0;
   min-width: 0;
-  background: var(--color-surface);
-  padding: 64px 32px 24px;
+  padding: 48px;
+  background: transparent;
+  border-right: 1px solid rgba(207, 221, 230, 0.3);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
   overflow-y: auto;
 }
 
-.chat-artifacts {
-  flex: 1 1 0;
-  min-width: 0;
-  background: var(--color-modal-bg);
-  padding: 64px 20px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  overflow-y: auto;
-}
-
-.chat-col-title {
-  font-size: var(--text-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-text-secondary);
-  margin: 0 0 12px;
-  font-weight: 700;
-}
-
-/* History list */
-.chat-history__item {
-  padding: 12px 14px;
-  border-radius: var(--radius-card);
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  margin-bottom: 6px;
-  transition: background var(--dur-fast) var(--ease-out);
-}
-
-.chat-history__item:hover {
-  background: var(--color-artifact-bg);
-}
-
-.chat-history__item.is-active {
-  background: var(--color-artifact-bg);
-  color: var(--color-text-primary);
-  font-weight: 600;
-  border-left: 3px solid var(--color-sidetab-active);
-}
-
-/* Thread bubbles */
-.chat-bubble {
-  max-width: 80%;
-  padding: 12px 16px;
-  border-radius: var(--radius-prompt);
-  font-size: var(--text-base);
-  line-height: var(--leading-normal);
-}
-
-.chat-bubble--user {
+/* User suggestion pill at the top of the conversation */
+.chat-suggestion {
   align-self: flex-end;
-  background: var(--color-nav-pill-bg);
-  color: var(--color-nav-pill-text);
-}
-
-.chat-bubble--ai {
-  align-self: flex-start;
-  background: var(--color-artifact-bg);
+  max-width: 80%;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(207, 221, 230, 0.42);
   color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-ui-sm);
+  line-height: 1.4;
 }
 
 .ai-response {
   align-self: flex-start;
   max-width: 100%;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-ui-sm);
+  line-height: 1.5;
+  color: var(--color-text-primary);
   white-space: pre-wrap;
+}
+
+/* Decorative in-modal prompt box (bottom of the conversation) */
+.chat-prompt {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 777px;
+  width: 100%;
+  padding: 20px 24px;
+  background: #ffffff;
+  border: 2px solid var(--color-prompt-border);
+  border-radius: var(--radius-prompt);
+}
+
+.chat-prompt__placeholder {
+  flex: 1 1 auto;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-ui-sm);
+  color: var(--color-text-muted);
+}
+
+.chat-prompt__send {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-round);
+  background: var(--gradient-ai);
+  position: relative;
+}
+
+.chat-prompt__send::after {
+  content: '\2192';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+/* Right: resource rail (flex 1) */
+.chat-artifacts {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+}
+
+.chat-col-title {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-eyebrow);
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
 /* Blinking caret shown while typewriter is running */
@@ -283,45 +313,46 @@
   }
 }
 
-/* Icon sizing */
-.modal-close-icon {
-  width: 20px;
-  height: 20px;
+/* Artifact cards (revealed after typewriter) */
+.artifact-card {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid var(--color-artifact-border);
+  border-radius: var(--radius-card);
+  padding: 16px;
+}
+
+.artifact-img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: calc(var(--radius-card) - 2px);
+  margin-bottom: 12px;
   display: block;
 }
 
 .artifact-icon {
   width: 16px;
   height: 16px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   display: block;
   opacity: 0.6;
 }
 
-.artifact-img {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  border-radius: calc(var(--radius-card) - 2px);
-  margin-bottom: 10px;
-  display: block;
-}
-
-/* Artifact cards (revealed after typewriter) */
-.artifact-card {
-  background: var(--color-artifact-bg);
-  border: 1px solid var(--color-artifact-border);
-  border-radius: var(--radius-card);
-  padding: 16px;
-}
-
 .artifact-card h4 {
   margin: 0 0 6px;
-  font-size: var(--text-base);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-ui-sm);
+  color: var(--color-text-primary);
 }
 
 .artifact-card p {
   margin: 0;
+  font-family: var(--font-body);
+  font-weight: 400;
   font-size: var(--text-sm);
+  line-height: 1.4;
   color: var(--color-text-secondary);
 }

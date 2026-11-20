@@ -1,98 +1,49 @@
 /**
  * NavModal
  * ---------------------------------------------------------------------------
- * A near-full-screen modal (z-index 20) activated by the nav menu control.
- * Contents use a "side-tabs" metaphor: 5 vertical tab buttons on the left, each
- * revealing a panel of 10 placeholder links on the right. Clicking a tab just
- * toggles classes (no GSAP). Open/close is a GSAP fade+scale.
+ * A near-full-screen modal (z-index 20) activated by the nav "Explore" control.
+ * Figma layout: a solid dark-purple panel with three columns of F37Judge Thin
+ * links — one large primary column and two smaller secondary columns.
  *
  * Clicking any link (or the close X) dismisses the modal — main.ts also closes
- * the AI Chat Modal so a nav click dismisses everything.
+ * the AI Chat Modal so a nav click dismisses everything. Open/close is a GSAP
+ * fade + scale.
  */
 import gsap from 'gsap';
 import { iconUrl } from '../utils/assets';
 
-interface NavTab {
-  label: string;
-  links: string[];
-}
+/** Primary (large) column links. */
+const PRIMARY_LINKS: string[] = [
+  'Platform',
+  'Storage',
+  'Data Services',
+  'Solutions',
+  'Support',
+  'Resources',
+];
 
-const NAV_TABS: NavTab[] = [
-  {
-    label: 'Products',
-    links: [
-      'Cloud Storage',
-      'Data Management',
-      'Block & File Storage',
-      'Object Storage',
-      'Backup & Recovery',
-      'Ransomware Protection',
-      'Observability',
-      'Kubernetes Storage',
-      'AI Data Engine',
-      'All Products',
-    ],
-  },
-  {
-    label: 'Solutions',
-    links: [
-      'Hybrid Cloud',
-      'Multicloud',
-      'AI & Analytics',
-      'Virtual Desktops',
-      'Databases',
-      'DevOps & CI/CD',
-      'Disaster Recovery',
-      'Cost Optimization',
-      'Edge & IoT',
-      'Industry Solutions',
-    ],
-  },
-  {
-    label: 'Resources',
-    links: [
-      'Documentation',
-      'Knowledge Base',
-      'Blog',
-      'Webinars',
-      'Case Studies',
-      'White Papers',
-      'Community',
-      'Training & Certification',
-      'Events',
-      'Developer Hub',
-    ],
-  },
-  {
-    label: 'Support',
-    links: [
-      'Open a Case',
-      'Downloads',
-      'Product Lifecycle',
-      'System Status',
-      'Security Advisories',
-      'Professional Services',
-      'Managed Services',
-      'Partner Support',
-      'Contact Support',
-      'Support Plans',
-    ],
-  },
-  {
-    label: 'Company',
-    links: [
-      'About NetApp',
-      'Leadership',
-      'Careers',
-      'Newsroom',
-      'Investor Relations',
-      'Sustainability',
-      'Partners',
-      'Customers',
-      'Legal & Trust',
-      'Contact Us',
-    ],
-  },
+/** Secondary columns — `''` denotes a visual gap between groups. */
+const SECONDARY_COL_1: string[] = [
+  'Customer Stories',
+  'Partnerships',
+  'Thought Leadership',
+  'Communities',
+  'Product Updates',
+  '',
+  'How to Buy',
+  'Test Drive a Product',
+  'Find a Partner',
+];
+
+const SECONDARY_COL_2: string[] = [
+  'Blogs',
+  'Careers',
+  'Investors',
+  '',
+  'Technical Support',
+  'Developers',
+  'Downloads',
+  'Training',
 ];
 
 export class NavModal {
@@ -110,23 +61,25 @@ export class NavModal {
     this.el.setAttribute('aria-modal', 'true');
     this.el.setAttribute('aria-label', 'Site navigation');
 
-    const tabsMarkup = NAV_TABS.map(
-      (tab, i) =>
-        `<button class="tab-btn${i === 0 ? ' is-active' : ''}" type="button" data-tab="${i}">${tab.label}</button>`
+    const primaryMarkup = PRIMARY_LINKS.map(
+      (link) => `<a href="#" data-nav-link class="nav-modal__link--lg">${link}</a>`
     ).join('');
 
-    const panelsMarkup = NAV_TABS.map(
-      (tab, i) =>
-        `<div class="tab-panel${i === 0 ? ' is-active' : ''}" data-panel="${i}">${tab.links
-          .map((link) => `<a href="#" data-nav-link>${tab.label} &rsaquo; ${link}</a>`)
-          .join('')}</div>`
-    ).join('');
+    const secondaryMarkup = (items: string[]): string =>
+      items
+        .map((link) =>
+          link === ''
+            ? '<span class="nav-modal__gap" aria-hidden="true"></span>'
+            : `<a href="#" data-nav-link class="nav-modal__link--sm">${link}</a>`
+        )
+        .join('');
 
     this.el.innerHTML = `
       <button class="modal-close" type="button" aria-label="Close navigation"><img src="${iconUrl('ic_close.svg')}" alt="" aria-hidden="true" class="modal-close-icon" /></button>
       <div class="nav-modal__inner">
-        <nav class="nav-modal__tabs" aria-label="Navigation sections">${tabsMarkup}</nav>
-        <div class="nav-modal__panels">${panelsMarkup}</div>
+        <nav class="nav-modal__col nav-modal__col--primary" aria-label="Primary">${primaryMarkup}</nav>
+        <nav class="nav-modal__col nav-modal__col--secondary" aria-label="Secondary">${secondaryMarkup(SECONDARY_COL_1)}</nav>
+        <nav class="nav-modal__col nav-modal__col--secondary" aria-label="More">${secondaryMarkup(SECONDARY_COL_2)}</nav>
       </div>
     `;
 
@@ -135,11 +88,6 @@ export class NavModal {
       'click',
       () => this.onClose()
     );
-
-    // Side-tab switching (simple class toggle).
-    this.el.querySelectorAll<HTMLButtonElement>('.tab-btn').forEach((btn) => {
-      btn.addEventListener('click', () => this.activateTab(Number(btn.dataset.tab)));
-    });
 
     // Link clicks dismiss the modal(s).
     this.el.querySelectorAll<HTMLAnchorElement>('a[data-nav-link]').forEach((link) => {
@@ -152,15 +100,6 @@ export class NavModal {
 
   mount(parent: HTMLElement = document.body): void {
     parent.appendChild(this.el);
-  }
-
-  private activateTab(index: number): void {
-    this.el.querySelectorAll<HTMLElement>('.tab-btn').forEach((btn) => {
-      btn.classList.toggle('is-active', Number(btn.dataset.tab) === index);
-    });
-    this.el.querySelectorAll<HTMLElement>('.tab-panel').forEach((panel) => {
-      panel.classList.toggle('is-active', Number(panel.dataset.panel) === index);
-    });
   }
 
   get opened(): boolean {

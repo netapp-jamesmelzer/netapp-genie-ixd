@@ -1,68 +1,114 @@
 /*
  * tokens.css
  * ----------------------------------------------------------------------------
- * THE Phase 2 swap surface. Every hard value (spacing, color, type, radius,
- * shadow, motion, layout) lives here as a CSS custom property. Components and
- * other stylesheets must reference these variables and never hard-code values,
- * so Phase 2 visual polish is a matter of changing values in this one file.
+ * THE visual swap surface. Every hard value (spacing, color, type, radius,
+ * shadow, motion, layout) lives here as a CSS custom property. Phase 2 values
+ * come straight from the Figma "genie ixd" comps.
  */
 :root {
-  /* ---- Spacing ---- */
+  /* ---- Spacing / layout ---- */
   --nav-top: 24px;
   --nav-pill-height: 52px;
   --prompt-bottom: 24px;
-  --prompt-max-width: 800px;
-  --prompt-margin-x: 24px;
+  --prompt-max-width: 1000px;        /* Figma small bubble */
+  --prompt-hero-max-width: 1219px;   /* Figma big bubble in hero */
+  --prompt-margin-x: auto;
   --prompt-height-large: calc(3lh + 32px);
   --prompt-height-small: calc(1lh + 32px);
+  --section-pad-x: 191px;            /* Figma consistent left margin */
+  --page-max-width: 1600px;
+  --modal-inset: 16px;
 
-  /* ---- Colors — all placeholder, Phase 2 will replace ---- */
-  --color-bg: #f0f0f2;
+  /* ---- Colors (from Figma) ---- */
+  --color-bg-dark: #110f1a;
+  --color-bg-dark-2: #1e252f;
+  --color-bg-dark-nav: #25193a;
+  --color-bg-light: #ffffff;
+  --color-bg-light-radial: #eaeef7;  /* moment 4 background */
+  --color-bg-chat: #f4f1ed;          /* AI chat modal bg */
+  --color-bg: #110f1a;               /* legacy body bg */
   --color-surface: #ffffff;
   --color-skeleton-base: #d8d8dc;
   --color-skeleton-shine: #e8e8ec;
-  --color-nav-pill-bg: rgba(20, 20, 24, 0.92);
+  --color-nav-pill-bg: rgba(255, 255, 255, 0.15);        /* frosted on dark */
+  --color-nav-pill-bg-light: rgba(255, 255, 255, 0.1);   /* frosted on light */
   --color-nav-pill-text: #ffffff;
-  --color-nav-account-bg: rgba(20, 20, 24, 0.92);
+  --color-nav-account-bg: rgba(255, 255, 255, 0.15);
   --color-nav-account-text: #ffffff;
   --color-prompt-bg: #ffffff;
-  --color-prompt-border: #d0d0d8;
+  --color-prompt-border: #c5cce0;
   --color-prompt-focus: #0066ff;
-  --color-modal-bg: rgba(248, 248, 252, 0.98);
-  --color-modal-overlay: rgba(255, 255, 255, 0.0);
-  --color-sidetab-active: #0066ff;
-  --color-ping: #0066ff;
-  --color-text-primary: #1a1a2e;
-  --color-text-secondary: #6b6b80;
-  --color-link: #1a1a2e;
-  --color-link-hover: #0066ff;
+  --color-prompt-shadow: rgba(83, 101, 133, 0.06);
+  --color-modal-bg: rgba(244, 241, 237, 0.98);
+  --color-modal-overlay: rgba(255, 255, 255, 0);
+  --color-chat-overlay: rgba(20, 9, 70, 0.5);  /* AI chat dark vignette */
+  --color-sidetab-active: #7b27ff;
+  --color-ping: #00ddf4;
+  --color-text-primary: #1e252f;
+  --color-text-primary-reverse: #ffffff;
+  --color-text-secondary: #5a6b73;
+  --color-text-muted: #a8a8a8;
+  --color-link: #1e252f;
+  --color-link-hover: #7b27ff;
   --color-artifact-bg: #f5f5fa;
   --color-artifact-border: #e0e0e8;
+  --color-eyebrow-cyan: #00ddf4;
+  --color-eyebrow-purple: #7b27ff;
+  --color-eyebrow-teal: #a3d7d7;
+  --color-eyebrow-muted: #a8bcc7;
+  --color-eyebrow-dark: #5a6b73;
+  --color-card-btn-bg: #e2ecf2;
+  --color-footer-bg: #1e252f;
+  --gradient-ai: linear-gradient(225deg, #7b27ff 0%, #00ddf4 100%);
 
   /* ---- Typography ---- */
   --font-body: 'F37Judge', system-ui, -apple-system, sans-serif;
   --font-mono: 'Courier New', monospace;
+  /* Type scale — px sizes from Figma */
+  --text-hero: 104px;
+  --text-2xl: 76px;
+  --text-xl: 61px;
+  --text-l: 49px;
+  --text-m: 39px;
+  --text-modal-title: 170px;
+  --text-h2: 60px;
+  --text-h3: 36px;
+  --text-body-lg: 22px;
+  --text-ui-lg: 20px;
+  --text-ui-sm: 18px;
+  --text-eyebrow: 14px;
+  --text-footer-link: 16px;
+  /* Legacy type scale (kept for base.css + fallbacks) */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
   --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
   --leading-normal: 1.5;
+  /* Line heights */
+  --lh-hero: 1;
+  --lh-l: 1.1;
+  --lh-body-lg: 1.5;
+  --lh-ui: 1.25;
+  --lh-eyebrow: 1.4;
+  /* Letter spacing */
+  --ls-display: 0.01em;
+  --ls-ui: 0.04em;
+  --ls-eyebrow: 0.14em;
 
   /* ---- Radii ---- */
   --radius-pill: 100px;
   --radius-round: 50%;
-  --radius-modal: 16px;
+  --radius-modal: 20px;
   --radius-card: 8px;
-  --radius-prompt: 12px;
+  --radius-prompt: 22px;
 
   /* ---- Shadows ---- */
   --shadow-nav: 0 4px 24px rgba(0, 0, 0, 0.12);
-  --shadow-prompt: 0 4px 24px rgba(0, 0, 0, 0.10);
-  --shadow-modal: 0 8px 48px rgba(0, 0, 0, 0.12);
+  --shadow-prompt: 0 22px 29.6px 0 rgba(83, 101, 133, 0.06);
+  --shadow-modal: 0 4px 123.5px 0 rgba(0, 0, 0, 0.25);
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
 
-  /* ---- Motion — the main timing system; always use these, never hard-code ---- */
+  /* ---- Motion ---- */
   --dur-instant: 0.1s;
   --dur-fast: 0.2s;
   --dur-base: 0.35s;
@@ -71,10 +117,6 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
   --ease-inout: cubic-bezier(0.76, 0, 0.24, 1);
-
-  /* ---- Layout ---- */
-  --page-max-width: 1200px;
-  --modal-inset: 16px; /* distance from viewport edge */
 
   /* ---- Z-index layers (bottom -> top) ---- */
   --z-page: 1;

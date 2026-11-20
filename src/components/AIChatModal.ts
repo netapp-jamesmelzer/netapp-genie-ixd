@@ -82,17 +82,13 @@ export class AIChatModal {
     this.el.innerHTML = `
       <button class="modal-close" type="button" aria-label="Close chat"><img src="${iconUrl('ic_close.svg')}" alt="" aria-hidden="true" class="modal-close-icon" /></button>
       <div class="chat-layout">
-        <aside class="chat-history">
-          <p class="chat-col-title">Chats</p>
-          <div class="chat-history__item is-active">Comparing cloud storage tiers</div>
-          <div class="chat-history__item">Ransomware recovery options</div>
-          <div class="chat-history__item">Kubernetes persistent volumes</div>
-          <div class="chat-history__item">Reducing cold data costs</div>
-        </aside>
         <section class="chat-thread">
-          <div class="chat-bubble chat-bubble--ai">Hi! I'm NetApp Genie. Ask me about storage, cloud, or data management.</div>
-          <div class="chat-bubble chat-bubble--user" data-user-echo>Tell me about NetApp cloud storage.</div>
+          <div class="chat-suggestion" data-user-echo>How can NetApp accelerate my AI infrastructure?</div>
           <div class="ai-response" aria-live="polite"></div>
+          <div class="chat-prompt" aria-hidden="true">
+            <span class="chat-prompt__placeholder">Ask a follow-up…</span>
+            <span class="chat-prompt__send"></span>
+          </div>
         </section>
         <aside class="chat-artifacts">
           <p class="chat-col-title">Resources</p>
@@ -160,7 +156,7 @@ export class AIChatModal {
         height: `calc(100vh - ${MODAL_INSET * 2}px)`,
         borderRadius: 'var(--radius-modal)',
         opacity: 1,
-        backgroundColor: 'var(--color-modal-bg)',
+        backgroundColor: 'var(--color-chat-overlay)',
         duration: 0.5,
         ease: 'power2.out',
       })

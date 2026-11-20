@@ -27,9 +27,38 @@ import { AccountModal } from './components/AccountModal';
 import { AIPrompt } from './components/AIPrompt';
 import { AIChatModal } from './components/AIChatModal';
 import { PersonaPicker } from './components/PersonaPicker';
-import { fontUrl, iconUrl } from './utils/assets';
+import { fontUrl, iconUrl, mediaUrl } from './utils/assets';
 
 gsap.registerPlugin(ScrollTrigger);
+
+/**
+ * Resolves asset placeholders in the static index.html markup to base-aware
+ * URLs via the helpers (never absolute paths, so they work on the GitHub Pages
+ * subpath). Markup uses data-attributes:
+ *   [data-video] -> <video> source,  [data-bg] -> CSS background-image,
+ *   [data-icon]  -> <img> src.
+ */
+function hydratePageAssets(): void {
+  document.querySelectorAll<HTMLVideoElement>('[data-video]').forEach((el) => {
+    const name = el.dataset.video;
+    if (name) {
+      el.src = mediaUrl(name);
+      el.load();
+    }
+  });
+  document.querySelectorAll<HTMLElement>('[data-bg]').forEach((el) => {
+    const name = el.dataset.bg;
+    if (name) el.style.backgroundImage = `url('${mediaUrl(name)}')`;
+  });
+  document.querySelectorAll<HTMLImageElement>('[data-icon]').forEach((el) => {
+    const name = el.dataset.icon;
+    if (name) el.src = iconUrl(name);
+  });
+  document.querySelectorAll<HTMLImageElement>('[data-media]').forEach((el) => {
+    const name = el.dataset.media;
+    if (name) el.src = mediaUrl(name);
+  });
+}
 
 /**
  * Injects the F37Judge @font-face rules with base-aware URLs so the fonts
@@ -86,6 +115,7 @@ function injectPersonaPickerIcons(): void {
 function init(): void {
   injectFontFaces();
   injectPersonaPickerIcons();
+  hydratePageAssets();
 
   // --- Instantiate ---------------------------------------------------------
   const navBar = new NavBar();

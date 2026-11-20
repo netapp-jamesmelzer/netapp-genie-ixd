@@ -15,7 +15,7 @@
  */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { iconUrl } from '../utils/assets';
+import { iconUrl, mediaUrl } from '../utils/assets';
 
 export class NavBar {
   readonly wrapper: HTMLDivElement;
@@ -35,9 +35,12 @@ export class NavBar {
     this.wrapper.innerHTML = `
       <div class="nav-bar-inner">
         <div class="nav-pill">
-          <span class="nav-logo">NetApp</span>
+          <img src="${mediaUrl('NetApp-Logo.svg')}" alt="NetApp" class="nav-logo-img" />
           <button class="menu-btn" type="button" aria-expanded="false" aria-label="Open navigation menu">
-            <img src="${iconUrl('ic_menu.svg')}" alt="" aria-hidden="true" class="nav-icon" />
+            <span class="menu-btn-label menu-btn-label--open">Explore</span>
+            <span class="menu-btn-label menu-btn-label--close">Close</span>
+            <img src="${iconUrl('ic_dropdown_arrow_down.svg')}" alt="" aria-hidden="true" class="nav-icon menu-icon--open" />
+            <img src="${iconUrl('ic_close.svg')}" alt="" aria-hidden="true" class="nav-icon menu-icon--close" />
           </button>
         </div>
         <button class="nav-account" type="button" aria-label="Account" aria-expanded="false">
