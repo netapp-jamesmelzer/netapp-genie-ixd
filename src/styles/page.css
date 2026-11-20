@@ -1,0 +1,121 @@
+/*
+ * page.css — the scrollable page skeleton (hero, cards, callout, cards, footer)
+ * plus the in-page Persona Picker. Low-fidelity gray blocks with a gentle
+ * shimmer. Page is intentionally tall (>= 3x viewport) so scroll interactions
+ * (nav hide/show, persona collapse) are demonstrable.
+ */
+.page {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: calc(var(--nav-top) + var(--nav-pill-height) + 48px) var(--prompt-margin-x)
+    calc(var(--prompt-bottom) + var(--prompt-height-large) + 64px);
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.skeleton-row {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+}
+
+.skeleton-row--callout,
+.skeleton-row--footer {
+  justify-content: center;
+}
+
+/* ---- Skeleton blocks + shimmer ---- */
+.skeleton-block {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  background: var(--color-skeleton-base);
+}
+
+.skeleton-block::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    var(--color-skeleton-shine) 50%,
+    transparent 80%
+  );
+  transform: translateX(-100%);
+  animation: skeleton-shimmer 2.8s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  60%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-hero {
+  height: 480px;
+  width: 100%;
+}
+
+.skeleton-card {
+  height: 280px;
+  flex: 1 1 0;
+}
+
+.skeleton-callout {
+  height: 200px;
+  width: 80%;
+}
+
+.skeleton-footer {
+  height: 120px;
+  width: 100%;
+}
+
+/* ---- Persona Picker (in-page) ---- */
+.persona-picker {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 20px 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-artifact-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  /* transformOrigin is set from GSAP; declared here as a sensible default. */
+  transform-origin: right center;
+  will-change: transform;
+}
+
+.persona-picker-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.persona-picker-labels {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.persona-picker select {
+  padding: 8px 12px;
+  border: 1px solid var(--color-prompt-border);
+  border-radius: var(--radius-card);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.persona-picker select:focus-visible {
+  outline: 2px solid var(--color-prompt-focus);
+  outline-offset: 1px;
+}

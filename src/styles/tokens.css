@@ -1,0 +1,86 @@
+/*
+ * tokens.css
+ * ----------------------------------------------------------------------------
+ * THE Phase 2 swap surface. Every hard value (spacing, color, type, radius,
+ * shadow, motion, layout) lives here as a CSS custom property. Components and
+ * other stylesheets must reference these variables and never hard-code values,
+ * so Phase 2 visual polish is a matter of changing values in this one file.
+ */
+:root {
+  /* ---- Spacing ---- */
+  --nav-top: 24px;
+  --nav-pill-height: 52px;
+  --prompt-bottom: 24px;
+  --prompt-max-width: 800px;
+  --prompt-margin-x: 24px;
+  --prompt-height-large: calc(3lh + 32px);
+  --prompt-height-small: calc(1lh + 32px);
+
+  /* ---- Colors — all placeholder, Phase 2 will replace ---- */
+  --color-bg: #f0f0f2;
+  --color-surface: #ffffff;
+  --color-skeleton-base: #d8d8dc;
+  --color-skeleton-shine: #e8e8ec;
+  --color-nav-pill-bg: rgba(20, 20, 24, 0.92);
+  --color-nav-pill-text: #ffffff;
+  --color-nav-account-bg: rgba(20, 20, 24, 0.92);
+  --color-nav-account-text: #ffffff;
+  --color-prompt-bg: #ffffff;
+  --color-prompt-border: #d0d0d8;
+  --color-prompt-focus: #0066ff;
+  --color-modal-bg: rgba(248, 248, 252, 0.98);
+  --color-modal-overlay: rgba(255, 255, 255, 0.0);
+  --color-sidetab-active: #0066ff;
+  --color-ping: #0066ff;
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #6b6b80;
+  --color-link: #1a1a2e;
+  --color-link-hover: #0066ff;
+  --color-artifact-bg: #f5f5fa;
+  --color-artifact-border: #e0e0e8;
+
+  /* ---- Typography ---- */
+  --font-body: system-ui, -apple-system, sans-serif;
+  --font-mono: 'Courier New', monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --leading-normal: 1.5;
+
+  /* ---- Radii ---- */
+  --radius-pill: 100px;
+  --radius-round: 50%;
+  --radius-modal: 16px;
+  --radius-card: 8px;
+  --radius-prompt: 12px;
+
+  /* ---- Shadows ---- */
+  --shadow-nav: 0 4px 24px rgba(0, 0, 0, 0.12);
+  --shadow-prompt: 0 4px 24px rgba(0, 0, 0, 0.10);
+  --shadow-modal: 0 8px 48px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  /* ---- Motion — the main timing system; always use these, never hard-code ---- */
+  --dur-instant: 0.1s;
+  --dur-fast: 0.2s;
+  --dur-base: 0.35s;
+  --dur-slow: 0.6s;
+  --dur-modal: 0.5s;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-inout: cubic-bezier(0.76, 0, 0.24, 1);
+
+  /* ---- Layout ---- */
+  --page-max-width: 1200px;
+  --modal-inset: 16px; /* distance from viewport edge */
+
+  /* ---- Z-index layers (bottom -> top) ---- */
+  --z-page: 1;
+  --z-chat-modal: 10;
+  --z-nav-modal: 20;
+  --z-account-modal: 20;
+  --z-ai-prompt: 30;
+  --z-nav-bar: 40;
+}

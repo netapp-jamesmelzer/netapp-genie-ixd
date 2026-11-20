@@ -1,0 +1,120 @@
+/*
+ * nav.css — the floating Nav Bar: a centered pill (logo + menu control) and a
+ * separate round account control to its right. The wrapper is fixed and sits
+ * above everything (z-index 40). GSAP translates the wrapper on scroll.
+ */
+.nav-bar-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0; /* children are fixed/absolute; wrapper only provides transform target */
+  z-index: var(--z-nav-bar);
+  pointer-events: none; /* let children re-enable pointer events */
+  will-change: transform;
+}
+
+.nav-bar-wrapper > * {
+  pointer-events: auto;
+}
+
+/* ---- Centered pill (logo + menu control) ---- */
+.nav-pill {
+  position: fixed;
+  top: var(--nav-top);
+  left: 50%;
+  transform: translateX(-50%);
+  height: var(--nav-pill-height);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 10px 0 24px;
+  background: var(--color-nav-pill-bg);
+  color: var(--color-nav-pill-text);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-nav);
+  backdrop-filter: blur(8px);
+}
+
+.nav-logo {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-lg);
+  letter-spacing: -0.02em;
+  color: var(--color-nav-pill-text);
+}
+
+.menu-btn {
+  height: calc(var(--nav-pill-height) - 16px);
+  padding: 0 18px;
+  border-radius: var(--radius-pill);
+  color: var(--color-nav-pill-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background var(--dur-fast) var(--ease-out),
+    outline-color var(--dur-fast) var(--ease-out);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.menu-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.menu-btn .menu-btn-label--close {
+  display: none;
+}
+
+.menu-btn.is-active {
+  background: rgba(255, 255, 255, 0.18);
+  outline-color: var(--color-nav-pill-text);
+}
+
+.menu-btn.is-active .menu-btn-label--open {
+  display: none;
+}
+
+.menu-btn.is-active .menu-btn-label--close {
+  display: inline;
+}
+
+/* ---- Account control (separate round button, right side) ---- */
+.nav-account {
+  position: fixed;
+  top: var(--nav-top);
+  right: 32px;
+  width: var(--nav-pill-height);
+  height: var(--nav-pill-height);
+  border-radius: var(--radius-round);
+  background: var(--color-nav-account-bg);
+  color: var(--color-nav-account-text);
+  box-shadow: var(--shadow-nav);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: var(--text-base);
+  outline: 3px solid transparent;
+  outline-offset: 3px;
+  transition: background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.nav-account:hover {
+  background: rgba(40, 40, 48, 0.95);
+}
+
+/* Active: modal open -> persistent outline highlight. */
+.nav-account.is-active {
+  outline-color: var(--color-ping);
+}
+
+/* Pinging state uses GSAP-driven outline animation; this class is a hook for
+   any additional CSS treatment during the ping. */
+.nav-account.is-pinging {
+  background: rgba(40, 40, 48, 0.95);
+}
