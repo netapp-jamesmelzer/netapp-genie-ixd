@@ -283,6 +283,30 @@
   }
 }
 
+/* Icon sizing */
+.modal-close-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.artifact-icon {
+  width: 16px;
+  height: 16px;
+  margin-bottom: 6px;
+  display: block;
+  opacity: 0.6;
+}
+
+.artifact-img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: calc(var(--radius-card) - 2px);
+  margin-bottom: 10px;
+  display: block;
+}
+
 /* Artifact cards (revealed after typewriter) */
 .artifact-card {
   background: var(--color-artifact-bg);

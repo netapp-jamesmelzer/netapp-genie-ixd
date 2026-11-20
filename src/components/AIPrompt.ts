@@ -16,6 +16,7 @@ export class AIPrompt {
   readonly el: HTMLDivElement;
   readonly textarea: HTMLTextAreaElement;
   private readonly sizeToggle: HTMLButtonElement;
+  private readonly sizeToggleIcon: HTMLImageElement;
   private readonly sendBtn: HTMLButtonElement;
   private isLarge = true;
 
@@ -26,6 +27,7 @@ export class AIPrompt {
     this.el = document.createElement('div');
     this.el.className = 'ai-prompt';
     this.el.innerHTML = `
+      <img src="/icons/ic_AI.svg" alt="" aria-hidden="true" class="prompt-icon" />
       <textarea
         class="ai-prompt__textarea"
         rows="3"
@@ -33,13 +35,16 @@ export class AIPrompt {
         aria-label="AI prompt input"
       ></textarea>
       <div class="ai-prompt__controls">
-        <button class="size-toggle" type="button" aria-label="Toggle prompt size" title="Toggle size">&#94;</button>
+        <button class="size-toggle" type="button" aria-label="Toggle prompt size" title="Toggle size">
+          <img src="/icons/ic_collapse.svg" alt="" aria-hidden="true" class="size-toggle-icon" />
+        </button>
         <button class="send-btn" type="button" aria-label="Send prompt">&rarr;</button>
       </div>
     `;
 
     this.textarea = this.el.querySelector('.ai-prompt__textarea') as HTMLTextAreaElement;
     this.sizeToggle = this.el.querySelector('.size-toggle') as HTMLButtonElement;
+    this.sizeToggleIcon = this.el.querySelector('.size-toggle-icon') as HTMLImageElement;
     this.sendBtn = this.el.querySelector('.send-btn') as HTMLButtonElement;
 
     // Focus outline.
@@ -81,11 +86,23 @@ export class AIPrompt {
       ? 'var(--prompt-height-large)'
       : 'var(--prompt-height-small)';
     this.textarea.rows = this.isLarge ? 3 : 1;
+    this.updateToggleIcon(this.isLarge);
     gsap.to(this.el, {
       height: targetVar,
       duration: 0.25,
       ease: 'power2.inOut',
       overwrite: 'auto',
     });
+  }
+
+  /**
+   * Swap the size-toggle icon to reflect the action a click will perform:
+   * large -> show collapse (click collapses to small),
+   * small -> show expand (click expands to large).
+   */
+  private updateToggleIcon(isLarge: boolean): void {
+    this.sizeToggleIcon.src = isLarge
+      ? '/icons/ic_collapse.svg'
+      : '/icons/ic_expand.svg';
   }
 }

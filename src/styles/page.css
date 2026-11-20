@@ -67,6 +67,15 @@
   flex: 1 1 0;
 }
 
+/* Cards with a real background image show the image instead of the shimmer. */
+.skeleton-card[style*='background-image'] {
+  background-color: transparent;
+}
+
+.skeleton-card[style*='background-image']::after {
+  display: none;
+}
+
 .skeleton-callout {
   height: 200px;
   width: 80%;
@@ -107,12 +116,25 @@
 }
 
 .persona-picker select {
-  padding: 8px 12px;
+  padding: 8px 32px 8px 12px;
   border: 1px solid var(--color-prompt-border);
   border-radius: var(--radius-card);
-  background: var(--color-bg);
+  background-color: var(--color-bg);
   color: var(--color-text-primary);
   cursor: pointer;
+  /* Custom dropdown arrow icon. */
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url('/icons/ic_dropdown_arrow_down.svg');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+/* Swap to the up arrow while the select is focused/open (best-effort — browsers
+   don't expose a true "open" state, so :focus is the closest hook). */
+.persona-picker select:focus {
+  background-image: url('/icons/ic_dropdown_arrow_up.svg');
 }
 
 .persona-picker select:focus-visible {

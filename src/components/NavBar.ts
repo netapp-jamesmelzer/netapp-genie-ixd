@@ -36,12 +36,11 @@ export class NavBar {
         <div class="nav-pill">
           <span class="nav-logo">NetApp</span>
           <button class="menu-btn" type="button" aria-expanded="false" aria-label="Open navigation menu">
-            <span class="menu-btn-label menu-btn-label--open">Menu</span>
-            <span class="menu-btn-label menu-btn-label--close">Close</span>
+            <img src="/icons/ic_menu.svg" alt="" aria-hidden="true" class="nav-icon" />
           </button>
         </div>
         <button class="nav-account" type="button" aria-label="Account" aria-expanded="false">
-          <span aria-hidden="true">JM</span>
+          <img src="/icons/ic_user.svg" alt="" aria-hidden="true" class="nav-icon" />
         </button>
       </div>
     `;

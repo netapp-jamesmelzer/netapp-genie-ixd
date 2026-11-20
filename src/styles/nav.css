@@ -53,6 +53,15 @@
   color: var(--color-nav-pill-text);
 }
 
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  /* Source SVGs are dark (#1E252F); the nav pill/account bg is dark, so render
+     the icon white to stay visible. Phase 2 can replace with tinted assets. */
+  filter: brightness(0) invert(1);
+}
+
 .menu-btn {
   height: calc(var(--nav-pill-height) - 16px);
   padding: 0 18px;

@@ -38,6 +38,7 @@ Want me to put together a short migration outline, or compare the cloud storage 
 interface ArtifactSpec {
   title: string;
   description: string;
+  image?: string;
 }
 
 const ARTIFACTS: ArtifactSpec[] = [
@@ -45,11 +46,13 @@ const ARTIFACTS: ArtifactSpec[] = [
     title: 'Cloud Storage Tiers — Quick Comparison',
     description:
       'Side-by-side of performance, capacity, and archive tiers with indicative price/performance ratios.',
+    image: '/media/chat-resource-1.jpg',
   },
   {
     title: '90-Day Migration Outline',
     description:
       'A phased template covering assessment, pilot, cutover, and optimization — with stakeholder checkpoints.',
+    image: '/media/chat-resource-2.jpg',
   },
 ];
 
@@ -76,7 +79,7 @@ export class AIChatModal {
     this.el.setAttribute('aria-label', 'AI chat');
 
     this.el.innerHTML = `
-      <button class="modal-close" type="button" aria-label="Close chat">&times;</button>
+      <button class="modal-close" type="button" aria-label="Close chat"><img src="/icons/ic_close.svg" alt="" aria-hidden="true" class="modal-close-icon" /></button>
       <div class="chat-layout">
         <aside class="chat-history">
           <p class="chat-col-title">Chats</p>
@@ -239,7 +242,12 @@ export class AIChatModal {
     const cards: HTMLDivElement[] = ARTIFACTS.map((a) => {
       const card = document.createElement('div');
       card.className = 'artifact-card';
-      card.innerHTML = `<h4>${a.title}</h4><p>${a.description}</p>`;
+      card.innerHTML = `
+        ${a.image ? `<img src="${a.image}" alt="" class="artifact-img" />` : ''}
+        <img src="/icons/ic_external_link.svg" alt="" aria-hidden="true" class="artifact-icon" />
+        <h4>${a.title}</h4>
+        <p>${a.description}</p>
+      `;
       this.artifactsEl.appendChild(card);
       return card;
     });

@@ -73,9 +73,20 @@
   background: var(--color-artifact-bg);
 }
 
-/* Rotate the caret indicator depending on size state. */
-.ai-prompt.is-small .size-toggle {
-  transform: rotate(180deg);
+/* The toggle now swaps between distinct collapse/expand icons (see AIPrompt.ts),
+   so no rotation is needed. */
+.size-toggle-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+/* Leading AI icon on the left side of the prompt box. */
+.prompt-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  opacity: 0.7;
 }
 
 .send-btn {
