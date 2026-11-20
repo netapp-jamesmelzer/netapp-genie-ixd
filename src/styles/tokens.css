@@ -10,8 +10,7 @@
   --nav-top: 24px;
   --nav-pill-height: 52px;
   --prompt-bottom: 24px;
-  --prompt-max-width: 1000px;        /* Figma small bubble */
-  --prompt-hero-max-width: 1219px;   /* Figma big bubble in hero */
+  --prompt-max-width: 800px;         /* Figma prompt bubble */
   --prompt-margin-x: auto;
   --prompt-height-large: calc(3lh + 32px);
   --prompt-height-small: calc(1lh + 32px);

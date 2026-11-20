@@ -28,6 +28,14 @@
   pointer-events: none;
 }
 
+/* ---- Grouped pill + account: flex row, centered together ---- */
+.nav-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none; /* children re-enable */
+}
+
 /* ---- Centered frosted pill (logo + Explore control) ---- */
 .nav-pill {
   display: flex;
@@ -98,11 +106,9 @@
   display: block;
 }
 
-/* ---- Account control (round, pinned to the right of the viewport) ---- */
+/* ---- Account control (round, flex sibling in .nav-group) ---- */
 .nav-account {
-  position: absolute;
-  right: 24px;
-  top: 0;
+  position: relative;
   width: 71px;
   height: 71px;
   border-radius: var(--radius-round);

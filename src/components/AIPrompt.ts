@@ -1,17 +1,25 @@
 /**
  * AIPrompt
  * ---------------------------------------------------------------------------
- * The sticky AI prompt box floating at the bottom of the viewport (z-index 30,
- * above the AI Chat Modal so it looks integrated with it).
+ * The sticky AI prompt box floating at the bottom of the viewport (z-index 30).
  *
- *   - A size toggle (upper-right) switches between large (3 lines) and small
- *     (1 line) height, animated with GSAP.
- *   - Focus adds .is-focused to the container -> CSS shows the focus outline.
- *   - Submitting (Enter without Shift, or the send button) with non-empty text
- *     fires onSubmit(text) and clears the textarea.
+ * Three size states, each set via GSAP inline height on the textarea:
+ *   huge  (initial, 5 rows = 125px) — the first view
+ *   large (3 rows = 75px)           — collapsed by ScrollTrigger on first scroll
+ *                                     past the hero; never returns to huge
+ *   small (1 row = 25px)            — toggled by the collapse/expand control
+ *
+ * Transitions:
+ *   huge  → large  : ScrollTrigger fires once when the hero bottom passes 70% vp
+ *   large → small  : user clicks collapse button
+ *   small → large  : user clicks expand button
+ *   huge  → large  : also fires if user clicks the toggle while still huge
  */
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { iconUrl } from '../utils/assets';
+
+type SizeState = 'huge' | 'large' | 'small';
 
 export class AIPrompt {
   readonly el: HTMLDivElement;
@@ -19,21 +27,28 @@ export class AIPrompt {
   private readonly sizeToggle: HTMLButtonElement;
   private readonly sizeToggleIcon: HTMLImageElement;
   private readonly sendBtn: HTMLButtonElement;
-  private isLarge = true;
+  private sizeState: SizeState = 'huge';
+
+  /** Pixel heights for each state (line-height 25px × n lines). */
+  private readonly HEIGHTS: Record<SizeState, number> = {
+    huge: 125,
+    large: 75,
+    small: 25,
+  };
 
   /** Wired by main.ts; receives the submitted prompt text. */
   onSubmit: (text: string) => void = () => {};
 
   constructor() {
     this.el = document.createElement('div');
-    this.el.className = 'ai-prompt';
+    this.el.className = 'ai-prompt is-huge';
     this.el.innerHTML = `
       <div class="ai-prompt__top">
         <img src="${iconUrl('ic_AI.svg')}" alt="" aria-hidden="true" class="prompt-icon" />
         <textarea
           class="ai-prompt__textarea"
-          rows="3"
-          placeholder="Ask NetApp Genie anything…"
+          rows="5"
+          placeholder="What data and infrastructure challenge are you looking to solve today?"
           aria-label="AI prompt input"
         ></textarea>
         <button class="send-btn" type="button" aria-label="Send prompt">
@@ -71,6 +86,17 @@ export class AIPrompt {
 
   mount(parent: HTMLElement = document.body): void {
     parent.appendChild(this.el);
+    // Lock initial huge height via GSAP inline style (overrides rows attr).
+    gsap.set(this.textarea, { height: this.HEIGHTS.huge });
+    // Collapse huge → large the first time the hero section scrolls past 70% of viewport.
+    ScrollTrigger.create({
+      trigger: '#moment-1',
+      start: 'bottom 70%',
+      once: true,
+      onEnter: () => {
+        if (this.sizeState === 'huge') this.transitionTo('large');
+      },
+    });
   }
 
   /** Bounding rect of the prompt box — used by the chat modal to expand from. */
@@ -86,28 +112,39 @@ export class AIPrompt {
   }
 
   private toggleSize(): void {
-    this.isLarge = !this.isLarge;
-    this.el.classList.toggle('is-small', !this.isLarge);
-    this.textarea.rows = this.isLarge ? 3 : 1;
-    this.updateToggleIcon(this.isLarge);
-    // Animate the textarea height between large (3 lines) and small (1 line).
-    // The bubble itself grows/shrinks to fit (flex column, auto height).
+    // huge → large | large → small | small → large
+    const next: SizeState =
+      this.sizeState === 'huge'
+        ? 'large'
+        : this.sizeState === 'large'
+          ? 'small'
+          : 'large';
+    this.transitionTo(next);
+  }
+
+  private transitionTo(state: SizeState): void {
+    const prev = this.sizeState;
+    this.sizeState = state;
+
+    this.el.classList.toggle('is-huge', state === 'huge');
+    this.el.classList.toggle('is-small', state === 'small');
+
+    // Slightly longer for the dramatic scroll-triggered huge→large collapse.
+    const duration = prev === 'huge' && state === 'large' ? 0.5 : 0.25;
+
     gsap.to(this.textarea, {
-      height: this.isLarge ? 75 : 25,
-      duration: 0.25,
+      height: this.HEIGHTS[state],
+      duration,
       ease: 'power2.inOut',
       overwrite: 'auto',
     });
+
+    this.updateToggleIcon(state);
   }
 
-  /**
-   * Swap the size-toggle icon to reflect the action a click will perform:
-   * large -> show collapse (click collapses to small),
-   * small -> show expand (click expands to large).
-   */
-  private updateToggleIcon(isLarge: boolean): void {
-    this.sizeToggleIcon.src = isLarge
-      ? iconUrl('ic_collapse.svg')
-      : iconUrl('ic_expand.svg');
+  private updateToggleIcon(state: SizeState): void {
+    // Show expand icon when small (click will expand); collapse icon otherwise.
+    this.sizeToggleIcon.src =
+      state === 'small' ? iconUrl('ic_expand.svg') : iconUrl('ic_collapse.svg');
   }
 }

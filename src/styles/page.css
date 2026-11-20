@@ -159,6 +159,11 @@
   display: block;
 }
 
+/* Dark source SVG needs to be white on the dark ghost button. */
+.btn--ghost .btn__icon {
+  filter: brightness(0) invert(1);
+}
+
 /* =============================================================== */
 /* Section 1: Hero                                                 */
 /* =============================================================== */
@@ -199,69 +204,6 @@
   color: #ffffff;
   opacity: 0.85;
   max-width: 912px;
-}
-
-/* Decorative hero prompt bubble (large variant). */
-.prompt-hero {
-  margin: 48px auto 0;
-  width: 100%;
-  max-width: var(--prompt-hero-max-width);
-  background: rgba(255, 255, 255, 0.96);
-  border-radius: 12px;
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  text-align: left;
-}
-
-.prompt-hero__row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.prompt-hero__placeholder {
-  flex: 1 1 auto;
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: var(--text-ui-lg);
-  color: #000000;
-}
-
-.prompt-hero__send {
-  flex: 0 0 auto;
-  width: 30px;
-  height: 30px;
-  border-radius: var(--radius-round);
-  background: var(--gradient-ai);
-  position: relative;
-}
-
-.prompt-hero__send::after {
-  content: '\2192';
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  font-size: 14px;
-}
-
-.prompt-hero__actions {
-  display: flex;
-  gap: 12px;
-}
-
-.quick-action-chip {
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: var(--text-footer-link);
-  color: #000000;
-  padding: 4px 12px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  border-radius: 999px;
 }
 
 .hero__partners {
@@ -564,7 +506,7 @@
 }
 
 .accordion {
-  max-width: 900px;
+  width: 100%;
 }
 
 .accordion__title {
@@ -597,6 +539,85 @@
   height: 20px;
   display: block;
   opacity: 0.6;
+}
+
+/* ---- Image cards (3-up with heading + link lists) ---- */
+.image-cards-section {
+  margin: 0 0 96px;
+}
+
+.image-cards-head {
+  margin-bottom: 40px;
+}
+
+.image-cards-title {
+  margin: 8px 0 0;
+  font-family: var(--font-body);
+  font-weight: 100;
+  font-size: var(--text-h2);
+  line-height: var(--lh-l);
+  letter-spacing: var(--ls-display);
+  color: var(--color-text-primary);
+}
+
+.image-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.image-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.image-card__img {
+  width: 100%;
+  height: 240px;
+  border-radius: var(--radius-card);
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 24px;
+}
+
+.image-card__title {
+  margin: 0 0 20px;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-h3);
+  line-height: 1.2;
+  color: var(--color-text-primary);
+}
+
+.image-card__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.image-card__links li {
+  border-top: 1px solid var(--color-artifact-border);
+  padding: 14px 0;
+}
+
+.image-card__links li:last-child {
+  border-bottom: 1px solid var(--color-artifact-border);
+}
+
+.image-card__links a {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-ui-sm);
+  letter-spacing: var(--ls-ui);
+  color: var(--color-link);
+  text-decoration: none;
+  display: block;
+}
+
+.image-card__links a:hover {
+  color: var(--color-link-hover);
 }
 
 /* Dark mega-footer */
