@@ -466,7 +466,7 @@
 
 .news {
   background: #ffffff;
-  padding: 120px var(--section-pad-x) 200px;
+  padding: 120px var(--section-pad-x) 0;
 }
 
 .news__title {
@@ -483,7 +483,6 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 32px;
-  margin-bottom: 96px;
 }
 
 .news-card {
@@ -507,6 +506,9 @@
 
 .accordion {
   width: 100%;
+  background: #ffffff;
+  /* Distinct row block (sibling of .news / .next-steps-section). */
+  padding: 0 var(--section-pad-x) 120px;
 }
 
 .accordion__title {
@@ -541,16 +543,39 @@
   opacity: 0.6;
 }
 
-/* ---- Image cards (3-up with heading + link lists) ---- */
-.image-cards-section {
-  margin: 0 0 96px;
+/* ---- Next steps (3-up image cards) ---- */
+.next-steps-section {
+  position: relative;
+  overflow: hidden;
+  background: #FFFFFF;
+  /* Distinct full-width row block (sibling of .news / .accordion). Its own
+     section-pad-x padding aligns content to the news grid above. */
+  padding: 80px var(--section-pad-x) 96px;
 }
 
-.image-cards-head {
-  margin-bottom: 40px;
+/* Blurred ambient rectangle behind the cards area (Figma: Rectangle 34624761,
+   fill=#E6EBF2, blur=385.1 at 1600px design width — rendered here as a
+   blurred pseudo-element spanning the lower portion of the section). */
+.next-steps-section::before {
+  content: '';
+  position: absolute;
+  left: 5%;
+  bottom: 0;
+  width: 90%;
+  height: 70%;
+  background: #E6EBF2;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
 }
 
-.image-cards-title {
+.next-steps-head {
+  margin-bottom: 48px;
+  position: relative;
+  z-index: 1;
+}
+
+.next-steps-title {
   margin: 8px 0 0;
   font-family: var(--font-body);
   font-weight: 100;
@@ -563,61 +588,58 @@
 .image-cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
+  gap: 24px;
+  position: relative;
+  z-index: 1;
 }
 
+/* Individual card — white bg, 20px padding, rounded corners, big drop-shadow */
 .image-card {
   display: flex;
   flex-direction: column;
+  background: #F9FBFF;
+  /* Figma: stroke=#FFFFFF 2 outside → replicate as ring shadow */
+  box-shadow:
+    0 34px 118.7px 0 rgba(0, 57, 131, 0.12),
+    0 0 0 2px #FFFFFF;
+  border-radius: 8px;
+  padding: 20px;
+  overflow: hidden; /* clips image to card radius */
 }
 
+/* Image: square corners (no border-radius), negative margin to bleed to card edges
+   above and on the sides, then restored by padding below */
 .image-card__img {
-  width: 100%;
-  height: 240px;
-  border-radius: var(--radius-card);
+  width: calc(100% + 40px); /* bleed past the 20px card padding on both sides */
+  margin: -20px -20px 20px -20px; /* pull to card edges at top/sides */
+  height: 220px;
+  border-radius: 0; /* explicitly square */
   background-size: cover;
   background-position: center;
-  margin-bottom: 24px;
+  flex-shrink: 0;
 }
 
-.image-card__title {
-  margin: 0 0 20px;
+/* Eyebrow: all-caps, grey, tight letter-spacing (Figma: rev2/heading/eyebrow-m) */
+.image-card__eyebrow {
+  margin: 0 0 12px;
   font-family: var(--font-body);
-  font-weight: 400;
-  font-size: var(--text-h3);
-  line-height: 1.2;
-  color: var(--color-text-primary);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #5A6B73;
 }
 
-.image-card__links {
-  list-style: none;
+/* Body text with trailing → (Figma: body/body-large 22/33 400 ls=0.8) */
+.image-card__desc {
   margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.image-card__links li {
-  border-top: 1px solid var(--color-artifact-border);
-  padding: 14px 0;
-}
-
-.image-card__links li:last-child {
-  border-bottom: 1px solid var(--color-artifact-border);
-}
-
-.image-card__links a {
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: var(--text-ui-sm);
-  letter-spacing: var(--ls-ui);
-  color: var(--color-link);
-  text-decoration: none;
-  display: block;
-}
-
-.image-card__links a:hover {
-  color: var(--color-link-hover);
+  font-size: 22px;
+  line-height: 1.5;
+  letter-spacing: 0.8px;
+  color: var(--color-text-primary);
 }
 
 /* Dark mega-footer */
