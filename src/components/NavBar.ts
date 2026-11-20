@@ -32,16 +32,18 @@ export class NavBar {
     this.wrapper = document.createElement('div');
     this.wrapper.className = 'nav-bar-wrapper';
     this.wrapper.innerHTML = `
-      <div class="nav-pill">
-        <span class="nav-logo">NetApp</span>
-        <button class="menu-btn" type="button" aria-expanded="false" aria-label="Open navigation menu">
-          <span class="menu-btn-label menu-btn-label--open">Menu</span>
-          <span class="menu-btn-label menu-btn-label--close">Close</span>
+      <div class="nav-bar-inner">
+        <div class="nav-pill">
+          <span class="nav-logo">NetApp</span>
+          <button class="menu-btn" type="button" aria-expanded="false" aria-label="Open navigation menu">
+            <span class="menu-btn-label menu-btn-label--open">Menu</span>
+            <span class="menu-btn-label menu-btn-label--close">Close</span>
+          </button>
+        </div>
+        <button class="nav-account" type="button" aria-label="Account" aria-expanded="false">
+          <span aria-hidden="true">JM</span>
         </button>
       </div>
-      <button class="nav-account" type="button" aria-label="Account" aria-expanded="false">
-        <span aria-hidden="true">JM</span>
-      </button>
     `;
 
     this.menuBtn = this.wrapper.querySelector('.menu-btn') as HTMLButtonElement;

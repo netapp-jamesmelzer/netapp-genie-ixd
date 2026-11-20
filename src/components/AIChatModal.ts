@@ -21,6 +21,8 @@
  */
 import gsap from 'gsap';
 
+const MODAL_INSET = 16; // px — mirrors --modal-inset token
+
 /**
  * Placeholder AI response (also documented in docs/sample-content.md). Kept as a
  * constant here because the typewriter reads it directly from code.
@@ -87,10 +89,6 @@ export class AIChatModal {
           <div class="chat-bubble chat-bubble--ai">Hi! I'm NetApp Genie. Ask me about storage, cloud, or data management.</div>
           <div class="chat-bubble chat-bubble--user" data-user-echo>Tell me about NetApp cloud storage.</div>
           <div class="ai-response" aria-live="polite"></div>
-          <div class="chat-thread__input">
-            <textarea rows="1" placeholder="Reply…" aria-label="Chat reply input"></textarea>
-            <button type="button" aria-label="Send reply">&rarr;</button>
-          </div>
         </section>
         <aside class="chat-artifacts">
           <p class="chat-col-title">Resources</p>
@@ -143,6 +141,7 @@ export class AIChatModal {
       height: fromRect.height,
       opacity: 0,
       backgroundColor: 'var(--color-modal-overlay)',
+      borderRadius: 'var(--radius-modal)',
     });
     gsap.set(this.layoutEl, { opacity: 0 });
 
@@ -151,10 +150,11 @@ export class AIChatModal {
     this.openTl
       // Step 2: expand to full viewport + become opaque.
       .to(this.el, {
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
+        top: MODAL_INSET,
+        left: MODAL_INSET,
+        width: `calc(100vw - ${MODAL_INSET * 2}px)`,
+        height: `calc(100vh - ${MODAL_INSET * 2}px)`,
+        borderRadius: 'var(--radius-modal)',
         opacity: 1,
         backgroundColor: 'var(--color-modal-bg)',
         duration: 0.5,

@@ -283,33 +283,6 @@
   }
 }
 
-/* In-modal prompt input (mirrors the main AI prompt) */
-.chat-thread__input {
-  margin-top: auto;
-  display: flex;
-  gap: 8px;
-  padding-top: 16px;
-  border-top: 1px solid var(--color-artifact-border);
-}
-
-.chat-thread__input textarea {
-  flex: 1 1 auto;
-  resize: none;
-  border: 1px solid var(--color-prompt-border);
-  border-radius: var(--radius-prompt);
-  padding: 10px 12px;
-  background: var(--color-prompt-bg);
-}
-
-.chat-thread__input button {
-  flex: 0 0 auto;
-  padding: 0 18px;
-  border-radius: var(--radius-prompt);
-  background: var(--color-prompt-focus);
-  color: #fff;
-  font-weight: 600;
-}
-
 /* Artifact cards (revealed after typewriter) */
 .artifact-card {
   background: var(--color-artifact-bg);

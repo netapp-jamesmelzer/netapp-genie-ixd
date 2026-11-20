@@ -79,9 +79,10 @@ export class PersonaPicker {
   private initScrollCollapse(): void {
     ScrollTrigger.create({
       trigger: this.el,
-      // Fire when the bottom of the picker passes the top of the viewport.
-      start: 'bottom top',
-      end: 'bottom top',
+      // Fire while the picker is still partially visible (bottom edge 20% from
+      // the top of the viewport), so the fade + compress is seen before it exits.
+      start: 'bottom 20%',
+      end: 'bottom 20%',
       onLeave: () => this.collapse(),
       onEnterBack: () => this.expand(),
     });
