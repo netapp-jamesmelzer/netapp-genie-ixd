@@ -11,6 +11,7 @@
  *     fires onSubmit(text) and clears the textarea.
  */
 import gsap from 'gsap';
+import { iconUrl } from '../utils/assets';
 
 export class AIPrompt {
   readonly el: HTMLDivElement;
@@ -27,7 +28,7 @@ export class AIPrompt {
     this.el = document.createElement('div');
     this.el.className = 'ai-prompt';
     this.el.innerHTML = `
-      <img src="/icons/ic_AI.svg" alt="" aria-hidden="true" class="prompt-icon" />
+      <img src="${iconUrl('ic_AI.svg')}" alt="" aria-hidden="true" class="prompt-icon" />
       <textarea
         class="ai-prompt__textarea"
         rows="3"
@@ -36,7 +37,7 @@ export class AIPrompt {
       ></textarea>
       <div class="ai-prompt__controls">
         <button class="size-toggle" type="button" aria-label="Toggle prompt size" title="Toggle size">
-          <img src="/icons/ic_collapse.svg" alt="" aria-hidden="true" class="size-toggle-icon" />
+          <img src="${iconUrl('ic_collapse.svg')}" alt="" aria-hidden="true" class="size-toggle-icon" />
         </button>
         <button class="send-btn" type="button" aria-label="Send prompt">&rarr;</button>
       </div>
@@ -102,7 +103,7 @@ export class AIPrompt {
    */
   private updateToggleIcon(isLarge: boolean): void {
     this.sizeToggleIcon.src = isLarge
-      ? '/icons/ic_collapse.svg'
-      : '/icons/ic_expand.svg';
+      ? iconUrl('ic_collapse.svg')
+      : iconUrl('ic_expand.svg');
   }
 }

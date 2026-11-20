@@ -10,6 +10,7 @@
  * the AI Chat Modal so a nav click dismisses everything.
  */
 import gsap from 'gsap';
+import { iconUrl } from '../utils/assets';
 
 interface NavTab {
   label: string;
@@ -122,7 +123,7 @@ export class NavModal {
     ).join('');
 
     this.el.innerHTML = `
-      <button class="modal-close" type="button" aria-label="Close navigation"><img src="/icons/ic_close.svg" alt="" aria-hidden="true" class="modal-close-icon" /></button>
+      <button class="modal-close" type="button" aria-label="Close navigation"><img src="${iconUrl('ic_close.svg')}" alt="" aria-hidden="true" class="modal-close-icon" /></button>
       <div class="nav-modal__inner">
         <nav class="nav-modal__tabs" aria-label="Navigation sections">${tabsMarkup}</nav>
         <div class="nav-modal__panels">${panelsMarkup}</div>

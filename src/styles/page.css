@@ -122,19 +122,10 @@
   background-color: var(--color-bg);
   color: var(--color-text-primary);
   cursor: pointer;
-  /* Custom dropdown arrow icon. */
+  /* Custom dropdown arrow icon (background-image injected from main.ts via
+     iconUrl() so the path resolves on the GitHub Pages subpath). */
   appearance: none;
   -webkit-appearance: none;
-  background-image: url('/icons/ic_dropdown_arrow_down.svg');
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
-}
-
-/* Swap to the up arrow while the select is focused/open (best-effort — browsers
-   don't expose a true "open" state, so :focus is the closest hook). */
-.persona-picker select:focus {
-  background-image: url('/icons/ic_dropdown_arrow_up.svg');
 }
 
 .persona-picker select:focus-visible {

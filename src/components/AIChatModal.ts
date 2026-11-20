@@ -20,6 +20,7 @@
  *   5. After the typewriter completes, stagger in the two artifact cards.
  */
 import gsap from 'gsap';
+import { iconUrl, mediaUrl } from '../utils/assets';
 
 const MODAL_INSET = 16; // px — mirrors --modal-inset token
 
@@ -46,13 +47,13 @@ const ARTIFACTS: ArtifactSpec[] = [
     title: 'Cloud Storage Tiers — Quick Comparison',
     description:
       'Side-by-side of performance, capacity, and archive tiers with indicative price/performance ratios.',
-    image: '/media/chat-resource-1.jpg',
+    image: mediaUrl('chat-resource-1.jpg'),
   },
   {
     title: '90-Day Migration Outline',
     description:
       'A phased template covering assessment, pilot, cutover, and optimization — with stakeholder checkpoints.',
-    image: '/media/chat-resource-2.jpg',
+    image: mediaUrl('chat-resource-2.jpg'),
   },
 ];
 
@@ -79,7 +80,7 @@ export class AIChatModal {
     this.el.setAttribute('aria-label', 'AI chat');
 
     this.el.innerHTML = `
-      <button class="modal-close" type="button" aria-label="Close chat"><img src="/icons/ic_close.svg" alt="" aria-hidden="true" class="modal-close-icon" /></button>
+      <button class="modal-close" type="button" aria-label="Close chat"><img src="${iconUrl('ic_close.svg')}" alt="" aria-hidden="true" class="modal-close-icon" /></button>
       <div class="chat-layout">
         <aside class="chat-history">
           <p class="chat-col-title">Chats</p>
@@ -244,7 +245,7 @@ export class AIChatModal {
       card.className = 'artifact-card';
       card.innerHTML = `
         ${a.image ? `<img src="${a.image}" alt="" class="artifact-img" />` : ''}
-        <img src="/icons/ic_external_link.svg" alt="" aria-hidden="true" class="artifact-icon" />
+        <img src="${iconUrl('ic_external_link.svg')}" alt="" aria-hidden="true" class="artifact-icon" />
         <h4>${a.title}</h4>
         <p>${a.description}</p>
       `;

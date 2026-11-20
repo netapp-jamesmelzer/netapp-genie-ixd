@@ -10,6 +10,7 @@
  * Mutual exclusivity with NavModal is coordinated in main.ts.
  */
 import gsap from 'gsap';
+import { iconUrl } from '../utils/assets';
 
 export class AccountModal {
   readonly el: HTMLDivElement;
@@ -25,7 +26,7 @@ export class AccountModal {
     this.el.setAttribute('aria-label', 'Account');
 
     this.el.innerHTML = `
-      <button class="modal-close" type="button" aria-label="Close account"><img src="/icons/ic_close.svg" alt="" aria-hidden="true" class="modal-close-icon" /></button>
+      <button class="modal-close" type="button" aria-label="Close account"><img src="${iconUrl('ic_close.svg')}" alt="" aria-hidden="true" class="modal-close-icon" /></button>
       <div class="account-modal__inner">
         <h2>Account</h2>
         <div class="account-modal__grid">

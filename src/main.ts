@@ -27,10 +27,66 @@ import { AccountModal } from './components/AccountModal';
 import { AIPrompt } from './components/AIPrompt';
 import { AIChatModal } from './components/AIChatModal';
 import { PersonaPicker } from './components/PersonaPicker';
+import { fontUrl, iconUrl } from './utils/assets';
 
 gsap.registerPlugin(ScrollTrigger);
 
+/**
+ * Injects the F37Judge @font-face rules with base-aware URLs so the fonts
+ * resolve correctly when served from a subpath (e.g. GitHub Pages).
+ */
+function injectFontFaces(): void {
+  const style = document.createElement('style');
+  style.textContent = `
+    @font-face {
+      font-family: 'F37Judge';
+      src: url('${fontUrl('F37Judge-ThinExtended.woff2')}') format('woff2');
+      font-weight: 100;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'F37Judge';
+      src: url('${fontUrl('F37Judge-RegularExtended.woff2')}') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'F37Judge';
+      src: url('${fontUrl('F37Judge-MediumExtended.woff2')}') format('woff2');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+  `;
+  document.head.insertBefore(style, document.head.firstChild);
+}
+
+/**
+ * Injects the persona picker dropdown arrow background-images with base-aware
+ * URLs so the icons resolve correctly when served from a subpath.
+ */
+function injectPersonaPickerIcons(): void {
+  const style = document.createElement('style');
+  style.textContent = `
+    .persona-picker select {
+      background-image: url('${iconUrl('ic_dropdown_arrow_down.svg')}');
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 16px;
+    }
+    .persona-picker select:focus {
+      background-image: url('${iconUrl('ic_dropdown_arrow_up.svg')}');
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 function init(): void {
+  injectFontFaces();
+  injectPersonaPickerIcons();
+
   // --- Instantiate ---------------------------------------------------------
   const navBar = new NavBar();
   const navModal = new NavModal();

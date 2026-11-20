@@ -6,30 +6,6 @@
  * other stylesheets must reference these variables and never hard-code values,
  * so Phase 2 visual polish is a matter of changing values in this one file.
  */
-@font-face {
-  font-family: 'F37Judge';
-  src: url('/fonts/F37Judge-ThinExtended.woff2') format('woff2');
-  font-weight: 100;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'F37Judge';
-  src: url('/fonts/F37Judge-RegularExtended.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'F37Judge';
-  src: url('/fonts/F37Judge-MediumExtended.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   /* ---- Spacing ---- */
   --nav-top: 24px;
