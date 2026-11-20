@@ -1,125 +1,247 @@
 /**
  * PersonaPicker
  * ---------------------------------------------------------------------------
- * An in-page personalization control (two inline dropdowns) injected early in
- * the page, right after the hero. Two behaviors:
+ * Two inline, accessible dropdowns embedded directly in the persona sentence:
  *
- *   1. Changing either dropdown dispatches a `persona-change` CustomEvent on
- *      document. main.ts listens and pings the account control.
+ *   "I'm a [Chief Information Officer ▾] focused on [managing data at scale ▾]"
  *
- *   2. Scroll collapse (GSAP ScrollTrigger): when the picker scrolls out of view
- *      upward, the text fades fast, then the shape compresses rightward
- *      (scaleX -> 0, transform-origin right center) — it shrinks in place rather
- *      than flying to the nav. When it scrolls back in, it expands and the text
- *      fades back. After a collapse, the account control is pinged
- *      (onCollapseComplete), reinforcing where the animation "ended".
+ * Each dropdown is a plain-text trigger (cyan underline + down arrow) — no pill,
+ * border, box, shadow or card. It is a custom ARIA listbox widget:
+ *   - button with aria-haspopup="listbox" + aria-expanded
+ *   - ul[role=listbox] with li[role=option]
+ *   - keyboard: Enter/Space/ArrowDown open; Arrows/Home/End move; Enter/Space
+ *     select; Escape closes and returns focus; Tab closes; outside click closes
+ *
+ * Changing either dropdown dispatches a `persona-change` CustomEvent on
+ * document; main.ts listens and pings the account control.
+ *
+ * (The previous scroll-based collapse animation has been removed entirely.)
  */
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { iconUrl } from '../utils/assets';
+
+interface DropdownConfig {
+  /** Field name carried in the persona-change event. */
+  field: string;
+  /** Value of the inline slot's data-persona-dd attribute. */
+  slot: string;
+  /** Options, in order; index 0 is the default selection. */
+  options: string[];
+}
+
+const CONFIGS: DropdownConfig[] = [
+  {
+    field: 'role',
+    slot: 'role',
+    options: [
+      'Chief Information Officer',
+      'Chief Data Officer',
+      'VP Infrastructure/Operations',
+      'Chief Information Security Officer',
+      'DevOps Engineer',
+      'Storage Engineer',
+    ],
+  },
+  {
+    field: 'goal',
+    slot: 'goal',
+    options: [
+      'adopting AI safely and affordably',
+      'managing data at scale',
+      'migrating virtualization paradigms',
+      'meeting regulatory requirements',
+      'achieving consistent delivery across hybrid cloud',
+    ],
+  },
+];
 
 export class PersonaPicker {
-  readonly el: HTMLDivElement;
-  private collapsed = false;
+  private dropdowns: PersonaDropdown[] = [];
 
-  /** Wired by main.ts -> NavBar.pingAccount(). */
-  onCollapseComplete: () => void = () => {};
+  /** Build each dropdown and inject it into its inline slot in the sentence. */
+  mount(): void {
+    CONFIGS.forEach((cfg) => {
+      const slot = document.querySelector<HTMLElement>(
+        `[data-persona-dd="${cfg.slot}"]`
+      );
+      if (!slot) return;
+      const dd = new PersonaDropdown(cfg);
+      slot.appendChild(dd.el);
+      this.dropdowns.push(dd);
+    });
+  }
+}
 
-  constructor() {
-    this.el = document.createElement('div');
-    this.el.className = 'persona-picker';
-    this.el.innerHTML = `
-      <div class="persona-picker-field">
-        <label class="persona-picker-labels" for="persona-role">Role</label>
-        <select id="persona-role" data-persona="role">
-          <option value="it-admin">IT Admin</option>
-          <option value="developer">Developer</option>
-          <option value="executive">Executive</option>
-          <option value="procurement">Procurement</option>
-        </select>
-      </div>
-      <div class="persona-picker-field">
-        <label class="persona-picker-labels" for="persona-industry">Industry</label>
-        <select id="persona-industry" data-persona="industry">
-          <option value="financial-services">Financial Services</option>
-          <option value="healthcare">Healthcare</option>
-          <option value="manufacturing">Manufacturing</option>
-          <option value="retail">Retail</option>
-        </select>
-      </div>
-    `;
+class PersonaDropdown {
+  readonly el: HTMLSpanElement;
+  private readonly button: HTMLButtonElement;
+  private readonly listbox: HTMLUListElement;
+  private readonly textEl: HTMLSpanElement;
+  private readonly options: string[];
+  private readonly field: string;
+  private readonly idBase: string;
+  private selectedIndex = 0;
+  private activeIndex = 0;
+  private open = false;
 
-    this.el.querySelectorAll<HTMLSelectElement>('select').forEach((select) => {
-      select.addEventListener('change', () => {
-        document.dispatchEvent(
-          new CustomEvent('persona-change', {
-            detail: { field: select.dataset.persona, value: select.value },
-          })
-        );
-      });
+  constructor(cfg: DropdownConfig) {
+    this.options = cfg.options;
+    this.field = cfg.field;
+    this.idBase = `persona-dd-${cfg.field}`;
+
+    this.el = document.createElement('span');
+    this.el.className = 'persona-dd';
+
+    // --- Trigger button ---
+    this.button = document.createElement('button');
+    this.button.type = 'button';
+    this.button.className = 'persona-dd__button';
+    this.button.id = `${this.idBase}-button`;
+    this.button.setAttribute('aria-haspopup', 'listbox');
+    this.button.setAttribute('aria-expanded', 'false');
+    this.button.setAttribute('aria-controls', `${this.idBase}-list`);
+
+    this.textEl = document.createElement('span');
+    this.textEl.className = 'persona-dd__text';
+    this.textEl.textContent = this.options[this.selectedIndex];
+
+    const arrow = document.createElement('img');
+    arrow.src = iconUrl('ic_dropdown_arrow_down.svg');
+    arrow.alt = '';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.className = 'persona-dd__arrow';
+
+    this.button.append(this.textEl, arrow);
+
+    // --- Listbox ---
+    this.listbox = document.createElement('ul');
+    this.listbox.className = 'persona-dd__list';
+    this.listbox.id = `${this.idBase}-list`;
+    this.listbox.setAttribute('role', 'listbox');
+    this.listbox.tabIndex = -1;
+    this.listbox.hidden = true;
+
+    this.options.forEach((opt, i) => {
+      const li = document.createElement('li');
+      li.className = 'persona-dd__option';
+      li.id = `${this.idBase}-opt-${i}`;
+      li.setAttribute('role', 'option');
+      li.setAttribute('aria-selected', String(i === this.selectedIndex));
+      li.textContent = opt;
+      li.addEventListener('click', () => this.select(i));
+      this.listbox.appendChild(li);
+    });
+
+    this.el.append(this.button, this.listbox);
+    this.bindEvents();
+  }
+
+  private bindEvents(): void {
+    this.button.addEventListener('click', () => this.toggle());
+    this.button.addEventListener('keydown', (e) => this.onButtonKeydown(e));
+    this.listbox.addEventListener('keydown', (e) => this.onListKeydown(e));
+    document.addEventListener('click', (e) => {
+      if (this.open && !this.el.contains(e.target as Node)) this.close();
     });
   }
 
-  /** Inject into the page slot and register the collapse ScrollTrigger. */
-  mount(slotId = 'persona-picker-slot'): void {
-    const slot = document.getElementById(slotId);
-    if (slot) {
-      slot.appendChild(this.el);
-    } else {
-      document.body.appendChild(this.el);
-    }
-    this.initScrollCollapse();
+  private toggle(): void {
+    this.open ? this.close() : this.openMenu();
   }
 
-  private get textEls(): HTMLElement[] {
-    return Array.from(
-      this.el.querySelectorAll<HTMLElement>('.persona-picker-labels, select')
+  private openMenu(): void {
+    if (this.open) return;
+    this.open = true;
+    this.listbox.hidden = false;
+    this.el.classList.add('is-open');
+    this.button.setAttribute('aria-expanded', 'true');
+    this.activeIndex = this.selectedIndex;
+    this.updateActive();
+    this.listbox.focus();
+  }
+
+  private close(returnFocus = false): void {
+    if (!this.open) return;
+    this.open = false;
+    this.listbox.hidden = true;
+    this.el.classList.remove('is-open');
+    this.button.setAttribute('aria-expanded', 'false');
+    if (returnFocus) this.button.focus();
+  }
+
+  private updateActive(): void {
+    this.listbox.setAttribute(
+      'aria-activedescendant',
+      `${this.idBase}-opt-${this.activeIndex}`
     );
-  }
-
-  private initScrollCollapse(): void {
-    ScrollTrigger.create({
-      trigger: this.el,
-      // Fire while the picker is still partially visible (bottom edge 20% from
-      // the top of the viewport), so the fade + compress is seen before it exits.
-      start: 'bottom 20%',
-      end: 'bottom 20%',
-      onLeave: () => this.collapse(),
-      onEnterBack: () => this.expand(),
+    Array.from(this.listbox.children).forEach((li, i) => {
+      li.classList.toggle('is-active', i === this.activeIndex);
+    });
+    (this.listbox.children[this.activeIndex] as HTMLElement | undefined)?.scrollIntoView({
+      block: 'nearest',
     });
   }
 
-  private collapse(): void {
-    if (this.collapsed) return;
-    this.collapsed = true;
-
-    const tl = gsap.timeline({
-      onComplete: () => this.onCollapseComplete(),
-    });
-    // 1. Text/options fade out fast.
-    tl.to(this.textEls, { opacity: 0, duration: 0.15 })
-      // 2. Shape compresses rightward.
-      .to(this.el, {
-        scaleX: 0,
-        transformOrigin: 'right center',
-        duration: 0.4,
-        ease: 'power2.in',
-      });
+  private onButtonKeydown(e: KeyboardEvent): void {
+    switch (e.key) {
+      case 'ArrowDown':
+      case 'ArrowUp':
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        this.openMenu();
+        break;
+    }
   }
 
-  private expand(): void {
-    if (!this.collapsed) return;
-    this.collapsed = false;
+  private onListKeydown(e: KeyboardEvent): void {
+    const last = this.options.length - 1;
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        this.activeIndex = this.activeIndex >= last ? 0 : this.activeIndex + 1;
+        this.updateActive();
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        this.activeIndex = this.activeIndex <= 0 ? last : this.activeIndex - 1;
+        this.updateActive();
+        break;
+      case 'Home':
+        e.preventDefault();
+        this.activeIndex = 0;
+        this.updateActive();
+        break;
+      case 'End':
+        e.preventDefault();
+        this.activeIndex = last;
+        this.updateActive();
+        break;
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        this.select(this.activeIndex);
+        break;
+      case 'Escape':
+        e.preventDefault();
+        this.close(true);
+        break;
+      case 'Tab':
+        this.close();
+        break;
+    }
+  }
 
-    gsap.killTweensOf([this.el, ...this.textEls]);
-    const tl = gsap.timeline();
-    // 1. Shape expands back.
-    tl.to(this.el, {
-      scaleX: 1,
-      transformOrigin: 'right center',
-      duration: 0.3,
-      ease: 'power2.out',
-    })
-      // 2. Text/options fade back in.
-      .to(this.textEls, { opacity: 1, duration: 0.2, delay: 0.2 }, 0);
+  private select(index: number): void {
+    this.selectedIndex = index;
+    this.textEl.textContent = this.options[index];
+    Array.from(this.listbox.children).forEach((li, i) => {
+      li.setAttribute('aria-selected', String(i === index));
+    });
+    this.close(true);
+    document.dispatchEvent(
+      new CustomEvent('persona-change', {
+        detail: { field: this.field, value: this.options[index] },
+      })
+    );
   }
 }

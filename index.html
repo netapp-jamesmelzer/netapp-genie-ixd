@@ -8,9 +8,10 @@
   <body>
     <!--
       Global interactive chrome (Nav Bar, Nav Modal, Account Modal, AI Prompt,
-      AI Chat Modal) is created in TypeScript and appended to <body> at runtime.
-      Only the scrollable page lives in markup here. The Persona Picker is
-      injected into #persona-picker-slot by PersonaPicker.ts.
+      AI Chat Modal) is created in TypeScript at runtime: the Nav Bar is inserted
+      into the page flow just before <main class="page">, the modals/prompt are
+      appended to <body>. The Persona Picker dropdowns are injected into the
+      [data-persona-dd] slots inside the persona sentence by PersonaPicker.ts.
     -->
     <main class="page">
       <!-- ============================================================= -->
@@ -47,12 +48,11 @@
       <section class="moment moment--dark moment--center" id="moment-2">
         <div class="moment__content persona__content">
           <h2 class="persona__headline">Find the right NetApp solution for you</h2>
+          <!-- Inline persona dropdowns are injected into the slots by PersonaPicker.ts. -->
           <p class="persona__sentence">
-            I'm an <span class="persona-chip">infrastructure architect</span> focused on
-            <span class="persona-chip">managing data at scale</span>
+            I'm a <span class="persona-dd-slot" data-persona-dd="role"></span> focused on
+            <span class="persona-dd-slot" data-persona-dd="goal"></span>
           </p>
-          <!-- Interactive Persona Picker (dropdown form) is injected here. -->
-          <div id="persona-picker-slot" class="persona__picker-slot"></div>
         </div>
       </section>
 
@@ -73,7 +73,6 @@
       <!-- ============================================================= -->
       <section class="moment moment--light" id="moment-4">
         <div class="moment__content recommended__content">
-          <p class="eyebrow eyebrow--muted">Data infrastructure at scale</p>
           <div class="recommended__head">
             <h2 class="recommended__title">Recommended for you</h2>
             <div class="recommended__arrows">
@@ -197,10 +196,10 @@
                 <p class="image-card__desc">Connect with a NetApp expert to discuss your architecture and infrastructure goals. &rarr;</p>
               </div>
             </div>
-          </div>
 
-          <div class="accordion">
-            <h3 class="accordion__title">Resources and support</h3>
+            <!-- Resources accordion lives inside next steps (shared bg + glow). -->
+            <div class="accordion">
+              <h3 class="accordion__title">Resources and support</h3>
             <div class="accordion__row">
               <span>Downloads: Download the latest software and other updates for your NetApp products</span>
               <img src="" alt="" aria-hidden="true" class="accordion__icon" data-icon="ic_add.svg" />
@@ -216,6 +215,7 @@
             <div class="accordion__row">
               <span>Troubleshooting: Find support resources and guidance to help resolve product and system issues</span>
               <img src="" alt="" aria-hidden="true" class="accordion__icon" data-icon="ic_add.svg" />
+            </div>
             </div>
           </div>
 

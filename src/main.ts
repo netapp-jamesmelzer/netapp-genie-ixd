@@ -92,29 +92,8 @@ function injectFontFaces(): void {
   document.head.insertBefore(style, document.head.firstChild);
 }
 
-/**
- * Injects the persona picker dropdown arrow background-images with base-aware
- * URLs so the icons resolve correctly when served from a subpath.
- */
-function injectPersonaPickerIcons(): void {
-  const style = document.createElement('style');
-  style.textContent = `
-    .persona-picker select {
-      background-image: url('${iconUrl('ic_dropdown_arrow_down.svg')}');
-      background-repeat: no-repeat;
-      background-position: right 10px center;
-      background-size: 16px;
-    }
-    .persona-picker select:focus {
-      background-image: url('${iconUrl('ic_dropdown_arrow_up.svg')}');
-    }
-  `;
-  document.head.appendChild(style);
-}
-
 function init(): void {
   injectFontFaces();
-  injectPersonaPickerIcons();
   hydratePageAssets();
 
   // --- Instantiate ---------------------------------------------------------
@@ -131,7 +110,7 @@ function init(): void {
   accountModal.mount(); // z 20
   aiPrompt.mount(); // z 30
   navBar.mount(); // z 40
-  personaPicker.mount('persona-picker-slot');
+  personaPicker.mount();
 
   // --- Nav Bar controls -> modals (mutually exclusive) ---------------------
   navBar.onMenuClick = () => {
@@ -197,11 +176,6 @@ function init(): void {
   document.addEventListener('persona-change', () => {
     navBar.pingAccount();
   });
-
-  // --- Persona Picker collapse finished -> ping the account control --------
-  personaPicker.onCollapseComplete = () => {
-    navBar.pingAccount();
-  };
 }
 
 if (document.readyState === 'loading') {

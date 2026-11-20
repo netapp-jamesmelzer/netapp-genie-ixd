@@ -1,24 +1,33 @@
 /**
  * NavBar
  * ---------------------------------------------------------------------------
- * A fixed wrapper (z-index 40) holding two independently positioned children:
- *   - .nav-pill    : centered pill with a placeholder logo + menu control
- *   - .nav-account : a round account control floating to the right
+ * A nav bar holding a centered .nav-group (frosted pill with logo + "Explore"
+ * menu control, plus a round account control).
  *
- * Behavior:
- *   - Not sticky. Hides on scroll-down, reappears on scroll-up (GSAP + a single
- *     ScrollTrigger onUpdate using self.getVelocity() + direction, with a small
- *     travel threshold so tiny jitters don't trigger it).
- *   - Menu control toggles active state (label swaps to "Close").
- *   - Account control has an .is-active (persistent outline) and .is-pinging
- *     (brief outline flash) state. pingAccount() plays the flash.
+ * The nav is NOT sticky and NOT permanently fixed:
+ *   - At the top of the page it sits in normal document flow and scrolls away
+ *     with the content.
+ *   - Once it has fully left the viewport, scrolling UP reveals it in a
+ *     temporarily fixed position at the top (slides down into view).
+ *   - Scrolling DOWN slides it back out of view.
+ *   - Returning to the top restores its in-flow position (not floating).
+ *
+ * A .nav-spacer sibling is grown to the nav's height while the nav is fixed, so
+ * pulling the nav out of flow never changes the document height (no jump).
+ *
+ * Menu control toggles active state (label swaps to "Close"). The account
+ * control has .is-active (persistent outline) and .is-pinging (brief flash)
+ * states; pingAccount() plays the flash.
  */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { iconUrl, mediaUrl } from '../utils/assets';
 
+type NavState = 'flow' | 'revealed' | 'hidden';
+
 export class NavBar {
   readonly wrapper: HTMLDivElement;
+  readonly spacer: HTMLDivElement;
   readonly menuBtn: HTMLButtonElement;
   readonly accountBtn: HTMLButtonElement;
 
@@ -27,7 +36,8 @@ export class NavBar {
   onAccountClick: () => void = () => {};
 
   private lastScrollY = 0;
-  private hidden = false;
+  private navHeight = 0;
+  private state: NavState = 'flow';
 
   constructor() {
     this.wrapper = document.createElement('div');
@@ -51,6 +61,10 @@ export class NavBar {
       </div>
     `;
 
+    // Keeps the nav's flow height reserved while the nav is temporarily fixed.
+    this.spacer = document.createElement('div');
+    this.spacer.className = 'nav-spacer';
+
     this.menuBtn = this.wrapper.querySelector('.menu-btn') as HTMLButtonElement;
     this.accountBtn = this.wrapper.querySelector('.nav-account') as HTMLButtonElement;
 
@@ -58,9 +72,16 @@ export class NavBar {
     this.accountBtn.addEventListener('click', () => this.onAccountClick());
   }
 
-  /** Mount into the DOM and start scroll-direction tracking. */
+  /** Mount at the top of the page flow (before the scrollable content). */
   mount(parent: HTMLElement = document.body): void {
-    parent.appendChild(this.wrapper);
+    const page = parent.querySelector('.page');
+    if (page) {
+      parent.insertBefore(this.wrapper, page);
+      parent.insertBefore(this.spacer, page);
+    } else {
+      parent.insertBefore(this.wrapper, parent.firstChild);
+      this.wrapper.after(this.spacer);
+    }
     this.lastScrollY = window.scrollY;
     this.initScrollBehavior();
   }
@@ -79,7 +100,7 @@ export class NavBar {
 
   /**
    * Ping the account control: a brief blue outline flash. Used when a Persona
-   * Picker selection changes, and at the end of the picker collapse animation.
+   * Picker selection changes.
    */
   pingAccount(): void {
     const btn = this.accountBtn;
@@ -98,59 +119,69 @@ export class NavBar {
       .to(btn, { outline: '3px solid transparent', duration: 0.4, delay: 0.4 });
   }
 
-  // -- Scroll hide/show -----------------------------------------------------
+  // -- Scroll reveal/hide (non-sticky) -------------------------------------
   private initScrollBehavior(): void {
+    this.measure();
+    window.addEventListener('resize', () => {
+      // Re-measure only while in flow (fixed/hidden keep the same box height).
+      if (this.state === 'flow') this.measure();
+    });
+
     ScrollTrigger.create({
       start: 0,
       end: 'max',
-      onUpdate: (self) => {
-        const currentY = window.scrollY;
-        const delta = currentY - this.lastScrollY;
-
-        // Ignore tiny jitters (< 3px of travel).
-        if (Math.abs(delta) < 3) return;
-
-        const velocity = self.getVelocity();
-        const scrollingDown = velocity > 0 && delta > 0;
-        const scrollingUp = velocity < 0 && delta < 0;
-
-        // Always reveal when near the very top.
-        if (currentY < this.wrapperRevealThreshold()) {
-          this.show();
-        } else if (scrollingDown) {
-          this.hide();
-        } else if (scrollingUp) {
-          this.show();
-        }
-
-        this.lastScrollY = currentY;
-      },
+      onUpdate: () => this.onScroll(),
     });
+    this.onScroll();
   }
 
-  private wrapperRevealThreshold(): number {
-    return 16;
+  private measure(): void {
+    this.navHeight = this.wrapper.offsetHeight;
   }
 
-  private hide(): void {
-    if (this.hidden) return;
-    this.hidden = true;
-    gsap.to(this.wrapper, {
-      yPercent: -120,
-      duration: 0.3,
-      ease: 'power2.in',
-      overwrite: 'auto',
-    });
+  private onScroll(): void {
+    const currentY = window.scrollY;
+    const delta = currentY - this.lastScrollY;
+
+    // Ignore sub-pixel jitter (keep lastScrollY so small moves accumulate).
+    if (Math.abs(delta) < 3) return;
+
+    // Within the nav's own height band, the nav belongs in normal flow.
+    if (currentY <= this.navHeight) {
+      this.resetToFlow();
+    } else if (delta < 0) {
+      this.reveal(); // scrolling up, past the nav -> slide in (fixed)
+    } else {
+      this.slideAway(); // scrolling down -> slide out (if currently revealed)
+    }
+
+    this.lastScrollY = currentY;
   }
 
-  private show(): void {
-    if (!this.hidden) return;
-    this.hidden = false;
-    gsap.to(this.wrapper, {
-      yPercent: 0,
-      duration: 0.4,
-      ease: 'power2.out',
-      overwrite: 'auto',
-    });
+  /** Temporarily fix the nav at the top and slide it into view. */
+  private reveal(): void {
+    if (this.state === 'revealed') return;
+    this.spacer.style.height = `${this.navHeight}px`;
+    // Place it fixed + off-screen first, force a reflow, then slide in so the
+    // transition always animates from above (no flash at y=0).
+    this.wrapper.classList.add('is-fixed', 'is-hidden');
+    void this.wrapper.offsetHeight;
+    this.wrapper.classList.remove('is-hidden');
+    this.state = 'revealed';
+  }
+
+  /** Slide the fixed nav back out of view (no-op if it is in flow). */
+  private slideAway(): void {
+    if (this.state !== 'revealed') return;
+    this.wrapper.classList.add('is-hidden');
+    this.state = 'hidden';
+  }
+
+  /** Return the nav to its natural in-flow position at the top of the page. */
+  private resetToFlow(): void {
+    if (this.state === 'flow') return;
+    this.wrapper.classList.remove('is-fixed', 'is-hidden');
+    this.spacer.style.height = '0px';
+    this.state = 'flow';
   }
 }
