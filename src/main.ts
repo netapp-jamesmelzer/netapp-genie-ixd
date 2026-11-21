@@ -19,8 +19,10 @@ import './styles/page.css';
 import './styles/nav.css';
 import './styles/modals.css';
 import './styles/ai-prompt.css';
+import './styles/password-gate.css';
 
 // Components.
+import { requireAuth } from './components/PasswordGate';
 import { NavBar } from './components/NavBar';
 import { NavModal } from './components/NavModal';
 import { AccountModal } from './components/AccountModal';
@@ -92,7 +94,12 @@ function injectFontFaces(): void {
   document.head.insertBefore(style, document.head.firstChild);
 }
 
-function init(): void {
+async function init(): Promise<void> {
+  // Gate the whole experience behind the team-preview password. Resolves
+  // immediately if the session is already authenticated; otherwise blocks here
+  // (page content hidden) until the user passes the gate.
+  await requireAuth();
+
   injectFontFaces();
   hydratePageAssets();
 
@@ -179,7 +186,7 @@ function init(): void {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', () => void init());
 } else {
-  init();
+  void init();
 }
