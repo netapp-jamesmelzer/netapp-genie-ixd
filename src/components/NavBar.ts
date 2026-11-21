@@ -38,6 +38,7 @@ export class NavBar {
   private lastScrollY = 0;
   private navHeight = 0;
   private state: NavState = 'flow';
+  private pageEl: HTMLElement | null = null;
 
   constructor() {
     this.wrapper = document.createElement('div');
@@ -78,12 +79,26 @@ export class NavBar {
     if (page) {
       parent.insertBefore(this.wrapper, page);
       parent.insertBefore(this.spacer, page);
+      this.pageEl = page as HTMLElement;
     } else {
       parent.insertBefore(this.wrapper, parent.firstChild);
       this.wrapper.after(this.spacer);
+      this.pageEl = document.querySelector('main.page');
     }
     this.lastScrollY = window.scrollY;
     this.initScrollBehavior();
+  }
+
+  /**
+   * Tuck the page content up under the nav. The nav sits in normal flow, so it
+   * would otherwise push .page down and leave a blank gap above the hero. We
+   * pull .page up by the nav's height so the hero starts at the very top with
+   * the nav floating over it (nav z-index 40 > hero ~1). When the nav later
+   * goes fixed, the spacer grows to the same height and cancels this offset,
+   * keeping the layout stable.
+   */
+  private applyPageOffset(): void {
+    if (this.pageEl) this.pageEl.style.marginTop = `-${this.navHeight}px`;
   }
 
   // -- Menu control active state -------------------------------------------
@@ -121,10 +136,18 @@ export class NavBar {
 
   // -- Scroll reveal/hide (non-sticky) -------------------------------------
   private initScrollBehavior(): void {
-    this.measure();
+    // Measure on the next frame so the nav has laid out (accurate offsetHeight),
+    // then tuck the page up under it.
+    requestAnimationFrame(() => {
+      this.measure();
+      this.applyPageOffset();
+    });
     window.addEventListener('resize', () => {
       // Re-measure only while in flow (fixed/hidden keep the same box height).
-      if (this.state === 'flow') this.measure();
+      if (this.state === 'flow') {
+        this.measure();
+        this.applyPageOffset();
+      }
     });
 
     ScrollTrigger.create({

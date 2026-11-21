@@ -35,7 +35,9 @@
 /* ---- Top row: AI icon + textarea + gradient send ---- */
 .ai-prompt__top {
   display: flex;
-  align-items: center;
+  /* Top-align the icon, textarea and send button so they pin to the top edge
+     of the row as the textarea grows/shrinks across the huge/large/small states. */
+  align-items: flex-start;
   gap: 16px;
 }
 
