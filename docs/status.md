@@ -1,6 +1,6 @@
 # Project status & handoff notes
 
-_Last updated: Nov 20, 2026 — HEAD `31d7ce3` (wave 3) on `phase-1-prototype`_
+_Last updated: Nov 20, 2026 — wave 4 (`b09addb`) on `phase-1-prototype`_
 
 Read this first when resuming work. Pair with `docs/requirements.md` (original interaction spec) and `docs/sample-content.md`.
 
@@ -20,11 +20,11 @@ Read this first when resuming work. Pair with `docs/requirements.md` (original i
 
 ## Hard requirements (do not regress)
 - **AI prompt max-width is always 800px** (`--prompt-max-width`). Never changes.
-- **The nav bar is NOT sticky/fixed.** It sits in normal flow at the top and scrolls away. It slides in (temporarily `position: fixed`, class `is-fixed`) only on scroll-up after it has left the viewport, hides on scroll-down (`is-hidden`), and returns to its in-flow position at the top. `.nav-spacer` prevents layout jumps. (`NavBar.ts`, `nav.css`)
+- **The nav bar is NOT sticky/fixed.** It sits in normal flow at the top and scrolls away. It slides in (temporarily `position: fixed`, class `is-fixed`) only on scroll-up after it has left the viewport, hides on scroll-down (`is-hidden`), and returns to its in-flow position at the top. `.nav-spacer` prevents layout jumps. At the top the nav floats over the hero video: `NavBar.ts` measures the nav height and applies an equal negative `margin-top` to `main.page` (re-measured on resize). (`NavBar.ts`, `nav.css`)
 
 ## Current page structure & decisions
 1. **Nav** — pill + account control grouped and centered (`.nav-group`); Explore uses `ic_menu.svg`. Nav modal and Account modal are mutually exclusive; AI chat modal stays underneath.
-2. **AI prompt** — single sticky prompt (inline hero prompt removed). 3 states: huge (5 lines, initial) → large (3 lines) via ScrollTrigger on `#moment-1` → small (1 line) via collapse toggle (small ↔ large). Placeholder: "What data and infrastructure challenge are you looking to solve today?" (`AIPrompt.ts`)
+2. **AI prompt** — single sticky prompt (inline hero prompt removed). 3 states: huge (5 lines, initial) → large (3 lines) via ScrollTrigger on `#moment-1` → small (1 line) via collapse toggle (small ↔ large). Placeholder: "What data and infrastructure challenge are you looking to solve today?" Sparkle icon, textarea and send button are top-aligned (`align-items: flex-start`) in all three states. (`AIPrompt.ts`)
 3. **Persona** — scroll-based collapse animation **dropped**. Inline sentence "I'm a [role ▾] focused on [goal ▾]": each dropdown is text + cyan underline + down arrow, no pill/box. Custom ARIA listbox (keyboard + outside-click). Selection fires `persona-change` → account "ping". (`PersonaPicker.ts`)
    - Roles: Chief Information Officer, Chief Data Officer, VP Infrastructure/Operations, Chief Information Security Officer, DevOps Engineer, Storage Engineer.
    - Goals: adopting AI safely and affordably, managing data at scale, migrating virtualization paradigms, meeting regulatory requirements, achieving consistent delivery across hybrid cloud.
@@ -34,6 +34,7 @@ Read this first when resuming work. Pair with `docs/requirements.md` (original i
    - `.news` — news cards flush to the grid: no border, padding or radius.
    - `.next-steps-section` — contains the heading ("Take the next step toward cyber resilience"), the 3 image cards (Solutions / Find a partner / Talk to sales) **and the Resources & support accordion**. They share one outer margin, white background and the blur glow (`::before`). Card images sit inside the card's 20px padding (not outdented), square corners. Accordion: full width within the section, `ic_add.svg`, 4 rows, no expand behavior needed.
    - `.mega-footer`.
+6. **Asset note** — `product-overview-card` (`public/media/product-overview-card.png`) was added by James in commit `d7e91db` (outside the agent's waves); it is not yet referenced in `index.html` or any component.
 
 ## Open items
 - Owed by James: hero logos; ESA story logo over the rocket video.
