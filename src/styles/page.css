@@ -687,18 +687,16 @@
 /* =============================================================== */
 /* Section 5: Customer Story                                       */
 /* =============================================================== */
+/* White under the video: the video + scrim cover it completely until the
+   exit fade, so the fade reveals white wherever its start line is tuned. */
 .moment--story {
-  background: var(--color-bg-dark-2);
+  background: var(--color-bg-light);
   align-items: center;
   padding: 120px var(--section-pad-x);
 }
 
-/* Light variant, flipped on (not faded) by storyFadeOut() once the copy is
-   above the viewport; the video fade then reveals the white. */
-.moment--story.is-faded {
-  background: var(--color-bg-light);
-}
-
+/* Light variant: copy flipped dark (not faded) by storyFadeOut() once it is
+   above the viewport. */
 .moment--story.is-faded .eyebrow--cyan {
   color: var(--color-eyebrow-purple);
 }

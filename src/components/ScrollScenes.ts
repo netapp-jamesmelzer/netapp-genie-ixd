@@ -153,10 +153,10 @@ export class ScrollScenes {
 
   /**
    * Customer story → white: as the story scrolls out, its video and scrim
-   * fade to 0 between "300px of the section left" and "100px left" (scrubbed,
-   * reverses). At the start of that window — when the copy is already above
-   * the viewport — the section flips to its light variant (.is-faded: white
-   * background, dark copy) and tells the nav it is now a light surface.
+   * fade to 0 between "400px of the section left" and "100px left" (scrubbed,
+   * reverses), revealing the section's white background. At 300px left —
+   * when the copy is safely above the viewport — the copy flips dark
+   * (.is-faded) and the section tells the nav it is now a light surface.
    */
   private storyFadeOut(): void {
     const story = document.querySelector<HTMLElement>('#moment-5');
@@ -168,7 +168,7 @@ export class ScrollScenes {
         opacity: 0,
         ease: 'none',
         immediateRender: false,
-        scrollTrigger: { trigger: story, start: 'bottom 300px', end: 'bottom 100px', scrub: true },
+        scrollTrigger: { trigger: story, start: 'bottom 400px', end: 'bottom 100px', scrub: true },
       }
     );
     const flip = (light: boolean): void => {
