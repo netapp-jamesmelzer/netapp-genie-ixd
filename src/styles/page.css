@@ -253,21 +253,55 @@
   max-width: 912px;
 }
 
+/* Partner logo marquee (Figma Home 1:806: 932px strip, 72px gaps).
+   The mask on the container is static, so logos crawl through the faded
+   edges. The track holds two identical sets; moving it from −50% to 0 is
+   one seamless loop (direction: left → right). */
 .hero__partners {
-  display: flex;
-  gap: 40px;
-  justify-content: center;
+  width: min(var(--partners-width), 100%);
   margin-top: 40px;
-  opacity: 0.7;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--partners-fade), #000 calc(100% - var(--partners-fade)), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 var(--partners-fade), #000 calc(100% - var(--partners-fade)), transparent 100%);
+}
+
+.partner-marquee__track {
+  display: flex;
+  width: max-content;
+  animation: partner-crawl var(--partners-crawl-duration) linear infinite;
+}
+
+.partner-marquee__set {
+  display: flex;
+  align-items: center;
+  gap: var(--partners-gap);
+  padding-right: var(--partners-gap); /* keeps the gap across the seam */
 }
 
 .partner-logo {
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 12px;
-  letter-spacing: var(--ls-eyebrow);
-  text-transform: uppercase;
-  color: #d9e1e5;
+  display: block;
+  flex-shrink: 0;
+  height: auto;
+}
+
+/* Figma: 74% on Mahindra, S&P and ESA (Aston Martin's SVG carries its own). */
+.partner-logo--dim {
+  opacity: 0.74;
+}
+
+@keyframes partner-crawl {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partner-marquee__track {
+    animation: none;
+  }
 }
 
 /* =============================================================== */
@@ -618,11 +652,12 @@
 }
 
 .story__logo {
-  margin: 32px 0;
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: 14px;
-  color: rgba(217, 225, 229, 0.74);
+  position: absolute;
+  z-index: 2;
+  top: 94px;
+  right: max(48px, calc(50% - 612px)); /* right edge of the 1224px column */
+  width: 107px;
+  height: auto;
 }
 
 /* =============================================================== */

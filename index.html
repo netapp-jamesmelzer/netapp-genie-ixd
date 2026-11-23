@@ -43,9 +43,25 @@
               security to help organizations store, protect, and move data across
               on-premises and cloud environments.
             </p>
-            <div class="hero__partners">
-              <span class="partner-logo">S&amp;P Global</span>
-              <span class="partner-logo">ESA</span>
+            <!-- Partner logos: a slow left→right crawl through a static edge fade.
+                 The set is rendered twice for a seamless loop; the copy is aria-hidden. -->
+            <div class="hero__partners" role="list" aria-label="Customers">
+              <div class="partner-marquee__track">
+                <div class="partner-marquee__set" role="listitem">
+                  <img class="partner-logo partner-logo--dim" src="" data-media="logos/mahindra.svg" alt="Mahindra" width="152" height="17" />
+                  <img class="partner-logo partner-logo--dim" src="" data-media="logos/sp-global.svg" alt="S&amp;P Global" width="126" height="27" />
+                  <img class="partner-logo partner-logo--dim" src="" data-media="logos/esa.svg" alt="ESA" width="93" height="34" />
+                  <img class="partner-logo" src="" data-media="logos/porsche-motorsport.svg" alt="Porsche Motorsport" width="144" height="27" />
+                  <img class="partner-logo" src="" data-media="logos/aston-martin.svg" alt="Aston Martin" width="130" height="53" />
+                </div>
+                <div class="partner-marquee__set" aria-hidden="true">
+                  <img class="partner-logo partner-logo--dim" src="" data-media="logos/mahindra.svg" alt="" width="152" height="17" />
+                  <img class="partner-logo partner-logo--dim" src="" data-media="logos/sp-global.svg" alt="" width="126" height="27" />
+                  <img class="partner-logo partner-logo--dim" src="" data-media="logos/esa.svg" alt="" width="93" height="34" />
+                  <img class="partner-logo" src="" data-media="logos/porsche-motorsport.svg" alt="" width="144" height="27" />
+                  <img class="partner-logo" src="" data-media="logos/aston-martin.svg" alt="" width="130" height="53" />
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -134,13 +150,14 @@
           data-video="space_video_2.mp4"
         ></video>
         <div class="moment__overlay moment__overlay--story"></div>
+        <!-- Figma Home 5: ESA logo top-right (107×39 at x1303, y94 of 1600×930). -->
+        <img class="story__logo" src="" data-media="logos/esa.svg" alt="European Space Agency" width="107" height="39" />
         <div class="moment__content story__content">
           <p class="eyebrow eyebrow--cyan">Customer story</p>
           <h2 class="story__headline">
             The European Space Agency uses NetApp to store, manage, and protect the
             data behind discovery at massive scale.
           </h2>
-          <span class="story__logo">ESA</span>
           <a href="#" class="btn btn--ghost">Read the story<img src="" alt="" aria-hidden="true" class="btn__icon" data-icon="ic_arrow_outward.svg" /></a>
         </div>
       </section>

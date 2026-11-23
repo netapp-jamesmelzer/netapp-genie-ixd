@@ -37,11 +37,11 @@ Read this first when resuming work (agents: also `CLAUDE.md`). Pair with `docs/r
    - `.next-steps-section` — "Next steps" headline (76px Thin) beside "Emma's quick start links" (36px illustrations from `public/media/illustration/`); 3 image cards (Solutions `card-1`, Talk to sales `card-2`, Find a partner `card-3`; 391px tall); then "Resources and support" (39px Regular) with 4 static rows (Downloads, Documentation, Troubleshooting, Training) over the blurred #E6EBF2 glow. No expand behavior.
    - `.mega-footer` — Figma gradient, teal NetApp logo (SVG mask), 5 link columns, divider, © + legal links. Bottom padding adds `--prompt-stack`.
 6. **Stage (moments 1–3)** — one sticky `space_video_1.mp4` behind hero, persona and confirmation (`.stage__bg`, sticky + `margin-bottom: -100vh`).
+6b. **Hero partner logos** — `public/media/logos/*.svg` in a CSS marquee (`.hero__partners`): static edge-fade mask on the container, duplicated set crawling left→right (`--partners-crawl-duration` 40s, `--partners-fade` 18%). Figma's internal-gradient fade is intentionally not used. Stops under reduced motion. The story's ESA logo (`logos/esa.svg`) sits top-right per Figma.
 7. **Scroll choreography** — `ScrollScenes.ts`: all scrubbed, skipped under reduced motion. Enter tweens animate children, exit tweens animate wrappers.
 8. **Modals** — Nav: `menu.jpg` + purple scrim, Figma column grid. Account: `account.mp4`, 3 synced persona dropdowns, 3 link cards. AI chat: full-viewport blurred vignette + white card (runs off the bottom so the sticky prompt sits inside it), header (brand chip, collapse control), 1:3:1 columns (Chat history / thread / Resources). Collapse shrinks the modal back into the prompt rect.
 
 ## Open items
-- Owed by James: hero partner logos (Figma: Mahindra, S&P Global, ESA, Porsche Motorsport, Aston Martin); ESA logo for the story (Figma places it top-right). Not in `public/media/` yet.
 - Owed by James: footer social icons (Facebook, Instagram, LinkedIn, X — Figma shows them under Contact & Feedback and at the end of the legal row).
 - Owed by James (optional): a `turn_right` icon for the chat prompt echo (currently the ↳ glyph); favicon.
 - Offered, not yet done: replace placeholder next-steps card photos (`card-1..3.jpg`) with real Figma images.

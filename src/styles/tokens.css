@@ -18,6 +18,10 @@
   --page-max-width: 1600px;
   --home6-width: 1224px;             /* Figma Home 6 content column */
   --news-gap: 48px;                  /* Figma news card gap */
+  --partners-width: 932px;           /* Figma hero logo strip */
+  --partners-gap: 72px;
+  --partners-fade: 18%;              /* static edge fade on each side */
+  --partners-crawl-duration: 40s;    /* one full set (~1077px) ≈ 27px/s */
   --modal-inset: 16px;
   --persona-line-gap: 46px;          /* Figma account modal / Home 2 line rhythm */
   /* --prompt-stack is published at runtime by AIPrompt.ts (viewport bottom ->
