@@ -13,7 +13,8 @@
  *   huge  → large  : ScrollTrigger fires once when the hero bottom passes 70% vp
  *   large → small  : user clicks collapse button
  *   small → large  : user clicks expand button
- *   huge  → large  : also fires if user clicks the toggle while still huge
+ *   huge  → large  : also fires if user clicks the toggle while still huge,
+ *                    or when any modal opens (leaveHuge(), wired in main.ts)
  */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -86,6 +87,7 @@ export class AIPrompt {
 
   mount(parent: HTMLElement = document.body): void {
     parent.appendChild(this.el);
+    this.publishStackHeight();
     // Lock initial huge height via GSAP inline style (overrides rows attr).
     gsap.set(this.textarea, { height: this.HEIGHTS.huge });
     // Collapse huge → large the first time the hero section scrolls past 70% of viewport.
@@ -97,6 +99,36 @@ export class AIPrompt {
         if (this.sizeState === 'huge') this.transitionTo('large');
       },
     });
+  }
+
+  /**
+   * Publish --prompt-stack on :root: the distance from the viewport bottom to
+   * the prompt's top edge. The footer and the AI chat thread pad by it so
+   * content can always scroll clear of the sticky prompt. Kept live with a
+   * ResizeObserver (the prompt height animates between size states).
+   */
+  private publishStackHeight(): void {
+    const update = (): void => {
+      const stack = window.innerHeight - this.el.getBoundingClientRect().top;
+      document.documentElement.style.setProperty('--prompt-stack', `${Math.ceil(stack)}px`);
+    };
+    new ResizeObserver(update).observe(this.el);
+    window.addEventListener('resize', update);
+    update();
+  }
+
+  /**
+   * Step down from the first-view "huge" state (no-op otherwise). Called when
+   * any modal opens so the prompt doesn't cover modal content; like the scroll
+   * trigger, it never returns to huge.
+   */
+  leaveHuge(): void {
+    if (this.sizeState === 'huge') this.transitionTo('large');
+  }
+
+  /** Swap the placeholder (e.g. while the AI chat modal is open). */
+  setPlaceholder(text: string): void {
+    this.textarea.placeholder = text;
   }
 
   /** Bounding rect of the prompt box — used by the chat modal to expand from. */

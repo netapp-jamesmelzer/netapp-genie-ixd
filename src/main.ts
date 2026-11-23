@@ -29,6 +29,9 @@ import { AccountModal } from './components/AccountModal';
 import { AIPrompt } from './components/AIPrompt';
 import { AIChatModal } from './components/AIChatModal';
 import { PersonaPicker } from './components/PersonaPicker';
+import { ScrollScenes } from './components/ScrollScenes';
+import { NewsCarousel } from './components/NewsCarousel';
+import type { PersonaChangeDetail } from './state/persona';
 import { fontUrl, iconUrl, mediaUrl } from './utils/assets';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -38,7 +41,8 @@ gsap.registerPlugin(ScrollTrigger);
  * URLs via the helpers (never absolute paths, so they work on the GitHub Pages
  * subpath). Markup uses data-attributes:
  *   [data-video] -> <video> source,  [data-bg] -> CSS background-image,
- *   [data-icon]  -> <img> src.
+ *   [data-icon]  -> <img> src (icons/),  [data-media] -> <img> src (media/),
+ *   [data-mask]  -> --icon custom property for .icon-mask (media/).
  */
 function hydratePageAssets(): void {
   document.querySelectorAll<HTMLVideoElement>('[data-video]').forEach((el) => {
@@ -47,6 +51,10 @@ function hydratePageAssets(): void {
       el.src = mediaUrl(name);
       el.load();
     }
+  });
+  // Inert demo links on the page (nav/modal links are handled by components).
+  document.querySelectorAll<HTMLAnchorElement>('main.page a[href="#"]').forEach((a) => {
+    a.addEventListener('click', (e) => e.preventDefault());
   });
   document.querySelectorAll<HTMLElement>('[data-bg]').forEach((el) => {
     const name = el.dataset.bg;
@@ -59,6 +67,11 @@ function hydratePageAssets(): void {
   document.querySelectorAll<HTMLImageElement>('[data-media]').forEach((el) => {
     const name = el.dataset.media;
     if (name) el.src = mediaUrl(name);
+  });
+  // Recolorable SVGs (.icon-mask): the file becomes the element's CSS mask.
+  document.querySelectorAll<HTMLElement>('[data-mask]').forEach((el) => {
+    const name = el.dataset.mask;
+    if (name) el.style.setProperty('--icon', `url('${mediaUrl(name)}')`);
   });
 }
 
@@ -110,6 +123,7 @@ async function init(): Promise<void> {
   const aiPrompt = new AIPrompt();
   const aiChatModal = new AIChatModal();
   const personaPicker = new PersonaPicker();
+  const scrollScenes = new ScrollScenes();
 
   // --- Mount (CSS controls stacking, so DOM order is for readability) -------
   aiChatModal.mount(); // z 10
@@ -118,6 +132,8 @@ async function init(): Promise<void> {
   aiPrompt.mount(); // z 30
   navBar.mount(); // z 40
   personaPicker.mount();
+  scrollScenes.mount();
+  new NewsCarousel().mount();
 
   // --- Nav Bar controls -> modals (mutually exclusive) ---------------------
   navBar.onMenuClick = () => {
@@ -132,6 +148,7 @@ async function init(): Promise<void> {
       }
       navModal.open();
       navBar.setMenuActive(true);
+      aiPrompt.leaveHuge();
     }
   };
 
@@ -146,6 +163,7 @@ async function init(): Promise<void> {
       }
       accountModal.open();
       navBar.setAccountActive(true);
+      aiPrompt.leaveHuge();
     }
   };
 
@@ -160,8 +178,10 @@ async function init(): Promise<void> {
     navBar.setAccountActive(false);
   };
 
+  // Collapse control: shrink the chat back into the prompt it came from.
   aiChatModal.onClose = () => {
-    aiChatModal.close();
+    aiChatModal.close(aiPrompt.getRect());
+    aiPrompt.setPlaceholder(DEFAULT_PLACEHOLDER);
   };
 
   // --- Nav link click dismisses everything ---------------------------------
@@ -171,17 +191,33 @@ async function init(): Promise<void> {
     accountModal.close();
     navBar.setAccountActive(false);
     aiChatModal.close();
+    aiPrompt.setPlaceholder(DEFAULT_PLACEHOLDER);
   };
 
   // --- AI Prompt submit -> open the AI Chat Modal from the prompt rect ------
+  // (The chat modal has no input of its own — this prompt stays the input.)
+  const DEFAULT_PLACEHOLDER = aiPrompt.textarea.placeholder;
   aiPrompt.onSubmit = (text: string) => {
-    const rect = aiPrompt.getRect();
-    aiChatModal.open(rect, text);
+    if (aiChatModal.opened) return; // demo: one scripted conversation
+    aiChatModal.open(aiPrompt.getRect(), text);
+    aiPrompt.leaveHuge();
+    aiPrompt.setPlaceholder('Make a selection or type something else…');
   };
 
-  // --- Persona change -> ping the account control --------------------------
-  document.addEventListener('persona-change', () => {
-    navBar.pingAccount();
+  // --- Persona change on the page -> ping the account control -------------
+  // (Edits made inside the Account Modal don't ping; it is already open.)
+  document.addEventListener('persona-change', (e) => {
+    if ((e as CustomEvent<PersonaChangeDetail>).detail.source === 'page') {
+      navBar.pingAccount();
+    }
+  });
+
+  // --- Escape closes the topmost modal -------------------------------------
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (navModal.opened) navModal.onClose();
+    else if (accountModal.opened) accountModal.onClose();
+    else if (aiChatModal.opened) aiChatModal.onClose();
   });
 }
 

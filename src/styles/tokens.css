@@ -16,7 +16,12 @@
   --prompt-height-small: calc(1lh + 32px);
   --section-pad-x: 191px;            /* Figma consistent left margin */
   --page-max-width: 1600px;
+  --home6-width: 1224px;             /* Figma Home 6 content column */
+  --news-gap: 48px;                  /* Figma news card gap */
   --modal-inset: 16px;
+  --persona-line-gap: 46px;          /* Figma account modal / Home 2 line rhythm */
+  /* --prompt-stack is published at runtime by AIPrompt.ts (viewport bottom ->
+     prompt top edge); consumers provide a fallback. */
 
   /* ---- Colors (from Figma) ---- */
   --color-bg-dark: #110f1a;
@@ -39,6 +44,13 @@
   --color-prompt-focus: #0066ff;
   --color-prompt-shadow: rgba(83, 101, 133, 0.06);
   --color-modal-bg: rgba(244, 241, 237, 0.98);
+  --color-nav-modal-scrim: rgba(37, 25, 58, 0.55);   /* over menu.jpg */
+  --color-account-scrim: rgba(0, 0, 0, 0.2);          /* Figma: 2 × 20% black */
+  --color-nav-selected: rgba(207, 221, 230, 0.53);    /* Figma selected nav control */
+  --color-nav-resting-on-modal: rgba(0, 0, 0, 0.15);
+  --color-chat-card: rgba(255, 255, 255, 0.95);
+  --color-chat-divider: rgba(207, 221, 230, 0.6);
+  --color-chat-echo-bg: rgba(207, 221, 230, 0.42);
   --color-modal-overlay: rgba(255, 255, 255, 0);
   --color-chat-overlay: rgba(20, 9, 70, 0.5);  /* AI chat dark vignette */
   --color-sidetab-active: #7b27ff;
@@ -58,6 +70,7 @@
   --color-eyebrow-dark: #5a6b73;
   --color-card-btn-bg: #e2ecf2;
   --color-footer-bg: #1e252f;
+  --color-border-default: #cfdde6;   /* Figma border/default */
   --gradient-ai: linear-gradient(225deg, #7b27ff 0%, #00ddf4 100%);
 
   /* ---- Typography ---- */

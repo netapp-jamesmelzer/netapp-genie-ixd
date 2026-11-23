@@ -1,5 +1,8 @@
 # Figma Findings — "genie ixd" page
 
+> ⚠️ **Superseded source.** The current Figma is `RdQdLmjTEVawc2wGeB6EkB` (see `CLAUDE.md` for node ids).
+> The node ids below refer to the old Skunkworks file; the design content is largely the same.
+
 > Source: **Design System Skunkworks** (`PoMIBV4u8ZpCIE39FenV9k`), page **genie ixd** (`2084:23611`).
 > Read-only reference for Phase 2 visual fidelity. Draft — not committed yet.
 

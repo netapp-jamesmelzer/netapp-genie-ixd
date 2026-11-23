@@ -15,9 +15,10 @@
  * A .nav-spacer sibling is grown to the nav's height while the nav is fixed, so
  * pulling the nav out of flow never changes the document height (no jump).
  *
- * Menu control toggles active state (label swaps to "Close"). The account
- * control has .is-active (persistent outline) and .is-pinging (brief flash)
- * states; pingAccount() plays the flash.
+ * Active states follow Figma: the menu control's pill (or the account
+ * control) takes the "selected" fill while its modal is open; the "Explore"
+ * label does not change. The account control also has .is-pinging (brief cyan
+ * outline flash) played by pingAccount().
  */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -48,11 +49,10 @@ export class NavBar {
         <div class="nav-group">
           <div class="nav-pill">
             <img src="${mediaUrl('NetApp-Logo.svg')}" alt="NetApp" class="nav-logo-img" />
-            <button class="menu-btn" type="button" aria-expanded="false" aria-label="Open navigation menu">
-              <span class="menu-btn-label menu-btn-label--open">Explore</span>
-              <span class="menu-btn-label menu-btn-label--close">Close</span>
-              <img src="${iconUrl('ic_menu.svg')}" alt="" aria-hidden="true" class="nav-icon menu-icon--open" />
-              <img src="${iconUrl('ic_close.svg')}" alt="" aria-hidden="true" class="nav-icon menu-icon--close" />
+            <span class="nav-divider" aria-hidden="true"></span>
+            <button class="menu-btn" type="button" aria-expanded="false" aria-label="Explore — site navigation">
+              <span class="menu-btn-label">Explore</span>
+              <img src="${iconUrl('ic_menu.svg')}" alt="" aria-hidden="true" class="nav-icon" />
             </button>
           </div>
           <button class="nav-account" type="button" aria-label="Account" aria-expanded="false">

@@ -1,75 +1,94 @@
 /**
  * AIChatModal
  * ---------------------------------------------------------------------------
- * The most complex component. A modal (z-index 10 — BELOW the nav/account
- * modals and the AI prompt, so those remain usable on top of it) that expands
- * out of the AI Prompt box when the user submits a prompt.
+ * A modal (z-index 10 — BELOW the nav/account modals and the AI prompt, so
+ * those remain usable on top of it) that expands out of the AI Prompt box when
+ * the user submits a prompt. Figma: "AI chat modal" (1:558) / card
+ * "genie-sep23" (1:675).
  *
- * Layout: three columns in a flexbox at 1 : 3 : 1 —
- *   .chat-history (left)   : previous chats, first marked active
- *   .chat-thread (center)  : prior bubbles, the typewriter AI response, and an
- *                            in-modal prompt input mirroring the main AI prompt
- *   .chat-artifacts (right): two cards revealed after the typewriter completes
+ * ⚠️ HARD RULE: this modal must NEVER contain its own prompt input. The single
+ * sticky AI prompt (AIPrompt.ts, z 30) floats over the bottom of the center
+ * column and IS the chat input. The thread reserves bottom space for it via
+ * the --prompt-stack custom property (set by AIPrompt).
+ *
+ * Layout: a white card with a header (brand chip left, collapse control right)
+ * and three columns at 1 : 3 : 1 —
+ *   .chat-history  (left)  : "Chat history"; the current chat is highlighted
+ *   .chat-thread   (center): user prompt echo + typewriter AI response
+ *   .chat-artifacts(right) : two resource cards revealed after the response
+ * The 1:3:1 grid keeps the center column centered in the viewport, so the
+ * sticky prompt lines up with it.
  *
  * Open sequence (GSAP timeline):
- *   1. display:flex, geometry set to match the AI Prompt rect, opacity 0,
- *      transparent background.
- *   2. Expand to the full viewport + fade to opaque (bg -> --color-modal-bg).
- *   3. Dissolve in .chat-layout contents.
- *   4. Start the typewriter on .ai-response (~40 chars/sec).
- *   5. After the typewriter completes, stagger in the two artifact cards.
+ *   1. Geometry set to the AI Prompt rect, transparent.
+ *   2. Expand to the full viewport + fade to the dark vignette.
+ *   3. Dissolve in the card.
+ *   4. Typewriter-reveal the (rich-text) response.
+ *   5. Stagger in the two resource cards.
+ * Close: the collapse control shrinks the modal back into the prompt rect.
  */
 import gsap from 'gsap';
 import { iconUrl, mediaUrl } from '../utils/assets';
 
-const MODAL_INSET = 16; // px — mirrors --modal-inset token
+/** Previous chats shown above the current one in the history column. */
+const PREVIOUS_CHATS: string[] = [
+  'How to securely consolidate and stage AI training data from sources in multiple clouds',
+  'Compare CapEx and OpEx investment scenarios',
+];
 
 /**
- * Placeholder AI response (also documented in docs/sample-content.md). Kept as a
- * constant here because the typewriter reads it directly from code.
+ * AI response (Figma copy; also in docs/sample-content.md). Rich text: the
+ * typewriter reveals it character by character while preserving the markup.
+ * Keep it free of whitespace between tags.
  */
-const AI_RESPONSE = `NetApp's intelligent data infrastructure brings your hybrid cloud together under a single control plane. Whether your workloads live on-premises, at the edge, or across multiple public clouds, you get consistent storage, data management, and security without rewriting a thing.
-
-For teams modernizing their storage estate, ONTAP-based systems deliver built-in efficiency: inline deduplication, compression, and automated tiering move cold data to lower-cost object storage while keeping hot data fast. You pay for performance where it matters and capacity where it doesn't.
-
-On the operations side, our observability tooling surfaces cost, performance, and risk in one place, so you can right-size capacity before it becomes a fire drill. Policy-driven automation handles the repetitive work, and ransomware detection watches for anomalies around the clock.
-
-Want me to put together a short migration outline, or compare the cloud storage tiers for your workload profile? I've pulled a couple of starting points into the panel on the right.`;
+const AI_RESPONSE_HTML =
+  '<p>NetApp accelerates AI infrastructure by making data ready, available, and protected across on-premises and cloud environments:</p>' +
+  '<ul>' +
+  '<li><strong>Scale performance independently:</strong> AFX disaggregates performance and capacity for demanding AI workloads.</li>' +
+  '<li><strong>Prepare data faster:</strong> AI Data Engine curates, transforms, and serves AI-ready data in place.</li>' +
+  '<li><strong>Feed GPUs efficiently:</strong> Validated NVIDIA DGX SuperPOD and AIPod architectures reduce storage bottlenecks.</li>' +
+  '<li><strong>Unify hybrid data:</strong> ONTAP supports data mobility across AWS, Azure, Google Cloud, and on premises.</li>' +
+  '<li><strong>Protect AI assets:</strong> Built-in ransomware detection, Snapshot copies, and governance help secure models and datasets.</li>' +
+  '</ul>' +
+  '<p><a href="#" class="ai-response__link">Explore AI infrastructure</a></p>' +
+  '<p>Would you like a focused view of AFX capabilities for AI training, RAG, or inference?</p>';
 
 interface ArtifactSpec {
-  title: string;
-  description: string;
-  image?: string;
+  tag: string;
+  label: string;
+  image: string;
 }
 
 const ARTIFACTS: ArtifactSpec[] = [
   {
-    title: 'Cloud Storage Tiers — Quick Comparison',
-    description:
-      'Side-by-side of performance, capacity, and archive tiers with indicative price/performance ratios.',
-    image: mediaUrl('chat-resource-1.jpg'),
+    tag: 'Virtual briefing',
+    label: 'Ready to build your own intelligent data infrastructure?',
+    image: 'chat-resource-1.jpg',
   },
   {
-    title: '90-Day Migration Outline',
-    description:
-      'A phased template covering assessment, pilot, cutover, and optimization — with stakeholder checkpoints.',
-    image: mediaUrl('chat-resource-2.jpg'),
+    tag: 'Assessment',
+    label: 'Take the AI readiness assessment',
+    image: 'chat-resource-2.jpg',
   },
 ];
 
-const TYPE_SPEED_CPS = 40; // characters per second
+const TYPE_SPEED_CPS = 110; // characters per second ("fast typewriter")
 
 export class AIChatModal {
   readonly el: HTMLDivElement;
   private isOpen = false;
 
+  private readonly cardEl: HTMLDivElement;
+  private readonly threadEl: HTMLElement;
+  private readonly echoEl: HTMLSpanElement;
   private readonly responseEl: HTMLDivElement;
-  private readonly artifactsEl: HTMLDivElement;
-  private readonly layoutEl: HTMLDivElement;
+  private readonly artifactsEl: HTMLElement;
+  private readonly currentChatEl: HTMLButtonElement;
 
-  private typeTimer: number | null = null;
+  private typeRaf: number | null = null;
   private openTl: gsap.core.Timeline | null = null;
 
+  /** Called by the collapse control; main.ts decides how to close. */
   onClose: () => void = () => {};
 
   constructor() {
@@ -77,33 +96,57 @@ export class AIChatModal {
     this.el.className = 'ai-chat-modal';
     this.el.setAttribute('role', 'dialog');
     this.el.setAttribute('aria-modal', 'true');
-    this.el.setAttribute('aria-label', 'AI chat');
+    this.el.setAttribute('aria-label', 'NetApp AI Assistant');
+
+    const historyMarkup = PREVIOUS_CHATS.map(
+      (c) => `<button type="button" class="chat-history__item">${c}</button>`
+    ).join('');
 
     this.el.innerHTML = `
-      <button class="modal-close" type="button" aria-label="Close chat"><img src="${iconUrl('ic_close.svg')}" alt="" aria-hidden="true" class="modal-close-icon" /></button>
-      <div class="chat-layout">
-        <section class="chat-thread">
-          <div class="chat-suggestion" data-user-echo>How can NetApp accelerate my AI infrastructure?</div>
-          <div class="ai-response" aria-live="polite"></div>
-          <div class="chat-prompt" aria-hidden="true">
-            <span class="chat-prompt__placeholder">Ask a follow-up…</span>
-            <span class="chat-prompt__send"></span>
+      <div class="chat-card">
+        <header class="chat-header">
+          <div class="chat-brand">
+            <span class="chat-brand__icon icon-mask" aria-hidden="true" style="--icon: url('${iconUrl('ic_AI.svg')}')"></span>
+            <span class="chat-brand__name">NetApp AI Assistant</span>
           </div>
-        </section>
-        <aside class="chat-artifacts">
-          <p class="chat-col-title">Resources</p>
-        </aside>
+          <button class="chat-dismiss" type="button" aria-label="Minimize chat" title="Minimize">
+            <img src="${iconUrl('ic_collapse.svg')}" alt="" aria-hidden="true" />
+          </button>
+        </header>
+        <div class="chat-cols">
+          <nav class="chat-history" aria-label="Chat history">
+            <p class="chat-col-title">Chat history</p>
+            ${historyMarkup}
+            <button type="button" class="chat-history__item is-current" aria-current="true" data-current-chat></button>
+          </nav>
+          <section class="chat-thread" aria-label="Conversation">
+            <div class="chat-echo">
+              <span class="chat-echo__pill">
+                <span class="chat-echo__icon" aria-hidden="true">↳</span>
+                <span data-user-echo></span>
+              </span>
+            </div>
+            <div class="ai-response" aria-live="polite"></div>
+          </section>
+          <aside class="chat-artifacts" aria-label="Resources"></aside>
+        </div>
       </div>
     `;
 
-    this.layoutEl = this.el.querySelector('.chat-layout') as HTMLDivElement;
+    this.cardEl = this.el.querySelector('.chat-card') as HTMLDivElement;
+    this.threadEl = this.el.querySelector('.chat-thread') as HTMLElement;
+    this.echoEl = this.el.querySelector('[data-user-echo]') as HTMLSpanElement;
     this.responseEl = this.el.querySelector('.ai-response') as HTMLDivElement;
-    this.artifactsEl = this.el.querySelector('.chat-artifacts') as HTMLDivElement;
+    this.artifactsEl = this.el.querySelector('.chat-artifacts') as HTMLElement;
+    this.currentChatEl = this.el.querySelector('[data-current-chat]') as HTMLButtonElement;
 
-    (this.el.querySelector('.modal-close') as HTMLButtonElement).addEventListener(
+    (this.el.querySelector('.chat-dismiss') as HTMLButtonElement).addEventListener(
       'click',
       () => this.onClose()
     );
+    this.responseEl.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) e.preventDefault(); // demo links inert
+    });
   }
 
   mount(parent: HTMLElement = document.body): void {
@@ -119,59 +162,50 @@ export class AIChatModal {
    * @param fromRect  bounding rect to grow from
    * @param promptText  the user's submitted prompt (echoed into the thread)
    */
-  open(fromRect: DOMRect, promptText?: string): void {
+  open(fromRect: DOMRect, promptText: string): void {
     if (this.isOpen) return;
     this.isOpen = true;
 
-    // Reset any previous run.
     this.resetContents();
-
-    if (promptText) {
-      const echo = this.el.querySelector('[data-user-echo]') as HTMLDivElement | null;
-      if (echo) echo.textContent = promptText;
-    }
+    this.echoEl.textContent = promptText;
+    this.currentChatEl.textContent = promptText;
 
     // Step 1: show + match the prompt rect, transparent.
-    this.el.style.display = 'flex';
+    this.el.style.display = 'block';
     gsap.set(this.el, {
-      position: 'fixed',
       top: fromRect.top,
       left: fromRect.left,
       width: fromRect.width,
       height: fromRect.height,
+      borderRadius: 22,
       opacity: 0,
-      backgroundColor: 'var(--color-modal-overlay)',
-      borderRadius: 'var(--radius-modal)',
     });
-    gsap.set(this.layoutEl, { opacity: 0 });
+    gsap.set(this.cardEl, { opacity: 0 });
 
-    // Steps 2-5 as a timeline.
-    this.openTl = gsap.timeline();
-    this.openTl
-      // Step 2: expand to full viewport + become opaque.
+    this.openTl = gsap
+      .timeline()
+      // Step 2: expand to the full viewport + become opaque.
       .to(this.el, {
-        top: MODAL_INSET,
-        left: MODAL_INSET,
-        width: `calc(100vw - ${MODAL_INSET * 2}px)`,
-        height: `calc(100vh - ${MODAL_INSET * 2}px)`,
-        borderRadius: 'var(--radius-modal)',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        borderRadius: 0,
         opacity: 1,
-        backgroundColor: 'var(--color-chat-overlay)',
         duration: 0.5,
         ease: 'power2.out',
       })
-      // Step 3: dissolve in the contents.
-      .fromTo(
-        this.layoutEl,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.3 },
-        '>-0.05'
-      )
-      // Step 4: start the typewriter once contents are visible.
+      // Step 3: dissolve in the card.
+      .to(this.cardEl, { opacity: 1, duration: 0.3 }, '>-0.05')
+      // Step 4: typewriter once contents are visible (step 5 chains from it).
       .add(() => this.runTypewriter());
   }
 
-  close(): void {
+  /**
+   * Close. With a rect, collapse back into it (the "minimize" gesture);
+   * without one, simply fade out (e.g. a nav link dismissing everything).
+   */
+  close(toRect?: DOMRect): void {
     if (!this.isOpen) return;
     this.isOpen = false;
 
@@ -179,72 +213,134 @@ export class AIChatModal {
     this.openTl = null;
     this.stopTypewriter();
 
-    gsap.to(this.el, {
-      opacity: 0,
-      duration: 0.3,
-      ease: 'power2.in',
-      overwrite: 'auto',
-      onComplete: () => {
-        this.el.style.display = 'none';
-        this.resetContents();
-      },
-    });
+    const done = (): void => {
+      this.el.style.display = 'none';
+      this.resetContents();
+    };
+
+    if (toRect) {
+      gsap
+        .timeline({ onComplete: done })
+        .to(this.cardEl, { opacity: 0, duration: 0.15, ease: 'power1.in' })
+        .to(
+          this.el,
+          {
+            top: toRect.top,
+            left: toRect.left,
+            width: toRect.width,
+            height: toRect.height,
+            borderRadius: 22,
+            duration: 0.45,
+            ease: 'power3.inOut',
+          },
+          0.05
+        )
+        // Fade only at the end, so the shrink into the prompt reads clearly.
+        .to(this.el, { opacity: 0, duration: 0.2, ease: 'power1.in' }, 0.32);
+    } else {
+      gsap.to(this.el, {
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.in',
+        overwrite: 'auto',
+        onComplete: done,
+      });
+    }
   }
 
   // -- Internal helpers -----------------------------------------------------
 
   private resetContents(): void {
     this.stopTypewriter();
-    this.responseEl.textContent = '';
-    // Remove any previously rendered artifact cards (keep the title).
-    this.artifactsEl
-      .querySelectorAll('.artifact-card')
-      .forEach((card) => card.remove());
+    this.responseEl.innerHTML = '';
+    this.artifactsEl.innerHTML = '';
+    this.threadEl.scrollTop = 0;
   }
 
-  /** Character-by-character reveal at ~TYPE_SPEED_CPS, then reveal artifacts. */
+  /**
+   * Reveal AI_RESPONSE_HTML at ~TYPE_SPEED_CPS while keeping its markup: every
+   * text node is emptied, then refilled in document order. Each block (p / li)
+   * stays hidden until its first character is typed, so bullets and spacing
+   * never appear ahead of the text.
+   */
   private runTypewriter(): void {
-    const text = AI_RESPONSE;
-    let i = 0;
-    const intervalMs = 1000 / TYPE_SPEED_CPS;
+    this.responseEl.innerHTML = AI_RESPONSE_HTML;
+
+    const walker = document.createTreeWalker(this.responseEl, NodeFilter.SHOW_TEXT);
+    const nodes: { node: Text; full: string; block: HTMLElement | null }[] = [];
+    while (walker.nextNode()) {
+      const node = walker.currentNode as Text;
+      nodes.push({
+        node,
+        full: node.data,
+        block: node.parentElement?.closest<HTMLElement>('p, li') ?? null,
+      });
+      node.data = '';
+    }
+    this.responseEl
+      .querySelectorAll<HTMLElement>('p, li')
+      .forEach((b) => b.classList.add('is-pending'));
 
     const caret = document.createElement('span');
     caret.className = 'caret';
-    caret.innerHTML = '&nbsp;';
+    caret.setAttribute('aria-hidden', 'true');
 
-    const textNode = document.createElement('span');
-    this.responseEl.appendChild(textNode);
-    this.responseEl.appendChild(caret);
+    const total = nodes.reduce((n, t) => n + t.full.length, 0);
+    const start = performance.now();
+    let nodeIdx = 0;
+    let typed = 0; // chars typed before nodes[nodeIdx]
 
-    this.typeTimer = window.setInterval(() => {
-      i += 1;
-      textNode.textContent = text.slice(0, i);
-      if (i >= text.length) {
-        this.stopTypewriter();
+    const tick = (now: number): void => {
+      const target = Math.min(total, Math.floor(((now - start) / 1000) * TYPE_SPEED_CPS));
+      while (nodeIdx < nodes.length) {
+        const cur = nodes[nodeIdx];
+        const want = Math.min(cur.full.length, target - typed);
+        if (want <= 0) break;
+        cur.block?.classList.remove('is-pending');
+        cur.node.data = cur.full.slice(0, want);
+        cur.node.after(caret);
+        if (want < cur.full.length) break;
+        typed += cur.full.length;
+        nodeIdx += 1;
+      }
+      this.followTyping();
+
+      if (target >= total) {
+        this.typeRaf = null;
         caret.remove();
         this.revealArtifacts();
+      } else {
+        this.typeRaf = requestAnimationFrame(tick);
       }
-    }, intervalMs);
+    };
+    this.typeRaf = requestAnimationFrame(tick);
+  }
+
+  /** Keep the newest text in view if the response outgrows the thread. */
+  private followTyping(): void {
+    const t = this.threadEl;
+    t.scrollTop = t.scrollHeight - t.clientHeight;
   }
 
   private stopTypewriter(): void {
-    if (this.typeTimer !== null) {
-      window.clearInterval(this.typeTimer);
-      this.typeTimer = null;
+    if (this.typeRaf !== null) {
+      cancelAnimationFrame(this.typeRaf);
+      this.typeRaf = null;
     }
   }
 
-  /** After the response completes, stagger in the two artifact cards. */
+  /** After the response completes, stagger in the resource cards. */
   private revealArtifacts(): void {
-    const cards: HTMLDivElement[] = ARTIFACTS.map((a) => {
-      const card = document.createElement('div');
+    const cards = ARTIFACTS.map((a) => {
+      const card = document.createElement('a');
+      card.href = '#';
       card.className = 'artifact-card';
       card.innerHTML = `
-        ${a.image ? `<img src="${a.image}" alt="" class="artifact-img" />` : ''}
-        <img src="${iconUrl('ic_external_link.svg')}" alt="" aria-hidden="true" class="artifact-icon" />
-        <h4>${a.title}</h4>
-        <p>${a.description}</p>
+        <span class="artifact-card__media"><img src="${mediaUrl(a.image)}" alt="" /></span>
+        <span class="artifact-card__tag">${a.tag}</span>
+        <span class="artifact-card__label">${a.label}&nbsp;→</span>
       `;
+      card.addEventListener('click', (e) => e.preventDefault());
       this.artifactsEl.appendChild(card);
       return card;
     });
@@ -252,13 +348,7 @@ export class AIChatModal {
     gsap.fromTo(
       cards,
       { opacity: 0, y: 16 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.35,
-        ease: 'power2.out',
-        stagger: 0.12,
-      }
+      { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', stagger: 0.12 }
     );
   }
 }

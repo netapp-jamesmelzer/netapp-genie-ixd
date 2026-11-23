@@ -1,120 +1,80 @@
-# Sample Content — Phase 1 Prototype
+# Sample Content — prototype copy
 
-> **Note:** Everything below is _placeholder_ content for the interaction
-> prototype only. None of it is real product copy, navigation, or marketing
-> material. It exists so the animations and interactions have realistic-looking
-> text to move around. Real content and the high-fidelity Figma visuals arrive
-> in Phase 2. The AI typewriter response is also duplicated as a constant string
-> inside `src/components/AIChatModal.ts` (the code does not parse this file).
+> Copy currently rendered by the prototype, and where it lives in code. Figma
+> copy is marked (Figma); everything else is placeholder. The code does not
+> parse this file — keep it in sync by hand.
 
-## AI typewriter response
+## AI Chat Modal (`src/components/AIChatModal.ts`) — Figma
 
-> NetApp's intelligent data infrastructure brings your hybrid cloud together
-> under a single control plane. Whether your workloads live on-premises, at the
-> edge, or across multiple public clouds, you get consistent storage, data
-> management, and security without rewriting a thing.
+**Chat history** (left column; the submitted prompt is appended as the current,
+highlighted chat):
+- How to securely consolidate and stage AI training data from sources in multiple clouds
+- Compare CapEx and OpEx investment scenarios
+- _(current)_ the user's prompt, e.g. "How can NetApp accelerate my AI infrastructure?"
+
+**AI response** (typewriter, rich text — `AI_RESPONSE_HTML`):
+
+> NetApp accelerates AI infrastructure by making data ready, available, and
+> protected across on-premises and cloud environments:
 >
-> For teams modernizing their storage estate, ONTAP-based systems deliver
-> built-in efficiency: inline deduplication, compression, and automated tiering
-> move cold data to lower-cost object storage while keeping hot data fast. You
-> pay for performance where it matters and capacity where it doesn't.
+> - **Scale performance independently:** AFX disaggregates performance and capacity for demanding AI workloads.
+> - **Prepare data faster:** AI Data Engine curates, transforms, and serves AI-ready data in place.
+> - **Feed GPUs efficiently:** Validated NVIDIA DGX SuperPOD and AIPod architectures reduce storage bottlenecks.
+> - **Unify hybrid data:** ONTAP supports data mobility across AWS, Azure, Google Cloud, and on premises.
+> - **Protect AI assets:** Built-in ransomware detection, Snapshot copies, and governance help secure models and datasets.
 >
-> On the operations side, our observability tooling surfaces cost, performance,
-> and risk in one place, so you can right-size capacity before it becomes a
-> fire drill. Policy-driven automation handles the repetitive work, and
-> ransomware detection watches for anomalies around the clock.
+> [Explore AI infrastructure]
 >
-> Want me to put together a short migration outline, or compare the cloud
-> storage tiers for your workload profile? I've pulled a couple of starting
-> points into the panel on the right.
+> Would you like a focused view of AFX capabilities for AI training, RAG, or inference?
 
-## Artifact cards (right column, revealed after the response)
+**Resources** (right column, revealed after the response):
+1. VIRTUAL BRIEFING — Ready to build your own intelligent data infrastructure? → (`chat-resource-1.jpg`)
+2. ASSESSMENT — Take the AI readiness assessment → (`chat-resource-2.jpg`)
 
-1. **Cloud Storage Tiers — Quick Comparison**
-   A side-by-side of performance, capacity, and archive tiers with indicative
-   price/performance ratios for common workload profiles.
+**Prompt placeholder while the chat is open:** "Make a selection or type something else…"
 
-2. **90-Day Migration Outline**
-   A phased template covering assessment, pilot, cutover, and optimization —
-   with checkpoints you can hand to stakeholders.
+## Nav Modal (`src/components/NavModal.ts`) — Figma
 
-## Nav Modal — side tabs (5 tabs x 10 links)
+- Primary: Platform · Storage · Data Services · Solutions · Support · Resources
+- Column 2: Customer Stories · Partnerships · Thought Leadership · Communities ·
+  Product Updates · _(gap)_ · How to Buy · Test Drive a Product · Find a Partner ·
+  Contact Sales
+- Column 3: Blogs · Careers · Investors · _(gap)_ · Technical Support ·
+  Developers · Downloads · Training
 
-### Products
-- Products > Cloud Storage
-- Products > Data Management
-- Products > Block & File Storage
-- Products > Object Storage
-- Products > Backup & Recovery
-- Products > Ransomware Protection
-- Products > Observability
-- Products > Kubernetes Storage
-- Products > AI Data Engine
-- Products > All Products
+## Account Modal (`src/components/AccountModal.ts`) — Figma
 
-### Solutions
-- Solutions > Hybrid Cloud
-- Solutions > Multicloud
-- Solutions > AI & Analytics
-- Solutions > Virtual Desktops
-- Solutions > Databases
-- Solutions > DevOps & CI/CD
-- Solutions > Disaster Recovery
-- Solutions > Cost Optimization
-- Solutions > Edge & IoT
-- Solutions > Industry Solutions
+- Persona sentence: "I'm a/an [role ▾] / focused on [goal ▾] / in the [industry ▾]"
+- DASHBOARD — Access support, communities and trainings, Sign in →
+- ACCOUNT — Don't have an account? Click here to create an account →
+- CONSOLE — Monitor and run hybrid cloud data services, NetApp Console →
 
-### Resources
-- Resources > Documentation
-- Resources > Knowledge Base
-- Resources > Blog
-- Resources > Webinars
-- Resources > Case Studies
-- Resources > White Papers
-- Resources > Community
-- Resources > Training & Certification
-- Resources > Events
-- Resources > Developer Hub
+## Persona options (`src/state/persona.ts`)
 
-### Support
-- Support > Open a Case
-- Support > Downloads
-- Support > Product Lifecycle
-- Support > System Status
-- Support > Security Advisories
-- Support > Professional Services
-- Support > Managed Services
-- Support > Partner Support
-- Support > Contact Support
-- Support > Support Plans
+- **Role:** Chief Information Officer · Chief Data Officer · VP Infrastructure/Operations ·
+  Chief Information Security Officer · DevOps Engineer · Storage Engineer
+- **Goal:** adopting AI safely and affordably · managing data at scale · migrating
+  virtualization paradigms · meeting regulatory requirements · achieving consistent
+  delivery across hybrid cloud
+- **Industry** (account modal only; placeholder — Figma shows only "space industry"):
+  space industry · financial services industry · healthcare industry ·
+  manufacturing industry · public sector · media and entertainment industry
 
-### Company
-- Company > About NetApp
-- Company > Leadership
-- Company > Careers
-- Company > Newsroom
-- Company > Investor Relations
-- Company > Sustainability
-- Company > Partners
-- Company > Customers
-- Company > Legal & Trust
-- Company > Contact Us
+## Persona confirmation (moment 3, live) — Figma
 
-## Account Modal content (placeholder blocks)
+"Thanks! We'll customize your site experience based on your role as a/an [role]
+focused on [goal]. You can update these anytime in the top navigation."
 
-- **Sign in** — email + password form placeholder with a "Forgot password" link.
-- **Create account** — card inviting new users to register, with a primary CTA.
-- **Product sign-in** — jump to a specific product console (BlueXP, Cloud
-  Manager, Support Site) via a dropdown.
+## Home 6 news carousel (`index.html`, `.news`)
 
-## Persona Picker options
+1–3 are Figma; 4–6 are placeholder (`data-placeholder`):
+1. AWS RE:INVENT — Join NetApp at AWS Summit Berlin to explore cloud, AI, and modern data infrastructure. [Explore AWS Summit Berlin]
+2. GARTNER — Discover why Gartner recognizes NetApp for leadership in enterprise storage and data infrastructure. [Read the Gartner report]
+3. ANALYST REPORT — Get the latest analyst perspective on cyber resilience, data protection, and AI-ready infrastructure. [Download the report]
+4. NETAPP INSIGHT — Watch the keynotes and breakout sessions on intelligent data infrastructure on demand. [Watch on demand]
+5. PRESS RELEASE — NetApp expands AFX and AI Data Engine to speed the path from raw data to AI-ready data. [Read the announcement]
+6. BLOG — See how enterprises are building secure, AI-ready data pipelines across hybrid cloud. [Read the blog]
 
-- **Role:** IT Admin / Developer / Executive / Procurement
-- **Industry:** Financial Services / Healthcare / Manufacturing / Retail
+## Home 6 quick start links — Figma
 
-## Chat history (left column placeholders)
-
-- Comparing cloud storage tiers (active)
-- Ransomware recovery options
-- Kubernetes persistent volumes
-- Reducing cold data costs
+Emma's quick start links: Explore your workflows → · Manage your profile → · Open your workspace → · Connect your data →

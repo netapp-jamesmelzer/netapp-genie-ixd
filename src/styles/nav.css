@@ -61,6 +61,7 @@
   display: flex;
   align-items: center;
   gap: 24px;
+  transition: background var(--dur-fast) var(--ease-out);
   height: 78px;
   padding: 12px 41px;
   background: var(--color-nav-pill-bg);
@@ -107,23 +108,23 @@
   opacity: 0.8;
 }
 
-/* Label + icon swap between open ("Explore") and active ("Close") states. */
-.menu-btn-label--close,
-.menu-icon--close {
-  display: none;
+/* Figma: 30px vertical rule between the logo and "Explore". */
+.nav-divider {
+  width: 1px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
 }
 
-.menu-btn.is-active .menu-btn-label--open,
-.menu-btn.is-active .menu-icon--open {
-  display: none;
+/* Active (nav modal open): Figma "selected" fill on the pill. */
+.nav-pill:has(.menu-btn.is-active) {
+  background: var(--color-nav-selected);
 }
 
-.menu-btn.is-active .menu-btn-label--close {
-  display: inline;
-}
-
-.menu-btn.is-active .menu-icon--close {
-  display: block;
+.menu-btn:focus-visible,
+.nav-account:focus-visible {
+  outline: 2px solid var(--color-ping);
+  outline-offset: 4px;
 }
 
 /* ---- Account control (round, flex sibling in .nav-group) ---- */
@@ -151,10 +152,9 @@
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* Active: modal open -> persistent outline highlight. */
+/* Active (account modal open): Figma "selected" fill. */
 .nav-account.is-active {
-  outline-color: var(--color-ping);
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--color-nav-selected);
 }
 
 /* Pinging state hook (GSAP drives the outline animation). */

@@ -1,92 +1,88 @@
 /**
  * PersonaPicker
  * ---------------------------------------------------------------------------
- * Two inline, accessible dropdowns embedded directly in the persona sentence:
+ * Inline, accessible dropdowns embedded directly in persona sentences:
  *
- *   "I'm a [Chief Information Officer ▾] focused on [managing data at scale ▾]"
+ *   "I'm a [Chief Information Officer ▾]
+ *    focused on [adopting AI safely and affordably ▾]"
  *
- * Each dropdown is a plain-text trigger (cyan underline + down arrow) — no pill,
- * border, box, shadow or card. It is a custom ARIA listbox widget:
+ * Each dropdown is a plain-text trigger (cyan underline + cyan drop arrow) — no
+ * pill, border, box, shadow or card. It is a custom ARIA listbox widget:
  *   - button with aria-haspopup="listbox" + aria-expanded
  *   - ul[role=listbox] with li[role=option]
  *   - keyboard: Enter/Space/ArrowDown open; Arrows/Home/End move; Enter/Space
  *     select; Escape closes and returns focus; Tab closes; outside click closes
  *
- * Changing either dropdown dispatches a `persona-change` CustomEvent on
- * document; main.ts listens and pings the account control.
+ * Dropdowns are bound to the shared persona store (src/state/persona.ts), so
+ * the page picker and the Account Modal stay in sync. `PersonaDropdown` is
+ * exported for reuse by AccountModal.
  *
- * (The previous scroll-based collapse animation has been removed entirely.)
+ * Live text: any element with [data-persona-text="<field>"] shows the current
+ * value, and [data-persona-article="<field>"] shows "a"/"an" for it.
  */
 import { iconUrl } from '../utils/assets';
-
-interface DropdownConfig {
-  /** Field name carried in the persona-change event. */
-  field: string;
-  /** Value of the inline slot's data-persona-dd attribute. */
-  slot: string;
-  /** Options, in order; index 0 is the default selection. */
-  options: string[];
-}
-
-const CONFIGS: DropdownConfig[] = [
-  {
-    field: 'role',
-    slot: 'role',
-    options: [
-      'Chief Information Officer',
-      'Chief Data Officer',
-      'VP Infrastructure/Operations',
-      'Chief Information Security Officer',
-      'DevOps Engineer',
-      'Storage Engineer',
-    ],
-  },
-  {
-    field: 'goal',
-    slot: 'goal',
-    options: [
-      'adopting AI safely and affordably',
-      'managing data at scale',
-      'migrating virtualization paradigms',
-      'meeting regulatory requirements',
-      'achieving consistent delivery across hybrid cloud',
-    ],
-  },
-];
+import {
+  PERSONA_OPTIONS,
+  articleFor,
+  getPersona,
+  setPersona,
+  type PersonaChangeDetail,
+  type PersonaField,
+  type PersonaSource,
+} from '../state/persona';
 
 export class PersonaPicker {
-  private dropdowns: PersonaDropdown[] = [];
-
-  /** Build each dropdown and inject it into its inline slot in the sentence. */
+  /** Build each page dropdown, inject it into its inline slot, bind live text. */
   mount(): void {
-    CONFIGS.forEach((cfg) => {
-      const slot = document.querySelector<HTMLElement>(
-        `[data-persona-dd="${cfg.slot}"]`
-      );
-      if (!slot) return;
-      const dd = new PersonaDropdown(cfg);
-      slot.appendChild(dd.el);
-      this.dropdowns.push(dd);
+    document.querySelectorAll<HTMLElement>('main.page [data-persona-dd]').forEach((slot) => {
+      const field = slot.dataset.personaDd as PersonaField;
+      if (!PERSONA_OPTIONS[field]) return;
+      slot.appendChild(new PersonaDropdown(field, 'page').el);
     });
+    bindPersonaText(document);
   }
 }
 
-class PersonaDropdown {
+/** Keep [data-persona-text] / [data-persona-article] in sync with the store. */
+export function bindPersonaText(root: ParentNode): void {
+  const render = (): void => {
+    root.querySelectorAll<HTMLElement>('[data-persona-text]').forEach((el) => {
+      el.textContent = getPersona(el.dataset.personaText as PersonaField);
+    });
+    root.querySelectorAll<HTMLElement>('[data-persona-article]').forEach((el) => {
+      const word = getPersona(el.dataset.personaArticle as PersonaField);
+      const article = articleFor(word);
+      // Preserve a leading capital ("A"/"An") if the markup starts capitalised.
+      el.textContent = /^[A-Z]/.test(el.textContent ?? '')
+        ? article[0].toUpperCase() + article.slice(1)
+        : article;
+    });
+  };
+  render();
+  document.addEventListener('persona-change', render);
+}
+
+let instanceCount = 0;
+
+export class PersonaDropdown {
   readonly el: HTMLSpanElement;
   private readonly button: HTMLButtonElement;
   private readonly listbox: HTMLUListElement;
   private readonly textEl: HTMLSpanElement;
   private readonly options: string[];
-  private readonly field: string;
   private readonly idBase: string;
-  private selectedIndex = 0;
-  private activeIndex = 0;
+  private selectedIndex: number;
+  private activeIndex: number;
   private open = false;
 
-  constructor(cfg: DropdownConfig) {
-    this.options = cfg.options;
-    this.field = cfg.field;
-    this.idBase = `persona-dd-${cfg.field}`;
+  constructor(
+    private readonly field: PersonaField,
+    private readonly source: PersonaSource
+  ) {
+    this.options = PERSONA_OPTIONS[field];
+    this.idBase = `persona-dd-${field}-${++instanceCount}`;
+    this.selectedIndex = Math.max(0, this.options.indexOf(getPersona(field)));
+    this.activeIndex = this.selectedIndex;
 
     this.el = document.createElement('span');
     this.el.className = 'persona-dd';
@@ -104,11 +100,11 @@ class PersonaDropdown {
     this.textEl.className = 'persona-dd__text';
     this.textEl.textContent = this.options[this.selectedIndex];
 
-    const arrow = document.createElement('img');
-    arrow.src = iconUrl('ic_dropdown_arrow_down.svg');
-    arrow.alt = '';
-    arrow.setAttribute('aria-hidden', 'true');
+    // Cyan drop arrow: the SVG is used as a mask so it can take any color.
+    const arrow = document.createElement('span');
     arrow.className = 'persona-dd__arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.style.setProperty('--icon', `url('${iconUrl('ic_dropdown_arrow_down.svg')}')`);
 
     this.button.append(this.textEl, arrow);
 
@@ -142,6 +138,13 @@ class PersonaDropdown {
     document.addEventListener('click', (e) => {
       if (this.open && !this.el.contains(e.target as Node)) this.close();
     });
+    // Reflect changes made by other dropdowns bound to the same field.
+    document.addEventListener('persona-change', (e) => {
+      const { field, value } = (e as CustomEvent<PersonaChangeDetail>).detail;
+      if (field !== this.field) return;
+      const i = this.options.indexOf(value);
+      if (i >= 0 && i !== this.selectedIndex) this.render(i);
+    });
   }
 
   private toggle(): void {
@@ -159,7 +162,7 @@ class PersonaDropdown {
     this.listbox.focus();
   }
 
-  private close(returnFocus = false): void {
+  close(returnFocus = false): void {
     if (!this.open) return;
     this.open = false;
     this.listbox.hidden = true;
@@ -223,6 +226,7 @@ class PersonaDropdown {
         break;
       case 'Escape':
         e.preventDefault();
+        e.stopPropagation(); // don't also close a modal this dropdown lives in
         this.close(true);
         break;
       case 'Tab':
@@ -231,17 +235,17 @@ class PersonaDropdown {
     }
   }
 
-  private select(index: number): void {
+  private render(index: number): void {
     this.selectedIndex = index;
     this.textEl.textContent = this.options[index];
     Array.from(this.listbox.children).forEach((li, i) => {
       li.setAttribute('aria-selected', String(i === index));
     });
+  }
+
+  private select(index: number): void {
+    this.render(index);
     this.close(true);
-    document.dispatchEvent(
-      new CustomEvent('persona-change', {
-        detail: { field: this.field, value: this.options[index] },
-      })
-    );
+    setPersona(this.field, this.options[index], this.source);
   }
 }

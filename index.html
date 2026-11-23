@@ -15,58 +15,66 @@
     -->
     <main class="page">
       <!-- ============================================================= -->
-      <!-- Section 1: Hero -->
+      <!-- Stage: moments 1–3 share one sticky earth video (Figma Home,  -->
+      <!-- Home 2, Home 3). The background stays put while the sections  -->
+      <!-- scroll over it; ScrollScenes.ts scrubs its zoom and dimming.  -->
       <!-- ============================================================= -->
-      <section class="moment moment--hero" id="moment-1">
-        <video
-          class="moment__video"
-          autoplay
-          muted
-          loop
-          playsinline
-          data-video="space_video_1.mp4"
-        ></video>
-        <div class="moment__overlay moment__overlay--top"></div>
-        <div class="moment__overlay moment__overlay--bottom"></div>
-        <div class="moment__content hero__content">
-          <h1 class="hero__headline">The fastest enterprise storage on the planet</h1>
-          <p class="hero__subcopy">
-            NetApp provides enterprise storage, data management, and built-in
-            security to help organizations store, protect, and mobilize their data
-            across hybrid and multicloud environments.
-          </p>
-          <div class="hero__partners">
-            <span class="partner-logo">S&amp;P Global</span>
-            <span class="partner-logo">ESA</span>
+      <div class="stage" id="stage">
+        <div class="stage__bg" aria-hidden="true">
+          <video
+            class="stage__video"
+            autoplay
+            muted
+            loop
+            playsinline
+            data-video="space_video_1.mp4"
+          ></video>
+          <div class="moment__overlay moment__overlay--top"></div>
+          <div class="moment__overlay moment__overlay--bottom"></div>
+          <div class="stage__dim"></div>
+        </div>
+
+        <!-- Section 1: Hero -->
+        <section class="moment moment--hero" id="moment-1">
+          <div class="moment__content hero__content">
+            <h1 class="hero__headline">The fastest enterprise storage on the planet</h1>
+            <p class="hero__subcopy">
+              NetApp provides enterprise storage, data management, and built-in
+              security to help organizations store, protect, and move data across
+              on-premises and cloud environments.
+            </p>
+            <div class="hero__partners">
+              <span class="partner-logo">S&amp;P Global</span>
+              <span class="partner-logo">ESA</span>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- ============================================================= -->
-      <!-- Section 2: Persona Builder -->
-      <!-- ============================================================= -->
-      <section class="moment moment--dark moment--center" id="moment-2">
-        <div class="moment__content persona__content">
-          <h2 class="persona__headline">Find the right NetApp solution for you</h2>
-          <!-- Inline persona dropdowns are injected into the slots by PersonaPicker.ts. -->
-          <p class="persona__sentence">
-            I'm a <span class="persona-dd-slot" data-persona-dd="role"></span> focused on
-            <span class="persona-dd-slot" data-persona-dd="goal"></span>
-          </p>
-        </div>
-      </section>
+        <!-- Section 2: Persona Builder -->
+        <section class="moment moment--stage moment--center" id="moment-2">
+          <div class="moment__content persona__content">
+            <h2 class="persona__headline">Find the right NetApp solution for you</h2>
+            <!-- Inline persona dropdowns are injected into the slots by PersonaPicker.ts. -->
+            <div class="persona__sentence">
+              <p class="persona-line">I’m <span data-persona-article="role">a</span> <span class="persona-dd-slot" data-persona-dd="role"></span></p>
+              <p class="persona-line">focused on <span class="persona-dd-slot" data-persona-dd="goal"></span></p>
+            </div>
+          </div>
+        </section>
 
-      <!-- ============================================================= -->
-      <!-- Section 3: Persona Confirmation -->
-      <!-- ============================================================= -->
-      <section class="moment moment--dark moment--center" id="moment-3">
-        <div class="moment__content confirm__content">
-          <p class="confirm__text">
-            Thanks! We'll customize your site experience based on your role as an
-            information architect focused on managing data at scale.
-          </p>
-        </div>
-      </section>
+        <!-- Section 3: Persona Confirmation (live text from the persona store) -->
+        <section class="moment moment--stage moment--center" id="moment-3">
+          <div class="moment__content confirm__content">
+            <p class="confirm__text">
+              Thanks! We’ll customize your site experience based on your role as
+              <span data-persona-article="role">a</span>
+              <span class="confirm__value" data-persona-text="role"></span> focused on
+              <span class="confirm__value" data-persona-text="goal"></span>. You can
+              update these anytime in the top navigation.
+            </p>
+          </div>
+        </section>
+      </div>
 
       <!-- ============================================================= -->
       <!-- Section 4: Recommended (light) -->
@@ -100,7 +108,7 @@
               </div>
             </article>
             <div class="recommended__side">
-              <div class="side-card__img" data-bg="card-2.jpg"></div>
+              <div class="side-card__img" data-bg="product-overview-card.png"></div>
               <div class="side-card__body">
                 <p class="eyebrow eyebrow--dark">Product overview</p>
                 <p class="side-card__text">
@@ -138,120 +146,190 @@
       </section>
 
       <!-- ============================================================= -->
-      <!-- Section 6: Footer / Home 6 -->
+      <!-- Section 6: Home 6 — news, next steps, resources, footer        -->
+      <!-- Figma "Home 6" 1:1020 (Next steps 1:1021, footer 1:1151)       -->
       <!-- ============================================================= -->
       <section class="footer-section" id="moment-6">
-        <!-- Top: white news area -->
-        <div class="news">
-          <p class="eyebrow eyebrow--purple">Latest at NetApp</p>
-          <h2 class="news__title">News and announcements</h2>
-          <div class="news__grid">
-            <article class="news-card">
-              <p class="eyebrow eyebrow--dark">AWS re:Invent</p>
-              <p class="news-card__text">
-                Join NetApp at AWS Summit Berlin to explore cloud, AI, and modern
-                data infrastructure.
-              </p>
-              <a href="#" class="btn btn--soft">Explore AWS Summit Berlin<img src="" alt="" aria-hidden="true" class="btn__icon" data-icon="ic_arrow_outward.svg" /></a>
-            </article>
-            <article class="news-card">
-              <p class="eyebrow eyebrow--dark">Gartner</p>
-              <p class="news-card__text">
-                Discover why Gartner recognizes NetApp for leadership in enterprise
-                storage and data infrastructure.
-              </p>
-              <a href="#" class="btn btn--soft">Read the Gartner report<img src="" alt="" aria-hidden="true" class="btn__icon" data-icon="ic_arrow_outward.svg" /></a>
-            </article>
-            <article class="news-card">
-              <p class="eyebrow eyebrow--dark">Analyst Report</p>
-              <p class="news-card__text">
-                Get the latest analyst perspective on cyber resilience, data
-                protection, and AI-ready infrastructure.
-              </p>
-              <a href="#" class="btn btn--soft">Download the report<img src="" alt="" aria-hidden="true" class="btn__icon" data-icon="ic_arrow_outward.svg" /></a>
-            </article>
+        <!-- News carousel (NewsCarousel.ts) -->
+        <div class="news" data-carousel>
+          <div class="home6-inner">
+            <p class="eyebrow eyebrow--purple">Latest at NetApp</p>
+            <div class="news__head">
+              <h2 class="news__title">News and announcements</h2>
+              <div class="carousel-nav">
+                <button class="carousel-nav__btn" type="button" aria-label="Previous news" data-carousel-prev>
+                  <img src="" alt="" aria-hidden="true" data-icon="ic_arrow_left.svg" />
+                </button>
+                <button class="carousel-nav__btn" type="button" aria-label="Next news" data-carousel-next>
+                  <img src="" alt="" aria-hidden="true" data-icon="ic_arrow_right.svg" />
+                </button>
+              </div>
+            </div>
+            <div class="news__track" data-carousel-track tabindex="0" aria-label="News and announcements">
+              <article class="news-card">
+                <p class="news-card__tag">AWS re:Invent</p>
+                <p class="news-card__text">Join NetApp at AWS Summit Berlin to explore cloud, AI, and modern data infrastructure.</p>
+                <a href="#" class="btn btn--soft">Explore AWS Summit Berlin<img src="" alt="" aria-hidden="true" class="btn__icon" data-icon="ic_arrow_outward.svg" /></a>
+              </article>
+              <article class="news-card">
+                <p class="news-card__tag">Gartner</p>
+                <p class="news-card__text">Discover why Gartner recognizes NetApp for leadership in enterprise storage and data infrastructure.</p>
+                <a href="#" class="btn btn--soft">Read the Gartner report<img src="" alt="" aria-hidden="true" class="btn__icon" data-icon="ic_arrow_outward.svg" /></a>
+              </article>
+              <article class="news-card">
+                <p class="news-card__tag">Analyst report</p>
+                <p class="news-card__text">Get the latest analyst perspective on cyber resilience, data protection, and AI-ready infrastructure.</p>
+                <a href="#" class="btn btn--soft">Download the report<img src="" alt="" aria-hidden="true" class="btn__icon" data-icon="ic_arrow_outward.svg" /></a>
+              </article>
+              <!-- Placeholder cards (not in Figma) so the carousel has somewhere to go. -->
+              <article class="news-card" data-placeholder>
+                <p class="news-card__tag">NetApp INSIGHT</p>
+                <p class="news-card__text">Watch the keynotes and breakout sessions on intelligent data infrastructure on demand.</p>
+                <a href="#" class="btn btn--soft">Watch on demand<img src="" alt="" aria-hidden="true" class="btn__icon" data-icon="ic_arrow_outward.svg" /></a>
+              </article>
+              <article class="news-card" data-placeholder>
+                <p class="news-card__tag">Press release</p>
+                <p class="news-card__text">NetApp expands AFX and AI Data Engine to speed the path from raw data to AI-ready data.</p>
+                <a href="#" class="btn btn--soft">Read the announcement<img src="" alt="" aria-hidden="true" class="btn__icon" data-icon="ic_arrow_outward.svg" /></a>
+              </article>
+              <article class="news-card" data-placeholder>
+                <p class="news-card__tag">Blog</p>
+                <p class="news-card__text">See how enterprises are building secure, AI-ready data pipelines across hybrid cloud.</p>
+                <a href="#" class="btn btn--soft">Read the blog<img src="" alt="" aria-hidden="true" class="btn__icon" data-icon="ic_arrow_outward.svg" /></a>
+              </article>
+            </div>
+            <div class="carousel-progress" aria-hidden="true"><span class="carousel-progress__bar" data-carousel-bar></span></div>
           </div>
         </div>
 
-        <!-- Next steps: 3-up image cards (eyebrow + body) — distinct row block -->
+        <!-- Next steps + Resources and support (one white block, shared glow) -->
         <div class="next-steps-section">
+          <div class="home6-inner">
             <div class="next-steps-head">
-              <p class="eyebrow eyebrow--purple">Next steps</p>
-              <h2 class="next-steps-title">Take the next step toward cyber resilience</h2>
-            </div>
-            <div class="image-cards-grid">
-              <div class="image-card">
-                <div class="image-card__img" data-bg="card-1.jpg"></div>
-                <p class="image-card__eyebrow">Solutions</p>
-                <p class="image-card__desc">Explore solutions for enterprise storage and large-scale data infrastructure. &rarr;</p>
+              <div>
+                <p class="eyebrow eyebrow--purple">Next steps</p>
+                <h2 class="next-steps-title">Take the next step toward cyber resilience</h2>
               </div>
-              <div class="image-card">
-                <div class="image-card__img" data-bg="card-2.jpg"></div>
-                <p class="image-card__eyebrow">Find a partner</p>
-                <p class="image-card__desc">Work with a trusted partner to evaluate and implement the right infrastructure strategy. &rarr;</p>
-              </div>
-              <div class="image-card">
-                <div class="image-card__img" data-bg="card-3.jpg"></div>
-                <p class="image-card__eyebrow">Talk to sales</p>
-                <p class="image-card__desc">Connect with a NetApp expert to discuss your architecture and infrastructure goals. &rarr;</p>
+              <div class="quick-links">
+                <p class="quick-links__title">Emma’s quick start links</p>
+                <ul class="quick-links__list">
+                  <li><a href="#" class="quick-links__item"><img src="" alt="" aria-hidden="true" data-media="illustration/illustration_account_tree.png" class="quick-links__icon" /><span>Explore your workflows&nbsp;→</span></a></li>
+                  <li><a href="#" class="quick-links__item"><img src="" alt="" aria-hidden="true" data-media="illustration/illustration_assignment_ind.png" class="quick-links__icon" /><span>Manage your profile&nbsp;→</span></a></li>
+                  <li><a href="#" class="quick-links__item"><img src="" alt="" aria-hidden="true" data-media="illustration/illustration_border_all.png" class="quick-links__icon" /><span>Open your workspace&nbsp;→</span></a></li>
+                  <li><a href="#" class="quick-links__item"><img src="" alt="" aria-hidden="true" data-media="illustration/illustration_database.png" class="quick-links__icon" /><span>Connect your data&nbsp;→</span></a></li>
+                </ul>
               </div>
             </div>
 
-            <!-- Resources accordion lives inside next steps (shared bg + glow). -->
+            <div class="image-cards-grid">
+              <a href="#" class="image-card">
+                <span class="image-card__img" data-bg="card-1.jpg"></span>
+                <span class="image-card__eyebrow">Solutions</span>
+                <span class="image-card__desc">Explore solutions for enterprise storage and large-scale data infrastructure.&nbsp;→</span>
+              </a>
+              <a href="#" class="image-card">
+                <span class="image-card__img" data-bg="card-2.jpg"></span>
+                <span class="image-card__eyebrow">Talk to sales</span>
+                <span class="image-card__desc">Connect with a NetApp expert to discuss your architecture and infrastructure goals.&nbsp;→</span>
+              </a>
+              <a href="#" class="image-card">
+                <span class="image-card__img" data-bg="card-3.jpg"></span>
+                <span class="image-card__eyebrow">Find a partner</span>
+                <span class="image-card__desc">Work with a trusted partner to evaluate and implement the right infrastructure strategy.&nbsp;→</span>
+              </a>
+            </div>
+
             <div class="accordion">
               <h3 class="accordion__title">Resources and support</h3>
-            <div class="accordion__row">
-              <span>Downloads: Download the latest software and other updates for your NetApp products</span>
-              <img src="" alt="" aria-hidden="true" class="accordion__icon" data-icon="ic_add.svg" />
-            </div>
-            <div class="accordion__row">
-              <span>Documentation: Access technical product documentation across storage, cloud, and data services</span>
-              <img src="" alt="" aria-hidden="true" class="accordion__icon" data-icon="ic_add.svg" />
-            </div>
-            <div class="accordion__row">
-              <span>Training: Explore certifications and learning resources for data and IT professionals</span>
-              <img src="" alt="" aria-hidden="true" class="accordion__icon" data-icon="ic_add.svg" />
-            </div>
-            <div class="accordion__row">
-              <span>Troubleshooting: Find support resources and guidance to help resolve product and system issues</span>
-              <img src="" alt="" aria-hidden="true" class="accordion__icon" data-icon="ic_add.svg" />
-            </div>
-            </div>
-          </div>
-
-        <!-- Bottom: dark mega-footer -->
-        <div class="mega-footer">
-          <div class="mega-footer__cols">
-            <div class="mega-footer__col">
-              <p class="eyebrow eyebrow--teal">News &amp; Stories</p>
-              <a href="#">Newsroom</a>
-              <a href="#">Events</a>
-              <a href="#">Blog</a>
-              <a href="#">Customer Experience</a>
-              <a href="#">Customer Stories</a>
-            </div>
-            <div class="mega-footer__col">
-              <p class="eyebrow eyebrow--teal">Contact &amp; Feedback</p>
-              <a href="#">Contact Us</a>
-              <a href="#">Site Feedback</a>
-              <a href="#">Accessibility</a>
-              <a href="#">Email Subscriptions</a>
-            </div>
-            <div class="mega-footer__col">
-              <p class="eyebrow eyebrow--teal">Quality Certifications</p>
-              <a href="#">Sustainability</a>
-              <a href="#">NetApp Instaclustr</a>
-            </div>
-            <div class="mega-footer__col">
-              <p class="eyebrow eyebrow--teal">Support</p>
-              <a href="#">Technical Support</a>
-              <a href="#">Developers</a>
-              <a href="#">Downloads</a>
-              <a href="#">Training</a>
+              <ul class="accordion__stack">
+                <li class="accordion__row">
+                  <span class="accordion__text"><strong>Downloads:</strong> Download the latest software and other updates for your NetApp products</span>
+                  <img src="" alt="" aria-hidden="true" class="accordion__icon" data-icon="ic_add.svg" />
+                </li>
+                <li class="accordion__row">
+                  <span class="accordion__text"><strong>Documentation:</strong> Access technical product documentation across storage, cloud, and data services</span>
+                  <img src="" alt="" aria-hidden="true" class="accordion__icon" data-icon="ic_add.svg" />
+                </li>
+                <li class="accordion__row">
+                  <span class="accordion__text"><strong>Troubleshooting:</strong> Find support resources and guidance to help resolve product and system issues</span>
+                  <img src="" alt="" aria-hidden="true" class="accordion__icon" data-icon="ic_add.svg" />
+                </li>
+                <li class="accordion__row">
+                  <span class="accordion__text"><strong>Training:</strong> Explore certifications and learning resources for data and IT professionals</span>
+                  <img src="" alt="" aria-hidden="true" class="accordion__icon" data-icon="ic_add.svg" />
+                </li>
+              </ul>
             </div>
           </div>
-          <img src="" alt="NetApp" class="mega-footer__logo" data-media="NetApp-Logo.svg" />
         </div>
+
+        <!-- Mega-footer (Figma "footer" 1:1151) -->
+        <footer class="mega-footer">
+          <div class="home6-inner">
+            <div class="mega-footer__top">
+              <span class="mega-footer__logo icon-mask" role="img" aria-label="NetApp" data-mask="NetApp-Logo.svg"></span>
+              <div class="mega-footer__cols">
+                <nav class="mega-footer__col" aria-label="Get started">
+                  <p class="mega-footer__eyebrow">Get started</p>
+                  <a href="#">How to Buy</a>
+                  <a href="#">Contact Sales</a>
+                  <a href="#">Find a Partner</a>
+                  <a href="#">Test Drive a Product</a>
+                  <a href="#">Start a Free Trial</a>
+                  <a href="#">Executive Briefing</a>
+                  <a href="#">Products A-Z</a>
+                  <a href="#">Product Updates</a>
+                </nav>
+                <nav class="mega-footer__col" aria-label="Resources">
+                  <p class="mega-footer__eyebrow">Resources</p>
+                  <a href="#">Support</a>
+                  <a href="#">Training</a>
+                  <a href="#">Documentation</a>
+                  <a href="#">Knowledge Base</a>
+                  <a href="#">Community</a>
+                  <a href="#">Learning Hub</a>
+                </nav>
+                <nav class="mega-footer__col" aria-label="About us">
+                  <p class="mega-footer__eyebrow">About us</p>
+                  <a href="#">Company</a>
+                  <a href="#">Partners</a>
+                  <a href="#">Careers</a>
+                  <a href="#">Investors</a>
+                  <a href="#">Trust Center</a>
+                  <a href="#">Quality Certifications</a>
+                  <a href="#">Sustainability</a>
+                  <a href="#">NetApp Instaclustr</a>
+                </nav>
+                <nav class="mega-footer__col" aria-label="News and stories">
+                  <p class="mega-footer__eyebrow">News &amp; Stories</p>
+                  <a href="#">Newsroom</a>
+                  <a href="#">Events</a>
+                  <a href="#">Blog</a>
+                  <a href="#">Customer Experience</a>
+                  <a href="#">Customer Stories</a>
+                </nav>
+                <nav class="mega-footer__col" aria-label="Contact and feedback">
+                  <p class="mega-footer__eyebrow">Contact &amp; Feedback</p>
+                  <a href="#">Contact Us</a>
+                  <a href="#">Site Feedback</a>
+                  <a href="#">Accessibility</a>
+                  <a href="#">Email Subscriptions</a>
+                </nav>
+              </div>
+            </div>
+            <div class="mega-footer__bottom">
+              <p class="mega-footer__copy">© 2026 NetApp</p>
+              <nav class="mega-footer__legal" aria-label="Legal">
+                <a href="#">Terms of Use</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Cookie Policy</a>
+                <a href="#">Cookie Settings</a>
+                <a href="#">Modern Slavery Statement</a>
+                <a href="#">Legal</a>
+              </nav>
+            </div>
+          </div>
+        </footer>
       </section>
     </main>
 
