@@ -145,16 +145,20 @@ async function init(): Promise<void> {
   // modals (e.g. the chat thread) still scroll.
   const syncScrollLock = (): void => {
     const root = document.documentElement;
-    const lock = navModal.opened || accountModal.opened || aiChatModal.opened;
+    const darkModal = navModal.opened || accountModal.opened;
+    const lock = darkModal || aiChatModal.opened;
+
+    // Nav theme follows the topmost modal: nav/account modals are dark
+    // (and sit above the chat); the chat alone is a white card → light nav
+    // (black foreground). No modal → auto-detect from the page surface.
+    navBar.setThemeOverride(darkModal ? 'dark' : aiChatModal.opened ? 'light' : null);
+
     if (lock === root.classList.contains('is-scroll-locked')) return;
     if (lock) {
       const comp = window.innerWidth - root.clientWidth;
       root.style.setProperty('--scrollbar-comp', `${comp}px`);
     }
     root.classList.toggle('is-scroll-locked', lock);
-    // Every modal (and the chat's dark vignette) sits behind the nav as a
-    // dark surface; return to auto-detect when they close.
-    navBar.setThemeOverride(lock ? 'dark' : null);
   };
 
   // --- Nav Bar controls -> modals (mutually exclusive) ---------------------
@@ -239,6 +243,7 @@ async function init(): Promise<void> {
       navBar.setAccountActive(false);
     }
     aiChatModal.open(aiPrompt.getRect(), text);
+    navBar.show(); // the chat needs the nav reachable (and it's light over the card)
     aiPrompt.leaveHuge();
     aiPrompt.setPlaceholder('Make a selection or type something else…');
     syncScrollLock();

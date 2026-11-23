@@ -18,6 +18,9 @@
  *     previous section's end.
  *   - After the last slide (Customer Story), normal scrolling resumes — but
  *     coming back up while the story is still in view glides back to it.
+ *     That return catch inherits the user's scroll speed (ease-out, duration
+ *     from velocity) so it decelerates into the story instead of braking and
+ *     re-accelerating against their momentum.
  *   - Slack, part 1 — momentum: input during a glide is swallowed, and so is
  *     the trailing trackpad/mouse momentum after arrival. Momentum is
  *     recognised by its shape: events < momentumGapMs apart whose deltas keep
@@ -66,6 +69,11 @@ const CONFIG = {
   returnZone: 0.85,
   /** Pixel tolerance for "at a stop". */
   tol: 2,
+  /** Return-from-below catch: velocity-matched glide, within these bounds (s). */
+  returnMin: 0.35,
+  returnMax: 0.9,
+  /** Below this speed (px/ms) the return catch uses the standard glide. */
+  returnMinVelocity: 0.3,
 };
 
 type Target = number | 'slack' | null;
@@ -85,6 +93,8 @@ export class SlideSnap {
   private holdMax = 0;
   private lastWheelAt = 0;
   private lastAbsDy = 0;
+  /** Smoothed wheel speed (px/ms), for velocity-matched return glides. */
+  private wheelVelocity = 0;
 
   private intentAcc = 0;
   private intentAt = 0;
@@ -197,6 +207,8 @@ export class SlideSnap {
     const absDy = Math.abs(dy);
     const decaying = absDy <= this.lastAbsDy + 1;
     this.lastAbsDy = absDy;
+    this.wheelVelocity =
+      gap > 0 && gap < 100 ? this.wheelVelocity * 0.6 + (absDy / gap) * 0.4 : absDy / 16;
 
     // Slack 1: swallow input during the glide and its trailing momentum.
     if (this.animating) {
@@ -228,7 +240,10 @@ export class SlideSnap {
     e.preventDefault();
     if (Math.abs(this.intentAcc) >= CONFIG.intentPx) {
       this.intentAcc = 0;
-      this.glideTo(target);
+      // Coming back up from below the last slide: carry the user's speed.
+      const spans = this.spans();
+      const returning = dir < 0 && window.scrollY > spans[spans.length - 1].end + CONFIG.tol;
+      this.glideTo(target, returning ? this.wheelVelocity : 0);
     }
   }
 
@@ -319,14 +334,32 @@ export class SlideSnap {
 
   // -- Motion ---------------------------------------------------------------
 
-  private glideTo(y: number): void {
+  /**
+   * @param velocity  current scroll speed (px/ms) to carry into the glide; 0
+   *                  = the standard eased glide. With velocity, a cubic
+   *                  Hermite ease whose start slope k = v·T/d matches the
+   *                  user's speed exactly and whose end slope is 0, so the
+   *                  page only decelerates into the stop. T aims for k ≈ 2
+   *                  (a natural ease-out) within returnMin..returnMax.
+   */
+  private glideTo(y: number, velocity = 0): void {
     this.animating = true;
     this.slackAcc = 0;
     this.slackReleased = false;
+    let duration = CONFIG.duration;
+    let ease: string | ((t: number) => number) = CONFIG.ease;
+    const distance = Math.abs(y - window.scrollY);
+    if (velocity >= CONFIG.returnMinVelocity && distance > 0) {
+      const ms = Math.min(CONFIG.returnMax * 1000, Math.max(CONFIG.returnMin * 1000, (2 * distance) / velocity));
+      const k = Math.min(3, Math.max(0.5, (velocity * ms) / distance)); // ≤ 3 keeps it monotonic
+      duration = ms / 1000;
+      // f(0)=0, f(1)=1, f'(0)=k, f'(1)=0
+      ease = (t: number) => k * t + (3 - 2 * k) * t * t + (k - 2) * t * t * t;
+    }
     gsap.to(window, {
       scrollTo: { y, autoKill: false },
-      duration: this.reducedMotion.matches ? 0 : CONFIG.duration,
-      ease: CONFIG.ease,
+      duration: this.reducedMotion.matches ? 0 : duration,
+      ease,
       overwrite: 'auto',
       onComplete: () => {
         this.animating = false;

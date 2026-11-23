@@ -233,6 +233,15 @@ export class NavBar {
     this.lastScrollY = currentY;
   }
 
+  /**
+   * Bring the nav into view if the page has scrolled past it (e.g. when the
+   * AI chat opens). Same slide-in as the scroll-up reveal; a later scroll
+   * down hides it as usual.
+   */
+  show(): void {
+    if (window.scrollY > this.navHeight) this.reveal();
+  }
+
   /** Temporarily fix the nav at the top and slide it into view. */
   private reveal(): void {
     if (this.state === 'revealed') return;
