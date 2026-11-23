@@ -68,7 +68,7 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-nav);
+  border-radius: var(--radius-infinite);
   color: var(--color-nav-pill-text);
   pointer-events: auto;
 }

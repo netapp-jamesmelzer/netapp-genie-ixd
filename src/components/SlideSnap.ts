@@ -1,27 +1,35 @@
 /**
  * SlideSnap
  * ---------------------------------------------------------------------------
- * Turns hero → persona picker into a "slide": a small, intentional scroll
- * glides the page to a fixed stopping point, and built-in slack keeps the user
- * from blowing past it. The scrubbed ScrollScenes (hero exit, persona entrance,
- * stage push-in/dim) play during the glide, so it reads as one transition.
+ * Turns the opening sections — Hero → Persona → Recommended → Customer Story —
+ * into "slides": a small, intentional scroll glides the page to the next
+ * section, and built-in slack keeps the user from blowing past it. The
+ * scrubbed ScrollScenes (hero exit, persona entrance/exit, stage push-in/dim,
+ * story entrance) play during the glides, so each reads as one transition.
  *
- * Stops:  HERO = 0   ·   PERSONA = top of #moment-2 (persona fills the view)
+ * Geometry: each section i spans [top_i, end_i], where end_i = top_i when the
+ * section fits the viewport, or top_i + height_i − viewport when it is taller
+ * (then the user scrolls freely inside it). Between end_i and top_{i+1} is a
+ * "glide gap" the page never rests in.
  *
  * Behavior
- *   - From the hero (or anywhere between the stops), scrolling down with
- *     intent glides to PERSONA; scrolling up glides to HERO.
- *   - Coming back up from below while the persona is still in view glides to
- *     PERSONA first (it's a stop in both directions); one more up → HERO.
- *   - Slack, part 1 — momentum: wheel events during the glide are swallowed,
- *     and so is the trailing trackpad/mouse momentum after arrival (events
- *     arriving < momentumGapMs apart, capped at maxHoldMs).
- *   - Slack, part 2 — resistance: at PERSONA, the first slackPx of fresh
- *     downward scroll is absorbed (the content gives a few px, then springs
- *     back) before normal scrolling resumes.
- *   - Keyboard (↓ ↑ PgDn PgUp Space) and touch swipes snap the same way; a
- *     scroll that comes to rest between the stops (scrollbar drag, etc.)
- *     settles to the stop in its direction of travel.
+ *   - At a section's bottom edge (end_i), scrolling down with intent glides to
+ *     the next section's top; at a section's top, scrolling up glides to the
+ *     previous section's end.
+ *   - After the last slide (Customer Story), normal scrolling resumes — but
+ *     coming back up while the story is still in view glides back to it.
+ *   - Slack, part 1 — momentum: input during a glide is swallowed, and so is
+ *     the trailing trackpad/mouse momentum after arrival. Momentum is
+ *     recognised by its shape: events < momentumGapMs apart whose deltas keep
+ *     shrinking (held up to maxMomentumMs). A new deliberate gesture ramps
+ *     up instead, so after minHoldMs it is released. A hard flick moves
+ *     exactly one slide.
+ *   - Slack, part 2 — resistance: at the end of the last slide, the first
+ *     slackPx of fresh downward scroll is absorbed (the content gives a few px
+ *     and springs back) before normal scrolling resumes.
+ *   - Keyboard (↓ ↑ PgDn PgUp Space) and touch swipes glide the same way; a
+ *     scroll that comes to rest inside a glide gap (scrollbar drag, etc.)
+ *     settles in its direction of travel.
  *   - Inactive while a modal has the page scroll-locked, and for wheel events
  *     inside an open persona list or a scrollable textarea.
  */
@@ -29,6 +37,9 @@ import gsap from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
 gsap.registerPlugin(ScrollToPlugin);
+
+/** The slides, in order. */
+const SECTIONS = ['#moment-1', '#moment-2', '#moment-4', '#moment-5'];
 
 /** Feel knobs — tune here. */
 const CONFIG = {
@@ -41,15 +52,17 @@ const CONFIG = {
   ease: 'power3.inOut',
   /** Wheel events closer together than this are one gesture's momentum. */
   momentumGapMs: 140,
-  /** Never absorb momentum longer than this after arriving. */
-  maxHoldMs: 1600,
-  /** Downward scroll absorbed at the persona stop before scrolling resumes. */
+  /** After arriving, swallow continuous input at least this long… */
+  minHoldMs: 1600,
+  /** …and decaying (momentum-shaped) input up to this long. */
+  maxMomentumMs: 5000,
+  /** Downward scroll absorbed at the end of the last slide before scrolling resumes. */
   slackPx: 160,
   /** Pause that resets the slack counter. */
   slackResetMs: 450,
-  /** How far the persona content "gives" while absorbing slack (px). */
+  /** How far the content "gives" while absorbing slack (px). */
   slackGivePx: 18,
-  /** Below PERSONA, scrolling up within this fraction of a viewport snaps back to it. */
+  /** Below the last slide, scrolling up within this fraction of a viewport glides back to it. */
   returnZone: 0.85,
   /** Pixel tolerance for "at a stop". */
   tol: 2,
@@ -57,14 +70,21 @@ const CONFIG = {
 
 type Target = number | 'slack' | null;
 
+interface Span {
+  el: HTMLElement;
+  top: number;
+  end: number;
+}
+
 export class SlideSnap {
-  private persona!: HTMLElement;
-  private giveEl!: HTMLElement;
+  private sections: HTMLElement[] = [];
 
   private animating = false;
   private holdUntil = 0;
-  private holdCap = 0;
+  private holdMin = 0;
+  private holdMax = 0;
   private lastWheelAt = 0;
+  private lastAbsDy = 0;
 
   private intentAcc = 0;
   private intentAt = 0;
@@ -83,11 +103,10 @@ export class SlideSnap {
   private readonly reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   mount(): void {
-    const persona = document.querySelector<HTMLElement>('#moment-2');
-    const give = document.querySelector<HTMLElement>('#moment-2 .persona__content');
-    if (!persona || !give) return;
-    this.persona = persona;
-    this.giveEl = give;
+    this.sections = SECTIONS.map((s) => document.querySelector<HTMLElement>(s)).filter(
+      (el): el is HTMLElement => !!el
+    );
+    if (this.sections.length < 2) return;
     this.lastY = window.scrollY;
 
     window.addEventListener('wheel', (e) => this.onWheel(e), { passive: false });
@@ -97,26 +116,59 @@ export class SlideSnap {
     window.addEventListener('scroll', () => this.onScroll(), { passive: true });
   }
 
-  // -- Geometry -------------------------------------------------------------
+  // -- Geometry (measured live; layout shifts with fonts/resizes) -----------
 
-  /** The persona stop, measured live (layout can shift with fonts/resizes). */
-  private get personaStop(): number {
-    return Math.round(this.persona.getBoundingClientRect().top + window.scrollY);
+  private spans(): Span[] {
+    const vh = window.innerHeight;
+    return this.sections.map((el) => {
+      const r = el.getBoundingClientRect();
+      const top = Math.round(r.top + window.scrollY);
+      return { el, top, end: Math.max(top, Math.round(top + r.height - vh)) };
+    });
   }
 
   /** Where a move in `dir` (+1 down, −1 up) from `y` should go. */
   private targetFor(y: number, dir: number): Target {
-    const stop = this.personaStop;
+    const s = this.spans();
     const { tol } = CONFIG;
+    const last = s[s.length - 1];
+
     if (dir > 0) {
-      if (y < stop - tol) return stop;
-      if (Math.abs(y - stop) <= tol) return 'slack';
-      return null;
+      for (let i = 0; i < s.length - 1; i++) {
+        // From a section's bottom edge (or inside the gap after it) → next top.
+        if (y >= s[i].end - tol && y < s[i + 1].top - tol) return s[i + 1].top;
+      }
+      if (Math.abs(y - last.end) <= tol) return 'slack';
+      return null; // inside a tall section, or past the slides
     }
+
     if (y <= tol) return null;
-    if (y <= stop + tol) return 0;
-    if (y < stop + window.innerHeight * CONFIG.returnZone) return stop;
+    for (let i = 0; i < s.length - 1; i++) {
+      // From a section's top (or inside the gap before it) → previous end.
+      if (y > s[i].end + tol && y <= s[i + 1].top + tol) return s[i].end;
+    }
+    if (y > last.end + tol && y < last.end + window.innerHeight * CONFIG.returnZone) {
+      return last.end;
+    }
     return null;
+  }
+
+  /** If `y` rests inside a glide gap, the stop to settle to in `dir`. */
+  private settleFor(y: number, dir: number): number | null {
+    const s = this.spans();
+    const { tol } = CONFIG;
+    for (let i = 0; i < s.length - 1; i++) {
+      if (y > s[i].end + tol && y < s[i + 1].top - tol) {
+        return dir < 0 ? s[i].end : s[i + 1].top;
+      }
+    }
+    return null;
+  }
+
+  /** The content element of the section currently at `y` (for the slack give). */
+  private contentAt(y: number): HTMLElement | null {
+    const span = this.spans().find((sp) => y >= sp.top - CONFIG.tol && y <= sp.end + CONFIG.tol);
+    return span?.el.querySelector<HTMLElement>('.moment__content') ?? null;
   }
 
   // -- Input ----------------------------------------------------------------
@@ -142,6 +194,9 @@ export class SlideSnap {
     const dy =
       e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * innerHeight : e.deltaY;
     if (dy === 0) return;
+    const absDy = Math.abs(dy);
+    const decaying = absDy <= this.lastAbsDy + 1;
+    this.lastAbsDy = absDy;
 
     // Slack 1: swallow input during the glide and its trailing momentum.
     if (this.animating) {
@@ -150,8 +205,9 @@ export class SlideSnap {
     }
     if (now < this.holdUntil) {
       e.preventDefault();
-      if (gap < CONFIG.momentumGapMs) {
-        this.holdUntil = Math.min(now + CONFIG.momentumGapMs, this.holdCap);
+      const continuous = gap < CONFIG.momentumGapMs;
+      if (continuous && now < this.holdMax && (now < this.holdMin || decaying)) {
+        this.holdUntil = now + CONFIG.momentumGapMs;
       }
       return;
     }
@@ -176,7 +232,7 @@ export class SlideSnap {
     }
   }
 
-  /** Slack 2: resist the first slackPx of downward scroll at the persona stop. */
+  /** Slack 2: resist the first slackPx of downward scroll at the last slide. */
   private absorbSlack(e: WheelEvent, dy: number, now: number): void {
     if (now - this.slackAt > CONFIG.slackResetMs) {
       this.slackAcc = 0;
@@ -184,12 +240,14 @@ export class SlideSnap {
     }
     this.slackAt = now;
     if (this.slackReleased) return; // let native scrolling continue
+    const give = this.contentAt(window.scrollY);
     this.slackAcc += dy;
     if (this.slackAcc < CONFIG.slackPx) {
       e.preventDefault();
-      const give = (this.slackAcc / CONFIG.slackPx) * CONFIG.slackGivePx;
-      gsap.to(this.giveEl, { '--slack-give': `${-give}px`, duration: 0.15, overwrite: true });
-      gsap.to(this.giveEl, {
+      if (!give) return;
+      const px = (this.slackAcc / CONFIG.slackPx) * CONFIG.slackGivePx;
+      gsap.to(give, { '--slack-give': `${-px}px`, duration: 0.15, overwrite: true });
+      gsap.to(give, {
         '--slack-give': '0px',
         duration: 0.6,
         ease: 'elastic.out(1, 0.5)',
@@ -197,7 +255,7 @@ export class SlideSnap {
       });
     } else {
       this.slackReleased = true;
-      gsap.to(this.giveEl, { '--slack-give': '0px', duration: 0.3, overwrite: true });
+      if (give) gsap.to(give, { '--slack-give': '0px', duration: 0.3, overwrite: true });
     }
   }
 
@@ -245,7 +303,7 @@ export class SlideSnap {
     }
   }
 
-  /** Settle a scroll that comes to rest between the stops (scrollbar, etc.). */
+  /** Settle a scroll that comes to rest inside a glide gap (scrollbar, etc.). */
   private onScroll(): void {
     const y = window.scrollY;
     if (y !== this.lastY) this.lastDir = Math.sign(y - this.lastY);
@@ -254,11 +312,8 @@ export class SlideSnap {
     window.clearTimeout(this.settleTimer);
     this.settleTimer = window.setTimeout(() => {
       if (this.animating || this.isLocked()) return;
-      const stop = this.personaStop;
-      const now = window.scrollY;
-      if (now > CONFIG.tol && now < stop - CONFIG.tol) {
-        this.glideTo(this.lastDir < 0 ? 0 : stop);
-      }
+      const to = this.settleFor(window.scrollY, this.lastDir);
+      if (to !== null) this.glideTo(to);
     }, 160);
   }
 
@@ -277,8 +332,9 @@ export class SlideSnap {
         this.animating = false;
         const now = performance.now();
         this.holdUntil = now + CONFIG.momentumGapMs;
-        this.holdCap = now + CONFIG.maxHoldMs;
-        // A fresh gesture at the persona stop starts its slack from zero.
+        this.holdMin = now + CONFIG.minHoldMs;
+        this.holdMax = now + CONFIG.maxMomentumMs;
+        // A fresh gesture at the last slide starts its slack from zero.
         this.slackAt = 0;
       },
     });

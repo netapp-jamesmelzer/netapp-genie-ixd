@@ -8,14 +8,25 @@
  */
 const BASE = import.meta.env.BASE_URL;
 
+/**
+ * Always return an absolute URL. A relative URL placed in a CSS custom
+ * property (e.g. `--icon: url(...)` for .icon-mask) is resolved against the
+ * *stylesheet* that uses the var — in production that's /assets/, so
+ * './icons/x.svg' became /assets/icons/x.svg (404). Absolute URLs are safe
+ * in every context (img src, inline styles, CSS vars).
+ */
+function abs(path: string): string {
+  return new URL(path, document.baseURI).href;
+}
+
 export function iconUrl(filename: string): string {
-  return `${BASE}icons/${filename}`;
+  return abs(`${BASE}icons/${filename}`);
 }
 
 export function mediaUrl(filename: string): string {
-  return `${BASE}media/${filename}`;
+  return abs(`${BASE}media/${filename}`);
 }
 
 export function fontUrl(filename: string): string {
-  return `${BASE}fonts/${filename}`;
+  return abs(`${BASE}fonts/${filename}`);
 }

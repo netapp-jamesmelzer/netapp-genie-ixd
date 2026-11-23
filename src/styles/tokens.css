@@ -70,7 +70,6 @@
   --color-artifact-border: #e0e0e8;
   --color-eyebrow-cyan: #00ddf4;
   --color-eyebrow-purple: #7b27ff;
-  --color-eyebrow-teal: #a3d7d7;
   --color-eyebrow-muted: #a8bcc7;
   --color-eyebrow-dark: #5a6b73;
   --color-card-btn-bg: #e2ecf2;
@@ -113,8 +112,8 @@
   --ls-eyebrow: 0.14em;
 
   /* ---- Radii ---- */
-  --radius-pill: 4px;                /* tags, buttons */
-  --radius-nav: 100px;               /* nav bar pill — its own shape */
+  --radius-tag: 4px;                 /* tags only (e.g. SAVED) */
+  --radius-infinite: 999px;          /* fully rounded: buttons, nav pill, chips */
   --radius-round: 50%;
   --radius-modal: 20px;
   --radius-card: 8px;

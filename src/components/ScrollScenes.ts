@@ -17,7 +17,7 @@
  *     - exit: the whole block lifts and fades
  *   Customer story (moment 5):
  *     - video eases from a push-in to rest on enter, pushes in again on exit
- *     - eyebrow, then the headline word by word, then the button rise in
+ *     - eyebrow, then the headline, then the button rise in
  *     - ESA logo slides in from the right
  *     - exit: content lifts and fades
  *
@@ -104,8 +104,6 @@ export class ScrollScenes {
   }
 
   private story(): void {
-    const words = splitWords(document.querySelector<HTMLElement>('.story__headline'));
-
     // One timeline for the video across the whole pass (enter → rest → exit).
     gsap
       .timeline({
@@ -121,7 +119,7 @@ export class ScrollScenes {
         scrollTrigger: { trigger: '#moment-5', start: 'top 75%', end: 'top 10%', scrub: 0.6 },
       })
       .fromTo('#moment-5 .eyebrow', { y: 30, opacity: 0 }, { y: 0, opacity: 1 }, 0)
-      .fromTo(words, { y: 40, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.04 }, 0.1)
+      .fromTo('.story__headline', { y: 40, opacity: 0 }, { y: 0, opacity: 1 }, 0.1)
       .fromTo('.story__logo', { x: 60, opacity: 0 }, { x: 0, opacity: 1 }, 0.3)
       .fromTo('#moment-5 .btn', { y: 30, opacity: 0 }, { y: 0, opacity: 1 }, '>-0.2');
 
@@ -132,16 +130,4 @@ export class ScrollScenes {
       scrollTrigger: { trigger: '#moment-5', start: 'bottom 70%', end: 'bottom top', scrub: 0.4 },
     });
   }
-}
-
-/** Wrap each word of an element's text in .story__word spans; returns them. */
-function splitWords(el: HTMLElement | null): HTMLElement[] {
-  if (!el) return [];
-  const text = (el.textContent ?? '').trim().replace(/\s+/g, ' ');
-  el.setAttribute('aria-label', text);
-  el.innerHTML = text
-    .split(' ')
-    .map((w) => `<span class="story__word" aria-hidden="true">${w}</span>`)
-    .join(' ');
-  return Array.from(el.querySelectorAll<HTMLElement>('.story__word'));
 }
