@@ -180,12 +180,14 @@
   width: 100%;
   height: 100%;
   /* Figma: sentence top at 192px; bottom clears the sticky prompt. */
-  padding: clamp(112px, calc(192px - var(--modal-inset)), 20vh) 48px
+  /* Top space gives way on shorter viewports (Figma's 176px at ≥ 996px tall)
+     so the cards stay clear of the sticky prompt with the Saved row shown. */
+  padding: clamp(120px, calc(100vh - 820px), calc(192px - var(--modal-inset))) 48px
     calc(var(--prompt-stack, 200px) + 24px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 67px;
+  gap: 56px;
   overflow-y: auto;
 }
 
@@ -210,6 +212,11 @@
   letter-spacing: 1px;
   color: #ffffff;
   text-align: center;
+}
+
+/* Inside the account sentence the flex gap already provides the spacing. */
+.account-modal__persona .persona-status {
+  margin-top: -16px; /* 30px below the last line */
 }
 
 .account-modal__grid {

@@ -4,10 +4,10 @@
  * Scroll-driven (scrubbed) animations for the page moments. Every tween is tied
  * to scroll position, so scrolling back up plays them in reverse.
  *
- *   Stage (moments 1–3, one sticky earth video):
+ *   Stage (moments 1–2, one sticky earth video):
  *     - video slowly pushes in across the whole stage
- *     - a dark layer deepens as the persona moment arrives (Figma Home 2/3
- *       read darker than Home 1)
+ *     - a dark layer deepens as the persona moment arrives (Figma Home 2
+ *       reads darker than Home 1)
  *   Hero (moment 1), exit:
  *     - headline, subcopy and partner logos drift up and fade at staggered
  *       rates as the hero scrolls away
@@ -15,7 +15,6 @@
  *     - enter: headline rises in, then each sentence line, then the cyan
  *       underlines draw left→right (CSS var --u on .persona-dd__button)
  *     - exit: the whole block lifts and fades
- *   Confirmation (moment 3): rises in, lifts out.
  *   Customer story (moment 5):
  *     - video eases from a push-in to rest on enter, pushes in again on exit
  *     - eyebrow, then the headline word by word, then the button rise in
@@ -37,7 +36,6 @@ export class ScrollScenes {
       this.stage();
       this.hero();
       this.persona();
-      this.confirmation();
       this.story();
     });
 
@@ -102,25 +100,6 @@ export class ScrollScenes {
       opacity: 0,
       ease: 'none',
       scrollTrigger: { trigger: '#moment-2', start: 'center 35%', end: 'bottom top', scrub: 0.4 },
-    });
-  }
-
-  private confirmation(): void {
-    gsap.fromTo(
-      '.confirm__text',
-      { y: 60, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        ease: 'power2.out',
-        scrollTrigger: { trigger: '#moment-3', start: 'top 80%', end: 'center 60%', scrub: 0.6 },
-      }
-    );
-    gsap.to('.confirm__content', {
-      y: -100,
-      opacity: 0,
-      ease: 'none',
-      scrollTrigger: { trigger: '#moment-3', start: 'center 35%', end: 'bottom top', scrub: 0.4 },
     });
   }
 

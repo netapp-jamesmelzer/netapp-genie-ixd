@@ -19,7 +19,13 @@
  *
  * Live text: any element with [data-persona-text="<field>"] shows the current
  * value, and [data-persona-article="<field>"] shows "a"/"an" for it.
+ *
+ * Saved status (`createPersonaStatus`): a row under each persona form that
+ * appears on the first change — "[SAVED] We'll customize your site experience
+ * based on this choice." The form never hides (people will play with it);
+ * each further change re-acknowledges the save with a quick tag pulse.
  */
+import gsap from 'gsap';
 import { iconUrl } from '../utils/assets';
 import {
   PERSONA_OPTIONS,
@@ -39,8 +45,60 @@ export class PersonaPicker {
       if (!PERSONA_OPTIONS[field]) return;
       slot.appendChild(new PersonaDropdown(field, 'page').el);
     });
+    document.querySelector('.persona__sentence')?.after(createPersonaStatus('page'));
     bindPersonaText(document);
   }
+}
+
+/**
+ * The "[SAVED] We'll customize…" row shown under a persona form. Space is
+ * reserved from the start (visibility only), so revealing it never shifts the
+ * form. A change made in this form animates the row in (or pulses the tag if
+ * it is already showing); a change made in the *other* form just marks this
+ * one as saved, without animating, since the choice is shared.
+ */
+export function createPersonaStatus(source: PersonaSource): HTMLElement {
+  const el = document.createElement('p');
+  el.className = 'persona-status';
+  el.setAttribute('role', 'status');
+  el.innerHTML = `
+    <span class="persona-status__tag">Saved</span>
+    <span class="persona-status__text">We’ll customize your site experience based on this choice.</span>
+  `;
+  const tag = el.querySelector('.persona-status__tag') as HTMLSpanElement;
+  const text = el.querySelector('.persona-status__text') as HTMLSpanElement;
+
+  document.addEventListener('persona-change', (e) => {
+    const local = (e as CustomEvent<PersonaChangeDetail>).detail.source === source;
+    const wasShown = el.classList.contains('is-shown');
+    el.classList.add('is-shown');
+    if (!local) return;
+
+    if (!wasShown) {
+      gsap
+        .timeline({ delay: 0.12 })
+        .fromTo(
+          tag,
+          { scale: 0.6, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2.2)' }
+        )
+        .fromTo(
+          text,
+          { x: -12, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
+          '-=0.15'
+        );
+    } else {
+      // Already saved once: a quick pulse acknowledges the new choice.
+      gsap.fromTo(
+        tag,
+        { scale: 1.18 },
+        { scale: 1, duration: 0.45, ease: 'elastic.out(1, 0.45)', overwrite: 'auto' }
+      );
+      gsap.fromTo(text, { opacity: 0.35 }, { opacity: 1, duration: 0.4, ease: 'power1.out' });
+    }
+  });
+  return el;
 }
 
 /** Keep [data-persona-text] / [data-persona-article] in sync with the store. */

@@ -7,6 +7,8 @@
  *   - Persona sentence on three centered lines, each an inline dropdown bound
  *     to the shared persona store (edits here update the page picker too):
  *       I'm a/an [role ▾] / focused on [goal ▾] / in the [industry ▾]
+ *   - Under the sentence, the shared "[SAVED] We'll customize…" status row
+ *     (createPersonaStatus) — the form stays editable.
  *   - Three translucent cards (cyan eyebrow + body link): Dashboard, Account,
  *     Console.
  *   - Plain close X, top-right.
@@ -17,7 +19,7 @@
  */
 import gsap from 'gsap';
 import { iconUrl, mediaUrl } from '../utils/assets';
-import { PersonaDropdown, bindPersonaText } from './PersonaPicker';
+import { PersonaDropdown, bindPersonaText, createPersonaStatus } from './PersonaPicker';
 import type { PersonaField } from '../state/persona';
 
 interface AccountCard {
@@ -80,6 +82,7 @@ export class AccountModal {
       slot.appendChild(dd.el);
       this.dropdowns.push(dd);
     });
+    this.el.querySelector('.account-modal__persona')?.appendChild(createPersonaStatus('account'));
     bindPersonaText(this.el);
 
     (this.el.querySelector('.modal-close') as HTMLButtonElement).addEventListener(

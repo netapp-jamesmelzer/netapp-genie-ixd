@@ -3,7 +3,7 @@
  * ---------------------------------------------------------------------------
  * Both the in-page Persona Picker (role + goal) and the Account Modal (role +
  * goal + industry) render dropdowns bound to this store, so a change in one
- * place is reflected everywhere (dropdown labels, the confirmation sentence).
+ * place is reflected everywhere (dropdown labels, articles, Saved status).
  *
  * Every change dispatches a `persona-change` CustomEvent on document with
  * detail `{ field, value, source }`. `source` identifies the UI that made the

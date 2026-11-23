@@ -60,10 +60,11 @@ highlighted chat):
   space industry · financial services industry · healthcare industry ·
   manufacturing industry · public sector · media and entertainment industry
 
-## Persona confirmation (moment 3, live) — Figma
+## Persona Saved status (page picker + account modal)
 
-"Thanks! We'll customize your site experience based on your role as a/an [role]
-focused on [goal]. You can update these anytime in the top navigation."
+"[SAVED] We'll customize your site experience based on this choice." — shown
+under the form after the first change; the form stays editable. (Replaces the
+removed moment-3 confirmation.)
 
 ## Home 6 news carousel (`index.html`, `.news`)
 

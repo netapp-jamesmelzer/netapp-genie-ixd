@@ -31,6 +31,7 @@ import { AIChatModal } from './components/AIChatModal';
 import { PersonaPicker } from './components/PersonaPicker';
 import { ScrollScenes } from './components/ScrollScenes';
 import { NewsCarousel } from './components/NewsCarousel';
+import { SlideSnap } from './components/SlideSnap';
 import type { PersonaChangeDetail } from './state/persona';
 import { fontUrl, iconUrl, mediaUrl } from './utils/assets';
 
@@ -134,6 +135,7 @@ async function init(): Promise<void> {
   personaPicker.mount();
   scrollScenes.mount();
   new NewsCarousel().mount();
+  new SlideSnap().mount();
 
   // --- Scroll lock while any modal is open --------------------------------
   // Keeps the page (and the in-flow nav bar) from scrolling away behind a
