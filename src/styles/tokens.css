@@ -22,7 +22,7 @@
   --partners-gap: 72px;
   --partners-fade: 18%;              /* static edge fade on each side */
   --partners-crawl-duration: 40s;    /* one full set (~1077px) ≈ 27px/s */
-  --modal-inset: 16px;
+  --modal-inset: 0px;                /* nav/account modals are full-bleed (team feedback, Nov 23) */
   --persona-line-gap: 46px;          /* Figma account modal / Home 2 line rhythm */
   /* --prompt-stack is published at runtime by AIPrompt.ts (viewport bottom ->
      prompt top edge); consumers provide a fallback. */

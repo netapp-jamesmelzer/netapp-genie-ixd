@@ -4,23 +4,21 @@
  * (beneath the Nav/Account modals), so the nav bar and AI prompt stay on top.
  */
 
-/* ---- Shared near-full-screen modal shell (Nav + Account) ---- */
+/* ---- Shared full-bleed modal shell (Nav + Account) ---- */
 .app-modal {
   position: fixed;
   inset: var(--modal-inset);
   z-index: var(--z-nav-modal);
   display: none; /* toggled to flex when open */
-  border-radius: var(--radius-modal);
-  box-shadow: var(--shadow-modal);
   overflow: hidden;
   isolation: isolate;
 }
 
-/* Figma: plain 36px close X, top-right — no circle/background. */
+/* Figma: plain 36px close X, 30px from the top-right corner — no circle. */
 .modal-close {
   position: absolute;
-  top: 24px;
-  right: 24px;
+  top: 26px; /* 44px hit area − 4px padding → the X itself sits at 30px */
+  right: 26px;
   width: 44px;
   height: 44px;
   padding: 4px;
@@ -182,7 +180,7 @@
   /* Figma: sentence top at 192px; bottom clears the sticky prompt. */
   /* Top space gives way on shorter viewports (Figma's 176px at ≥ 996px tall)
      so the cards stay clear of the sticky prompt with the Saved row shown. */
-  padding: clamp(120px, calc(100vh - 820px), calc(192px - var(--modal-inset))) 48px
+  padding: clamp(136px, calc(100vh - 804px), calc(192px - var(--modal-inset))) 48px
     calc(var(--prompt-stack, 200px) + 24px);
   display: flex;
   flex-direction: column;
@@ -609,4 +607,24 @@
 .artifact-card:hover .artifact-card__label {
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* Account modal on shorter viewports (< 1000px tall): tighten the vertical
+   rhythm so intro + sentence + Saved row + cards all clear the sticky prompt.
+   Taller viewports keep the Figma spacing above. (Restored Nov 23 — it was
+   accidentally truncated in f6647df.) */
+@media (max-height: 999px) {
+  .account-modal__inner {
+    padding-top: 128px;
+    gap: 44px;
+  }
+  .account-modal__persona {
+    gap: 34px;
+  }
+  .account-modal__intro {
+    margin-bottom: -12px; /* 22px above the first line */
+  }
+  .account-modal__persona .persona-status {
+    margin-top: -10px; /* 24px below the last line */
+  }
 }
