@@ -46,6 +46,7 @@
   --color-modal-bg: rgba(244, 241, 237, 0.98);
   --color-nav-modal-scrim: rgba(37, 25, 58, 0.55);   /* over menu.jpg */
   --color-account-scrim: rgba(0, 0, 0, 0.2);          /* Figma: 2 × 20% black */
+  --account-video-opacity: 0.1;                       /* account.mp4 strength */
   --color-nav-selected: rgba(207, 221, 230, 0.53);    /* Figma selected nav control */
   --color-nav-resting-on-modal: rgba(0, 0, 0, 0.15);
   --color-chat-card: rgba(255, 255, 255, 0.95);

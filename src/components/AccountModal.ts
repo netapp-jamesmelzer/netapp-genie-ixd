@@ -123,7 +123,15 @@ export class AccountModal {
       .fromTo(
         cards,
         { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', stagger: 0.06 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          ease: 'power2.out',
+          stagger: 0.06,
+          // Drop the inline transform so the CSS hover lift can apply.
+          clearProps: 'transform',
+        },
         0.25
       );
   }

@@ -303,6 +303,7 @@
 /* One line of a persona sentence ("I'm a [role ▾]"). Shared by the page
    picker and the Account Modal. Figma: headline-l, 49px Thin, lh 1.1. */
 .persona-line {
+  position: relative;
   margin: 0;
   font-family: var(--font-body);
   font-weight: 100;
@@ -311,6 +312,14 @@
   letter-spacing: 1px;
   color: #ffffff;
   text-align: center;
+}
+
+/* Lines are transformed by scroll/entrance animations, which gives each one
+   its own stacking context; lift the line holding an open dropdown so its
+   list paints over the lines below it (page picker and Account Modal). */
+.persona-line:has(.persona-dd.is-open),
+.account-modal__line:has(.persona-dd.is-open) {
+  z-index: 10;
 }
 
 /* ---- Inline persona dropdowns (text + cyan underline + arrow, dark bg) ---- */

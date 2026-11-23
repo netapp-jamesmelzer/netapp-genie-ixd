@@ -135,6 +135,21 @@ async function init(): Promise<void> {
   scrollScenes.mount();
   new NewsCarousel().mount();
 
+  // --- Scroll lock while any modal is open --------------------------------
+  // Keeps the page (and the in-flow nav bar) from scrolling away behind a
+  // modal via wheel, trackpad or keyboard. Scrollable areas inside the
+  // modals (e.g. the chat thread) still scroll.
+  const syncScrollLock = (): void => {
+    const root = document.documentElement;
+    const lock = navModal.opened || accountModal.opened || aiChatModal.opened;
+    if (lock === root.classList.contains('is-scroll-locked')) return;
+    if (lock) {
+      const comp = window.innerWidth - root.clientWidth;
+      root.style.setProperty('--scrollbar-comp', `${comp}px`);
+    }
+    root.classList.toggle('is-scroll-locked', lock);
+  };
+
   // --- Nav Bar controls -> modals (mutually exclusive) ---------------------
   navBar.onMenuClick = () => {
     if (navModal.opened) {
@@ -150,6 +165,7 @@ async function init(): Promise<void> {
       navBar.setMenuActive(true);
       aiPrompt.leaveHuge();
     }
+    syncScrollLock();
   };
 
   navBar.onAccountClick = () => {
@@ -165,23 +181,27 @@ async function init(): Promise<void> {
       navBar.setAccountActive(true);
       aiPrompt.leaveHuge();
     }
+    syncScrollLock();
   };
 
   // --- Modal close buttons -------------------------------------------------
   navModal.onClose = () => {
     navModal.close();
     navBar.setMenuActive(false);
+    syncScrollLock();
   };
 
   accountModal.onClose = () => {
     accountModal.close();
     navBar.setAccountActive(false);
+    syncScrollLock();
   };
 
   // Collapse control: shrink the chat back into the prompt it came from.
   aiChatModal.onClose = () => {
     aiChatModal.close(aiPrompt.getRect());
     aiPrompt.setPlaceholder(DEFAULT_PLACEHOLDER);
+    syncScrollLock();
   };
 
   // --- Nav link click dismisses everything ---------------------------------
@@ -192,6 +212,7 @@ async function init(): Promise<void> {
     navBar.setAccountActive(false);
     aiChatModal.close();
     aiPrompt.setPlaceholder(DEFAULT_PLACEHOLDER);
+    syncScrollLock();
   };
 
   // --- AI Prompt submit -> open the AI Chat Modal from the prompt rect ------
@@ -202,6 +223,7 @@ async function init(): Promise<void> {
     aiChatModal.open(aiPrompt.getRect(), text);
     aiPrompt.leaveHuge();
     aiPrompt.setPlaceholder('Make a selection or type something else…');
+    syncScrollLock();
   };
 
   // --- Persona change on the page -> ping the account control -------------
