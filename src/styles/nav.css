@@ -1,0 +1,195 @@
+/*
+ * nav.css — the Nav Bar: a centered frosted-glass pill (NetApp logo + "Explore"
+ * control) grouped with a round account control.
+ *
+ * The nav is NOT sticky and NOT permanently fixed. At the top of the page it
+ * sits in normal document flow and scrolls away with the content. Once it has
+ * left the viewport, scrolling UP reveals it in a temporarily fixed position at
+ * the top of the viewport; scrolling DOWN slides it away again. Returning to the
+ * top restores its in-flow position.
+ *
+ * NavBar.ts toggles .is-fixed / .is-hidden and resizes a .nav-spacer so that
+ * switching to the fixed state never changes the document height (no jump).
+ */
+.nav-bar-wrapper {
+  /* Theme (dark by default; NavBar.ts sets data-theme="light"). Everything in
+     the nav reads these, so a theme change is one crossfade. */
+  --nav-fg: var(--nav-dark-fg);
+  --nav-pill-bg: var(--nav-dark-pill-bg);
+  --nav-account-bg: var(--nav-dark-account-bg);
+  --nav-hover-bg: var(--nav-dark-hover-bg);
+  --nav-border: var(--nav-dark-border);
+  --nav-divider: var(--nav-dark-divider);
+  --nav-shadow: var(--nav-dark-shadow);
+  position: relative; /* in normal flow at the top of the page */
+  width: 100%;
+  z-index: var(--z-nav-bar);
+  pointer-events: none; /* children re-enable pointer events */
+}
+
+.nav-bar-wrapper[data-theme='light'] {
+  --nav-fg: var(--nav-light-fg);
+  --nav-pill-bg: var(--nav-light-pill-bg);
+  --nav-account-bg: var(--nav-light-account-bg);
+  --nav-hover-bg: var(--nav-light-hover-bg);
+  --nav-border: var(--nav-light-border);
+  --nav-divider: var(--nav-light-divider);
+  --nav-shadow: var(--nav-light-shadow);
+}
+
+/* Revealed: temporarily fixed at the top of the viewport (slides via transform). */
+.nav-bar-wrapper.is-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translateY(0);
+  transition: transform var(--dur-base) var(--ease-out);
+  will-change: transform;
+}
+
+/* Slid away (while fixed) on scroll-down. */
+.nav-bar-wrapper.is-fixed.is-hidden {
+  transform: translateY(-120%);
+}
+
+/* Holds the nav's flow height while it is fixed, so the layout never jumps. */
+.nav-spacer {
+  width: 100%;
+  height: 0;
+}
+
+/* ---- Inner row: nav group centered to the viewport ---- */
+.nav-bar-inner {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: var(--nav-top) 0;
+  pointer-events: none;
+}
+
+/* ---- Grouped pill + account: flex row, centered together ---- */
+.nav-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none; /* children re-enable */
+}
+
+/* ---- Centered frosted pill (logo + Explore control) ---- */
+.nav-pill {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 78px;
+  padding: 12px 41px;
+  background: var(--nav-pill-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--nav-border);
+  border-radius: var(--radius-infinite);
+  box-shadow: var(--nav-shadow);
+  color: var(--nav-fg);
+  pointer-events: auto;
+  transition: background var(--dur-nav-theme) var(--ease-out),
+    color var(--dur-nav-theme) var(--ease-out),
+    border-color var(--dur-nav-theme) var(--ease-out),
+    box-shadow var(--dur-nav-theme) var(--ease-out);
+}
+
+/* Logo and icons are SVG masks painted with currentColor, so they follow
+   the theme's text color. */
+.nav-logo {
+  width: 102px;
+  height: 19px;
+  background: currentColor;
+}
+
+.nav-icon {
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+}
+
+.nav-account .nav-icon {
+  width: 24px; /* Figma: 24px person */
+  height: 24px;
+}
+
+.menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-family: var(--font-body);
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: var(--ls-ui);
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.menu-btn:hover {
+  opacity: 0.8;
+}
+
+/* Figma: 30px vertical rule between the logo and "Explore". */
+.nav-divider {
+  width: 1px;
+  height: 30px;
+  background: var(--nav-divider);
+  flex-shrink: 0;
+  transition: background var(--dur-nav-theme) var(--ease-out);
+}
+
+/* Active (nav modal open): Figma "selected" fill on the pill. */
+.nav-pill:has(.menu-btn.is-active) {
+  background: var(--color-nav-selected);
+}
+
+.menu-btn:focus-visible,
+.nav-account:focus-visible {
+  outline: 2px solid var(--color-ping);
+  outline-offset: 4px;
+}
+
+/* ---- Account control (round, flex sibling in .nav-group) ---- */
+.nav-account {
+  position: relative;
+  width: 71px;
+  height: 71px;
+  border-radius: var(--radius-round);
+  background: var(--nav-account-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--nav-border);
+  box-shadow: var(--nav-shadow);
+  color: var(--nav-fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  outline: 3px solid transparent;
+  outline-offset: 3px;
+  transition: background var(--dur-nav-theme) var(--ease-out),
+    color var(--dur-nav-theme) var(--ease-out),
+    border-color var(--dur-nav-theme) var(--ease-out),
+    box-shadow var(--dur-nav-theme) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.nav-account:hover {
+  background: var(--nav-hover-bg);
+}
+
+/* Active (account modal open): Figma "selected" fill. */
+.nav-account.is-active {
+  background: var(--color-nav-selected);
+}
+
+/* Pinging state hook (GSAP drives the outline animation). */
+.nav-account.is-pinging {
+  background: var(--nav-hover-bg);
+}

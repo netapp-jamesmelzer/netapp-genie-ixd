@@ -1,0 +1,133 @@
+/*
+ * ai-prompt.css — the sticky AI prompt box floating at the bottom of the
+ * viewport, matching the Figma small "prompt-bubble-lg" variant (white, bordered,
+ * gradient AI arrow submit, quick-action chip row). z-index 30 keeps it above the
+ * AI Chat Modal (10) and the Nav/Account modals (20).
+ */
+.ai-prompt {
+  position: fixed;
+  bottom: var(--prompt-bottom);
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 48px);
+  max-width: var(--prompt-max-width);
+  z-index: var(--z-ai-prompt);
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px;
+
+  background: var(--color-prompt-bg);
+  border: 2px solid var(--color-prompt-border);
+  border-radius: var(--radius-prompt);
+  box-shadow: var(--shadow-prompt);
+  transition: border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+/* Focus outline highlight when the textarea has focus. */
+.ai-prompt.is-focused {
+  border-color: var(--color-prompt-focus);
+  box-shadow: var(--shadow-prompt), 0 0 0 3px rgba(0, 102, 255, 0.18);
+}
+
+/* ---- Top row: AI icon + textarea + gradient send ---- */
+.ai-prompt__top {
+  display: flex;
+  /* Top-align the icon, textarea and send button so they pin to the top edge
+     of the row as the textarea grows/shrinks across the huge/large/small states. */
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.prompt-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.ai-prompt__textarea {
+  flex: 1 1 auto;
+  resize: none;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #000000;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-ui-lg);
+  line-height: var(--lh-ui);
+  padding: 0;
+}
+
+.ai-prompt__textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.send-btn {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-round);
+  background: var(--gradient-ai);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: filter var(--dur-fast) var(--ease-out);
+}
+
+.send-btn:hover {
+  filter: brightness(1.1);
+}
+
+.send-icon {
+  width: 14px;
+  height: 14px;
+  display: block;
+  filter: brightness(0) invert(1); /* dark source SVG -> white */
+}
+
+/* ---- Bottom row: quick-action chip + size toggle ---- */
+.ai-prompt__bottom {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+}
+
+.quick-action-chip {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-footer-link);
+  color: #000000;
+  padding: 4px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-infinite);
+}
+
+.size-toggle {
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.size-toggle:hover {
+  opacity: 0.7;
+}
+
+.size-toggle-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  opacity: 0.6;
+}

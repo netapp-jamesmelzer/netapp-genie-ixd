@@ -1,0 +1,1202 @@
+/*
+ * page.css — the scrollable page: five full-viewport "moments" plus a long
+ * footer section, matching the Figma "genie ixd" comps. Static high-fidelity
+ * layout only (no scroll-driven mechanics this pass).
+ */
+.page {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-dark);
+}
+
+/* ---- Shared moment shell ---- */
+.moment {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  display: flex;
+}
+
+.moment--dark {
+  background: var(--color-bg-dark);
+}
+
+.moment--center {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 48px;
+}
+
+.moment--light {
+  background: radial-gradient(
+    ellipse at center top,
+    var(--color-bg-light-radial),
+    var(--color-bg-light)
+  );
+}
+
+.moment__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.moment__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.moment__overlay--top {
+  background: linear-gradient(
+    180deg,
+    rgba(31, 32, 46, 0.82) 0%,
+    rgba(31, 32, 46, 0) 48%
+  );
+}
+
+.moment__overlay--bottom {
+  background: linear-gradient(
+    180deg,
+    rgba(31, 32, 46, 0) 0%,
+    rgba(31, 32, 46, 0.82) 89%
+  );
+}
+
+.moment__overlay--story {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* --slack-give: SlideSnap nudges a section's content while absorbing scroll
+   slack. `translate` composes with GSAP's transform on the same element. */
+.moment__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  translate: 0 var(--slack-give, 0px);
+}
+
+/* ---- Eyebrows ---- */
+.eyebrow {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-eyebrow);
+  line-height: var(--lh-eyebrow);
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  margin: 0 0 12px;
+}
+
+.eyebrow--muted {
+  color: var(--color-eyebrow-muted);
+}
+.eyebrow--dark {
+  color: var(--color-eyebrow-dark);
+}
+.eyebrow--cyan {
+  color: var(--color-eyebrow-cyan);
+}
+.eyebrow--purple {
+  color: var(--color-eyebrow-purple);
+}
+
+/* ---- Buttons ---- */
+/* Figma "Button - card": 18px, lh 1.25, ls 0.6px, 8px gap, 16px arrow. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-ui-sm);
+  line-height: 1.25;
+  letter-spacing: 0.6px;
+  border-radius: var(--radius-infinite);
+  padding: 16px 26px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: filter var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+
+.btn:hover {
+  filter: brightness(0.96);
+}
+
+.btn--white {
+  background: #ffffff;
+  color: var(--color-text-primary);
+}
+
+.btn--soft {
+  background: var(--color-card-btn-bg);
+  color: var(--color-text-primary);
+}
+
+.btn--ghost {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: var(--text-ui-lg);
+  backdrop-filter: blur(4px);
+}
+
+.btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.25);
+  filter: none;
+}
+
+.btn__icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+/* Dark source SVG needs to be white on the dark ghost button. */
+.btn--ghost .btn__icon {
+  filter: brightness(0) invert(1);
+}
+
+/* =============================================================== */
+/* Stage — moments 1–2 over one sticky video background            */
+/* =============================================================== */
+.stage {
+  position: relative;
+  background: var(--color-bg-dark);
+}
+
+/* Sticky full-viewport backdrop; the negative margin lets the sections
+   scroll over it instead of stacking below it. */
+.stage__bg {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  margin-bottom: -100vh;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.stage__zoom {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 60%;
+}
+
+/* The one shared video. Fills whichever host holds it (stage zoom, card);
+   while flying, VideoMorph sets left/top/width/height inline. */
+.stage__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---- Video morph layer (persona → Recommended) ------------------------ */
+/* Fixed, clipped to an interpolated rect. Stacking: z 1 and placed before the
+   stage moments, so it paints above Recommended's white background but below
+   every section's content (persona text exits over it; Recommended content
+   arrives over it). */
+.video-morph {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+  background: var(--color-bg-dark);
+}
+
+.video-morph.is-active {
+  visibility: visible;
+}
+
+.video-morph__box {
+  position: absolute;
+  inset: 0;
+}
+
+.video-morph__dim {
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg-dark);
+}
+
+
+/* Scrubbed from 0 to darker as the persona moment arrives. */
+.stage__dim {
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg-dark);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stage > .moment {
+  z-index: 1;
+}
+
+/* Moments on the stage are transparent so the shared video shows through. */
+.moment--stage {
+  background: transparent;
+}
+
+/* =============================================================== */
+/* Section 1: Hero                                                 */
+/* =============================================================== */
+.moment--hero {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 48px;
+}
+
+.hero__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.hero__headline {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 100;
+  font-size: var(--text-hero);
+  line-height: var(--lh-hero);
+  letter-spacing: var(--ls-display);
+  color: #ffffff;
+  max-width: 1200px;
+}
+
+.hero__subcopy {
+  margin: 32px 0 0;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-body-lg);
+  line-height: var(--lh-body-lg);
+  letter-spacing: var(--ls-ui);
+  color: #ffffff;
+  opacity: 0.85;
+  max-width: 912px;
+}
+
+/* Partner logo marquee (Figma Home 1:806: 932px strip, 72px gaps).
+   The mask on the container is static, so logos crawl through the faded
+   edges. The track holds two identical sets; moving it from −50% to 0 is
+   one seamless loop (direction: left → right). */
+.hero__partners {
+  width: min(var(--partners-width), 100%);
+  margin-top: 40px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--partners-fade), #000 calc(100% - var(--partners-fade)), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 var(--partners-fade), #000 calc(100% - var(--partners-fade)), transparent 100%);
+}
+
+.partner-marquee__track {
+  display: flex;
+  width: max-content;
+  animation: partner-crawl var(--partners-crawl-duration) linear infinite;
+}
+
+.partner-marquee__set {
+  display: flex;
+  align-items: center;
+  gap: var(--partners-gap);
+  padding-right: var(--partners-gap); /* keeps the gap across the seam */
+}
+
+.partner-logo {
+  display: block;
+  flex-shrink: 0;
+  height: auto;
+}
+
+/* Figma: 74% on Mahindra, S&P and ESA (Aston Martin's SVG carries its own). */
+.partner-logo--dim {
+  opacity: 0.74;
+}
+
+@keyframes partner-crawl {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partner-marquee__track {
+    animation: none;
+  }
+}
+
+/* =============================================================== */
+/* Section 2: Persona Builder                                      */
+/* =============================================================== */
+.persona__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.persona__headline {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 100;
+  font-size: var(--text-2xl);
+  line-height: var(--lh-l);
+  letter-spacing: var(--ls-display);
+  color: #ffffff;
+  max-width: 900px;
+}
+
+.persona__sentence {
+  margin: 56px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--persona-line-gap);
+}
+
+/* One line of a persona sentence ("I'm a [role ▾]"). Shared by the page
+   picker and the Account Modal. Figma: headline-l, 49px Thin, lh 1.1. */
+.persona-line {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 100;
+  font-size: var(--text-l);
+  line-height: var(--lh-l);
+  letter-spacing: 1px;
+  color: #ffffff;
+  text-align: center;
+}
+
+/* "[SAVED] We'll customize your site experience…" under a persona form.
+   Always takes up its space (visibility, not display) so it never shifts the
+   form when it appears. */
+/* Small white note type, shared by the Saved message and the account
+   modal's "Tell us about yourself" intro. */
+.persona-note,
+.persona-status {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-ui-lg);
+  line-height: 1.4;
+  letter-spacing: 0.8px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.persona-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: var(--persona-line-gap) 0 0;
+  visibility: hidden;
+}
+
+.persona-status.is-shown {
+  visibility: visible;
+}
+
+.persona-status__tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-tag);
+  background: var(--color-eyebrow-cyan);
+  color: var(--color-bg-dark);
+  font-weight: 500;
+  font-size: var(--text-eyebrow);
+  line-height: 1.4;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Lines are transformed by scroll/entrance animations, which gives each one
+   its own stacking context; lift the line holding an open dropdown so its
+   list paints over the lines below it (page picker and Account Modal). */
+.persona-line:has(.persona-dd.is-open),
+.account-modal__line:has(.persona-dd.is-open) {
+  z-index: 10;
+}
+
+/* ---- Inline persona dropdowns (text + cyan underline + arrow, dark bg) ---- */
+.persona-dd-slot {
+  display: inline-block;
+}
+
+.persona-dd {
+  position: relative;
+  display: inline-block;
+  text-align: left;
+}
+
+/* The trigger is plain text: no pill, border, box, shadow or card — just a cyan
+   underline and a cyan drop arrow. It inherits the line's font/size/weight.
+   The underline is a pseudo-element scaled by --u (0..1) so scroll scenes can
+   "draw" it in. */
+.persona-dd__button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0 2px 12px;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.persona-dd__button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--color-eyebrow-cyan);
+  transform: scaleX(var(--u, 1));
+  transform-origin: left center;
+}
+
+.persona-dd__button:focus-visible {
+  outline: 2px solid var(--color-eyebrow-cyan);
+  outline-offset: 4px;
+}
+
+/* Figma: 36px cyan arrow_drop_down at 49px type (0.735em). */
+.persona-dd__arrow {
+  width: 0.735em;
+  height: 0.735em;
+  flex-shrink: 0;
+  background: var(--color-eyebrow-cyan);
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.persona-dd.is-open .persona-dd__arrow {
+  transform: rotate(180deg);
+}
+
+/* Listbox popover: a readable dark surface over the dark persona section. */
+.persona-dd__list {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 5;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  min-width: 100%;
+  width: max-content;
+  max-width: min(90vw, 460px);
+  background: var(--color-bg-dark-2);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.persona-dd__list[hidden] {
+  display: none;
+}
+
+.persona-dd__option {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: normal;
+  color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+}
+
+.persona-dd__option:hover,
+.persona-dd__option.is-active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.persona-dd__option[aria-selected='true'] {
+  color: var(--color-eyebrow-cyan);
+}
+
+/* =============================================================== */
+/* Section 4: Recommended (light)                                  */
+/* =============================================================== */
+.moment--light {
+  align-items: stretch;
+  padding: 120px var(--section-pad-x) 160px;
+}
+
+.recommended__content {
+  display: flex;
+  flex-direction: column;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+}
+
+.recommended__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+.recommended__title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 100;
+  font-size: var(--text-l);
+  line-height: var(--lh-l);
+  letter-spacing: var(--ls-display);
+  color: var(--color-text-primary);
+}
+
+.recommended__arrows {
+  display: flex;
+  gap: 12px;
+}
+
+.carousel-arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-round);
+  border: 1px solid rgba(30, 37, 47, 0.15);
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.carousel-arrow:hover {
+  background: rgba(30, 37, 47, 0.06);
+}
+
+.carousel-arrow__icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.recommended__grid {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 24px;
+}
+
+.feature-card {
+  position: relative;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  min-height: 520px;
+  /* Transparent on purpose: during the morph the flying video (below this
+     content layer) shows through the card; afterwards the card hosts it. */
+  background: transparent;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* Holds the stage video once it has landed (VideoMorph.ts). */
+.feature-card__media {
+  position: absolute;
+  inset: 0;
+}
+
+.feature-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 30%,
+    rgba(0, 0, 0, 0.75) 100%
+  );
+}
+
+.feature-card__body {
+  position: relative;
+  z-index: 1;
+  padding: 48px;
+  max-width: 640px;
+}
+
+.feature-card__text {
+  margin: 0 0 28px;
+  font-family: var(--font-body);
+  font-weight: 100;
+  font-size: var(--text-h3);
+  line-height: 1.2;
+  letter-spacing: var(--ls-display);
+  color: #ffffff;
+}
+
+.recommended__side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.side-card__img {
+  width: 100%;
+  aspect-ratio: 376 / 212; /* Figma frame; matches product-overview-card.png */
+  border-radius: var(--radius-card);
+  background-size: cover;
+  background-position: center;
+}
+
+.side-card__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.side-card__text {
+  margin: 0 0 20px;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-body-lg);
+  line-height: 1.3;
+  color: var(--color-text-primary);
+}
+
+/* =============================================================== */
+/* Section 5: Customer Story                                       */
+/* =============================================================== */
+/* White under the video: the video + scrim cover it completely until the
+   exit fade, so the fade reveals white wherever its start line is tuned. */
+.moment--story {
+  background: var(--color-bg-light);
+  align-items: center;
+  padding: 120px var(--section-pad-x);
+}
+
+/* Light variant: copy flipped dark (not faded) by storyFadeOut() once it is
+   above the viewport. */
+.moment--story.is-faded .eyebrow--cyan {
+  color: var(--color-eyebrow-purple);
+}
+
+.moment--story.is-faded .story__headline {
+  color: var(--color-text-primary);
+}
+
+.moment--story.is-faded .btn--ghost {
+  border-color: rgba(30, 37, 47, 0.3);
+  background: rgba(30, 37, 47, 0.06);
+  color: var(--color-text-primary);
+}
+
+.moment--story.is-faded .btn--ghost .btn__icon {
+  filter: none;
+}
+
+.moment--story.is-faded .story__logo {
+  filter: brightness(0);
+  opacity: 0.85;
+}
+
+.story__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+}
+
+/* Equal space above (12px eyebrow margin + 24px) and below the headline. */
+.story__headline {
+  margin: 24px 0 36px;
+  font-family: var(--font-body);
+  font-weight: 100;
+  font-size: var(--text-xl);
+  line-height: var(--lh-l);
+  letter-spacing: var(--ls-display);
+  color: #ffffff;
+  max-width: 1048px;
+}
+
+.story__logo {
+  position: absolute;
+  z-index: 2;
+  top: 94px;
+  right: max(48px, calc(50% - 612px)); /* right edge of the 1224px column */
+  width: 107px;
+  height: auto;
+}
+
+/* =============================================================== */
+/* Section 6: Home 6 — Figma 1:1020                                */
+/* Content column: 1224px (Figma x 188–1412 in the 1600 frame).    */
+/* =============================================================== */
+.footer-section {
+  width: 100%;
+  background: #ffffff;
+}
+
+.home6-inner {
+  position: relative;
+  z-index: 1;
+  width: min(var(--home6-width), 100% - 96px);
+  margin: 0 auto;
+}
+
+/* ---- News carousel (Figma 1:1133–1:1144) ---- */
+.news {
+  padding: 120px 0 0;
+}
+
+.news .eyebrow {
+  margin-bottom: 18px;
+}
+
+.news__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 37px;
+}
+
+.news__title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 100;
+  font-size: var(--text-h2);
+  line-height: 1.15;
+  letter-spacing: 1px;
+  color: var(--color-text-primary);
+}
+
+/* Plain 24px arrows, 18px apart; the unavailable direction greys out. */
+.carousel-nav {
+  display: flex;
+  gap: 18px;
+  flex-shrink: 0;
+}
+
+.carousel-nav__btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: inline-flex;
+  transition: opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.carousel-nav__btn img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.carousel-nav__btn:hover:not(:disabled) {
+  transform: translateX(var(--nudge, 2px));
+}
+
+.carousel-nav__btn[data-carousel-prev] {
+  --nudge: -2px;
+}
+
+.carousel-nav__btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.carousel-nav__btn:focus-visible {
+  outline: 2px solid var(--color-eyebrow-purple);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* Horizontal scroll-snap track: 376px cards, 48px gap (3 visible). */
+.news__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 2 * var(--news-gap)) / 3);
+  gap: var(--news-gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.news__track::-webkit-scrollbar {
+  display: none;
+}
+
+.news__track:focus-visible {
+  outline: 2px solid var(--color-eyebrow-purple);
+  outline-offset: 8px;
+}
+
+.news-card {
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.news-card__tag {
+  margin: 0 0 -8px; /* 12px to the body (20px card gap − 8) */
+  padding-right: 24px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-eyebrow);
+  line-height: 1.4;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.news-card__text {
+  margin: 0;
+  padding-right: 24px;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-body-lg);
+  line-height: 1.5;
+  letter-spacing: 0.8px;
+  color: var(--color-text-primary);
+}
+
+.news-card .btn {
+  margin-top: auto;
+}
+
+/* Progress: a card-width violet bar sliding along a light rail. */
+.carousel-progress {
+  position: relative;
+  height: 2px;
+  margin-top: 60px;
+  background: rgba(217, 217, 217, 0.42);
+  overflow: hidden;
+}
+
+.carousel-progress__bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: calc((100% - 2 * var(--news-gap)) / 3);
+  background: var(--color-eyebrow-purple);
+  transform: translateX(var(--progress-x, 0px));
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+/* ---- Next steps (Figma 1:1021) ---- */
+.next-steps-section {
+  position: relative;
+  overflow: hidden;
+  /* Figma: 116px below the news rail + 174px to the eyebrow = 290px. */
+  padding: 290px 0 250px;
+}
+
+.next-steps-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 479px);
+  gap: 48px;
+  margin-bottom: 70px;
+}
+
+.next-steps-head .eyebrow {
+  margin-bottom: 21px;
+}
+
+.next-steps-title {
+  margin: 0;
+  max-width: 529px;
+  font-family: var(--font-body);
+  font-weight: 100;
+  font-size: var(--text-2xl);
+  line-height: 1.1;
+  letter-spacing: 1px;
+  color: #000000;
+}
+
+/* "Emma's quick start links" */
+.quick-links__title {
+  margin: 0 0 36px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #000000;
+}
+
+.quick-links__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+}
+
+.quick-links__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 25px;
+  line-height: 1.5;
+  letter-spacing: 0.8px;
+  color: var(--color-text-primary);
+}
+
+.quick-links__icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: block;
+}
+
+.quick-links__item:hover {
+  color: var(--color-eyebrow-purple);
+}
+
+/* Three image cards, 371px, 56px gaps. */
+.image-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 56px;
+}
+
+.image-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 391px; /* Figma fixed card height */
+  padding: 20px;
+  background: #f9fbff;
+  border: 2px solid #ffffff;
+  border-radius: var(--radius-card);
+  box-shadow: 0 34px 59.35px 0 rgba(0, 57, 131, 0.12);
+  color: var(--color-text-primary);
+  transition: transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+.image-card:hover {
+  color: var(--color-text-primary);
+  transform: translateY(-4px);
+  box-shadow: 0 40px 70px 0 rgba(0, 57, 131, 0.18);
+}
+
+.image-card__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 371.33 / 209.37;
+  background-size: cover;
+  background-position: center;
+}
+
+.image-card__eyebrow {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.image-card__desc {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-body-lg);
+  line-height: 1.5;
+  letter-spacing: 0.8px;
+}
+
+/* ---- Resources and support (Figma "main" 1:1026) ---- */
+.accordion {
+  position: relative;
+  margin-top: 121px;
+}
+
+/* Figma Rectangle 34624761: #E6EBF2, blur 192.55, starting just above the
+   heading and spanning 1460px of the 1600 frame. */
+.accordion::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: -27px;
+  left: calc(50% - 50vw + 80px);
+  right: calc(50% - 50vw + 60px);
+  height: 854px;
+  background: #e6ebf2;
+  filter: blur(192px);
+  pointer-events: none;
+}
+
+.accordion__title {
+  margin: 0 0 36px;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-m);
+  line-height: 1.2;
+  letter-spacing: 1px;
+  color: var(--color-text-primary);
+}
+
+.accordion__stack {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-border-default);
+}
+
+.accordion__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 85px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--color-border-default);
+  cursor: pointer;
+}
+
+.accordion__text {
+  flex: 1 1 auto;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-body-lg);
+  line-height: 1.5;
+  letter-spacing: 0.8px;
+  color: var(--color-text-primary);
+}
+
+.accordion__text strong {
+  font-weight: 500;
+}
+
+.accordion__icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: block;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.accordion__row:hover .accordion__icon {
+  transform: rotate(90deg);
+}
+
+/* ---- Mega-footer (Figma 1:1151, 1600×700) ---- */
+/* Bottom padding adds --prompt-stack (the sticky prompt's height + offset,
+   published live by AIPrompt.ts) so the footer can scroll fully clear of the
+   prompt and every footer item is reachable. */
+.mega-footer {
+  background: linear-gradient(-21.96deg, var(--color-footer-bg) 26.78%, #181d25 78.81%);
+  padding: 130px 0 calc(47px + var(--prompt-stack, 220px));
+}
+
+.mega-footer__top {
+  display: grid;
+  grid-template-columns: 207px minmax(0, 1fr);
+}
+
+/* NetApp logo, white (SVG as mask). */
+.mega-footer__logo {
+  width: 133px;
+  height: 24px;
+  background: #ffffff;
+  -webkit-mask-position: left center;
+  mask-position: left center;
+}
+
+.mega-footer__cols {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.mega-footer__col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  width: 177px;
+}
+
+.mega-footer__eyebrow {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-eyebrow);
+  line-height: 1.4;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-eyebrow-cyan);
+}
+
+.mega-footer__col a,
+.mega-footer__copy,
+.mega-footer__legal a {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-footer-link);
+  line-height: 1.5;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+.mega-footer__col a:hover,
+.mega-footer__legal a:hover {
+  color: var(--color-eyebrow-cyan);
+}
+
+.mega-footer__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 108px;
+  padding-top: 51px;
+  border-top: 0.5px solid rgba(226, 232, 236, 0.3);
+}
+
+.mega-footer__legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* "Terms of Use · Privacy Policy · …" */
+.mega-footer__legal a + a::before {
+  content: '·';
+  display: inline-block;
+  margin: 0 10px;
+  color: #ffffff;
+}

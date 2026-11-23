@@ -1,0 +1,612 @@
+/*
+ * modals.css — Nav Modal, Account Modal, and AI Chat Modal.
+ * Nav/Account modals sit at z-index 20. The AI Chat Modal sits at z-index 10
+ * (beneath the Nav/Account modals), so the nav bar and AI prompt stay on top.
+ */
+
+/* ---- Shared near-full-screen modal shell (Nav + Account) ---- */
+.app-modal {
+  position: fixed;
+  inset: var(--modal-inset);
+  z-index: var(--z-nav-modal);
+  display: none; /* toggled to flex when open */
+  border-radius: var(--radius-modal);
+  box-shadow: var(--shadow-modal);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Figma: plain 36px close X, top-right — no circle/background. */
+.modal-close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  padding: 4px;
+  border-radius: var(--radius-round);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  z-index: 3;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-close:focus-visible {
+  outline: 2px solid var(--color-eyebrow-cyan);
+  outline-offset: 2px;
+}
+
+.modal-close-icon {
+  width: 36px;
+  height: 36px;
+  display: block;
+  filter: brightness(0) invert(1); /* dark source SVG -> white */
+}
+
+/* =============================================================== */
+/* Nav Modal — deep purple over menu.jpg, three columns of links    */
+/* Figma "nav modal" 1:785                                          */
+/* =============================================================== */
+.nav-modal {
+  background: var(--color-bg-dark-nav);
+  padding: 0;
+}
+
+.nav-modal__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Purple scrim keeps the links legible and pulls the photo toward #25193A. */
+.nav-modal__bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-nav-modal-scrim);
+}
+
+/* Figma columns (1600 frame): primary at center−546px (480 wide), secondary
+   columns at center and center+360px (360 wide each); top 243px. */
+.nav-modal__inner {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  height: 100%;
+  padding: calc(243px - var(--modal-inset)) 48px 80px calc(50% - 546px);
+  overflow-y: auto;
+}
+
+.nav-modal__col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.nav-modal__col--primary {
+  flex: 0 0 480px;
+  margin-right: 66px;
+}
+
+.nav-modal__col--secondary {
+  flex: 0 0 360px;
+}
+
+.nav-modal__link--lg,
+.nav-modal__link--sm {
+  font-family: var(--font-body);
+  font-weight: 100;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+.nav-modal__link--lg {
+  font-size: 57px;
+  line-height: 1.4;
+}
+
+.nav-modal__link--sm {
+  font-size: var(--text-body-lg);
+  line-height: 2.1;
+}
+
+.nav-modal__link--lg:hover,
+.nav-modal__link--sm:hover,
+.nav-modal__link--lg:focus-visible,
+.nav-modal__link--sm:focus-visible {
+  color: var(--color-eyebrow-cyan);
+}
+
+.nav-modal__gap {
+  display: block;
+  height: calc(var(--text-body-lg) * 2.1); /* one blank line */
+}
+
+@media (max-width: 1320px) {
+  .nav-modal__inner {
+    padding-left: 96px;
+  }
+  .nav-modal__col--primary {
+    flex-basis: auto;
+    margin-right: 96px;
+  }
+  .nav-modal__col--secondary {
+    flex-basis: 300px;
+  }
+}
+
+/* =============================================================== */
+/* Account Modal — account.mp4 backdrop, persona sentence, 3 cards  */
+/* Figma "Account modal" 1:727                                      */
+/* =============================================================== */
+.account-modal {
+  background: var(--color-bg-dark-2);
+}
+
+.account-modal__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.account-modal__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: var(--account-video-opacity);
+}
+
+/* Figma stacks two 20% black layers (video tint + full-frame scrim). */
+.account-modal__bg::before,
+.account-modal__bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-account-scrim);
+}
+
+.account-modal__inner {
+  width: 100%;
+  height: 100%;
+  /* Figma: sentence top at 192px; bottom clears the sticky prompt. */
+  /* Top space gives way on shorter viewports (Figma's 176px at ≥ 996px tall)
+     so the cards stay clear of the sticky prompt with the Saved row shown. */
+  padding: clamp(120px, calc(100vh - 820px), calc(192px - var(--modal-inset))) 48px
+    calc(var(--prompt-stack, 200px) + 24px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 56px;
+  overflow-y: auto;
+}
+
+/* Above the cards so an open dropdown list overlays them. */
+.account-modal__persona {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--persona-line-gap);
+}
+
+/* Same type as the page picker lines (.persona-line). */
+.account-modal__line {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 100;
+  font-size: var(--text-l);
+  line-height: var(--lh-l);
+  letter-spacing: 1px;
+  color: #ffffff;
+  text-align: center;
+}
+
+/* "Tell us about yourself": sits 28px above the first line. */
+.account-modal__intro {
+  margin: 0 0 -18px;
+  text-align: center;
+}
+
+/* Inside the account sentence the flex gap already provides the spacing. */
+.account-modal__persona .persona-status {
+  margin-top: -16px; /* 30px below the last line */
+}
+
+.account-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 386px));
+  justify-content: center;
+  gap: 31px;
+  width: 100%;
+}
+
+.account-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 166px;
+  padding: 36px 33px 32px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-card);
+  box-shadow: 0 34px 118.7px 0 rgba(0, 57, 131, 0.12);
+  color: #ffffff;
+  /* Same lift as the Home 6 image cards. */
+  transition: background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+
+.account-card:hover,
+.account-card:focus-visible {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 40px 70px 0 rgba(0, 0, 0, 0.35);
+}
+
+.account-card:focus-visible {
+  outline: 2px solid var(--color-eyebrow-cyan);
+  outline-offset: 2px;
+}
+
+.account-card__eyebrow {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-eyebrow-cyan);
+}
+
+.account-card__body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-ui-lg);
+  line-height: 1.5;
+  letter-spacing: 0.8px;
+}
+
+.account-card:hover .account-card__link {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+/* =============================================================== */
+/* AI Chat Modal (z-index 10) — dark vignette + white chat card     */
+/* Figma "AI chat modal" 1:558 / card "genie-sep23" 1:675           */
+/* HARD RULE: no prompt input in here — the sticky AI prompt is the */
+/* only one; the thread pads by --prompt-stack to sit above it.     */
+/* =============================================================== */
+.ai-chat-modal {
+  position: fixed;
+  z-index: var(--z-chat-modal);
+  display: none; /* toggled to block on open */
+  background: var(--color-chat-overlay);
+  /* Figma: the page behind the chat reads blurred/darkened. */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+  /* initial geometry is set inline by JS to match the AI Prompt rect */
+}
+
+/* The card runs off the bottom edge so the sticky prompt (24px from the
+   viewport bottom) sits inside it, as in Figma. */
+.chat-card {
+  position: absolute;
+  top: 55px;
+  left: 50px;
+  right: 50px;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-chat-card);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border-radius: var(--radius-modal) var(--radius-modal) 0 0;
+  box-shadow: var(--shadow-modal);
+  overflow: hidden;
+}
+
+/* ---- Header: brand chip (left) + collapse control (right) ---- */
+.chat-header {
+  flex: 0 0 109px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 18px 28px 0 36px;
+}
+
+.chat-brand {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 28px 10px 18px;
+  background: #ffffff;
+  border-radius: 10px;
+}
+
+.chat-brand__icon {
+  width: 24px;
+  height: 25px;
+  background: var(--gradient-ai);
+}
+
+.chat-brand__name {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-ui-sm);
+  letter-spacing: 0.36px;
+  color: var(--color-text-primary);
+}
+
+.chat-dismiss {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-round);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.chat-dismiss img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.chat-dismiss:hover {
+  background: rgba(30, 37, 47, 0.08);
+}
+
+.chat-dismiss:focus-visible {
+  outline: 2px solid var(--color-prompt-focus);
+  outline-offset: 2px;
+}
+
+/* ---- Three columns, 1 : 3 : 1 ---- */
+.chat-cols {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr) minmax(0, 1fr);
+}
+
+.chat-col-title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-eyebrow);
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--color-text-secondary);
+}
+
+/* Left: chat history */
+.chat-history {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 0 36px 32px;
+  border-right: 1px solid var(--color-chat-divider);
+  overflow-y: auto;
+}
+
+.chat-history__item {
+  position: relative;
+  max-width: 216px;
+  padding: 0;
+  text-align: left;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.36;
+  letter-spacing: 0.6px;
+  color: var(--color-text-secondary);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.chat-history__item:hover {
+  color: var(--color-text-primary);
+}
+
+/* Current chat: Medium weight + 2px violet bar at x=19 in the card. */
+.chat-history__item.is-current {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.chat-history__item.is-current::before {
+  content: '';
+  position: absolute;
+  left: -17px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-sidetab-active);
+}
+
+/* Center: conversation */
+.chat-thread {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 54px;
+  padding: 0 32px calc(var(--prompt-stack, 200px) + 32px);
+  overflow-y: auto;
+}
+
+.chat-thread > * {
+  width: 100%;
+  max-width: 777px;
+}
+
+/* User prompt echo, right-aligned (Figma "suggestion" pill). */
+.chat-echo {
+  display: flex;
+  justify-content: flex-end;
+  padding-left: 120px;
+}
+
+.chat-echo__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--color-chat-echo-bg);
+  border-radius: var(--radius-infinite);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-ui-sm);
+  letter-spacing: 0.18px;
+  color: var(--color-text-primary);
+}
+
+.chat-echo__icon {
+  color: var(--color-text-secondary);
+}
+
+/* AI response (rich text, typewriter-revealed) */
+.ai-response {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-ui-sm);
+  line-height: 1.5;
+  letter-spacing: 0.18px;
+  color: var(--color-text-primary);
+}
+
+.ai-response p {
+  margin: 0 0 12px;
+}
+
+.ai-response ul {
+  margin: 0 0 12px;
+  padding-left: 1.5em;
+}
+
+.ai-response li {
+  margin-bottom: 8px;
+}
+
+.ai-response strong {
+  font-weight: 500;
+}
+
+.ai-response__link {
+  color: var(--color-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ai-response .is-pending {
+  display: none;
+}
+
+/* Blinking caret shown while the typewriter is running */
+.ai-response .caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: var(--color-text-primary);
+  animation: caret-blink 1s step-end infinite;
+}
+
+@keyframes caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Right: resources */
+.chat-artifacts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+  padding: 0 16px 32px;
+  border-left: 1px solid var(--color-chat-divider);
+  overflow-y: auto;
+}
+
+.artifact-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 275px;
+  color: var(--color-text-primary);
+}
+
+.artifact-card__media {
+  display: block;
+  aspect-ratio: 376 / 212;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+.artifact-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.artifact-card__tag {
+  margin-bottom: 8px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-eyebrow);
+  line-height: 1.4;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.artifact-card__label {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-ui-sm);
+  line-height: 1.5;
+  letter-spacing: 0.8px;
+}
+
+.artifact-card:hover {
+  color: var(--color-text-primary);
+}
+
+.artifact-card:hover .artifact-card__media img {
+  transform: scale(1.04);
+}
+
+.artifact-card:hover .artifact-card__label {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
