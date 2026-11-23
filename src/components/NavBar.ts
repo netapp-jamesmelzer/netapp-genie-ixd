@@ -19,12 +19,20 @@
  * control) takes the "selected" fill while its modal is open; the "Explore"
  * label does not change. The account control also has .is-pinging (brief cyan
  * outline flash) played by pingAccount().
+ *
+ * Theme: the glass nav floats over dark video, white sections and mixes of
+ * both, so it switches between a dark theme (white text) and a light theme
+ * (#1E252F text). Page surfaces declare what they are with
+ * [data-nav-theme="dark" | "light"]; a ScrollTrigger per surface reports
+ * which one is behind the nav's vertical centre line, in both scroll
+ * directions. setThemeOverride() pins a theme while a modal is open.
  */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { iconUrl, mediaUrl } from '../utils/assets';
 
 type NavState = 'flow' | 'revealed' | 'hidden';
+export type NavTheme = 'dark' | 'light';
 
 export class NavBar {
   readonly wrapper: HTMLDivElement;
@@ -40,6 +48,8 @@ export class NavBar {
   private navHeight = 0;
   private state: NavState = 'flow';
   private pageEl: HTMLElement | null = null;
+  private surfaceTheme: NavTheme = 'dark';
+  private themeOverride: NavTheme | null = null;
 
   constructor() {
     this.wrapper = document.createElement('div');
@@ -48,15 +58,15 @@ export class NavBar {
       <div class="nav-bar-inner">
         <div class="nav-group">
           <div class="nav-pill">
-            <img src="${mediaUrl('NetApp-Logo.svg')}" alt="NetApp" class="nav-logo-img" />
+            <span class="nav-logo icon-mask" role="img" aria-label="NetApp" style="--icon: url('${mediaUrl('NetApp-Logo.svg')}')"></span>
             <span class="nav-divider" aria-hidden="true"></span>
             <button class="menu-btn" type="button" aria-expanded="false" aria-label="Explore — site navigation">
               <span class="menu-btn-label">Explore</span>
-              <img src="${iconUrl('ic_menu.svg')}" alt="" aria-hidden="true" class="nav-icon" />
+              <span class="nav-icon icon-mask" aria-hidden="true" style="--icon: url('${iconUrl('ic_menu.svg')}')"></span>
             </button>
           </div>
           <button class="nav-account" type="button" aria-label="Account" aria-expanded="false">
-            <img src="${iconUrl('ic_user.svg')}" alt="" aria-hidden="true" class="nav-icon" />
+            <span class="nav-icon icon-mask" aria-hidden="true" style="--icon: url('${iconUrl('ic_user.svg')}')"></span>
           </button>
         </div>
       </div>
@@ -87,6 +97,42 @@ export class NavBar {
     }
     this.lastScrollY = window.scrollY;
     this.initScrollBehavior();
+    this.initTheme();
+  }
+
+  // -- Theme (dark/light from the surface behind the nav) ------------------
+
+  /** Force a theme (e.g. while a modal is open); null returns to auto. */
+  setThemeOverride(theme: NavTheme | null): void {
+    this.themeOverride = theme;
+    this.applyTheme();
+  }
+
+  private applyTheme(): void {
+    this.wrapper.dataset.theme = this.themeOverride ?? this.surfaceTheme;
+  }
+
+  private initTheme(): void {
+    // The nav's vertical centre: top offset + half the pill (Figma 24 + 78/2).
+    const line = (): number => {
+      const pill = this.wrapper.querySelector('.nav-pill') as HTMLElement;
+      const top = parseFloat(getComputedStyle(this.wrapper.querySelector('.nav-bar-inner')!).paddingTop) || 24;
+      return Math.round(top + pill.offsetHeight / 2);
+    };
+    document.querySelectorAll<HTMLElement>('[data-nav-theme]').forEach((el) => {
+      const theme = el.dataset.navTheme === 'light' ? 'light' : 'dark';
+      ScrollTrigger.create({
+        trigger: el,
+        start: () => `top ${line()}px`,
+        end: () => `bottom ${line()}px`,
+        onToggle: (self) => {
+          if (!self.isActive) return;
+          this.surfaceTheme = theme;
+          this.applyTheme();
+        },
+      });
+    });
+    this.applyTheme();
   }
 
   /**

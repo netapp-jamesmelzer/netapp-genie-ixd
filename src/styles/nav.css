@@ -12,10 +12,29 @@
  * switching to the fixed state never changes the document height (no jump).
  */
 .nav-bar-wrapper {
+  /* Theme (dark by default; NavBar.ts sets data-theme="light"). Everything in
+     the nav reads these, so a theme change is one crossfade. */
+  --nav-fg: var(--nav-dark-fg);
+  --nav-pill-bg: var(--nav-dark-pill-bg);
+  --nav-account-bg: var(--nav-dark-account-bg);
+  --nav-hover-bg: var(--nav-dark-hover-bg);
+  --nav-border: var(--nav-dark-border);
+  --nav-divider: var(--nav-dark-divider);
+  --nav-shadow: var(--nav-dark-shadow);
   position: relative; /* in normal flow at the top of the page */
   width: 100%;
   z-index: var(--z-nav-bar);
   pointer-events: none; /* children re-enable pointer events */
+}
+
+.nav-bar-wrapper[data-theme='light'] {
+  --nav-fg: var(--nav-light-fg);
+  --nav-pill-bg: var(--nav-light-pill-bg);
+  --nav-account-bg: var(--nav-light-account-bg);
+  --nav-hover-bg: var(--nav-light-hover-bg);
+  --nav-border: var(--nav-light-border);
+  --nav-divider: var(--nav-light-divider);
+  --nav-shadow: var(--nav-light-shadow);
 }
 
 /* Revealed: temporarily fixed at the top of the viewport (slides via transform). */
@@ -61,31 +80,39 @@
   display: flex;
   align-items: center;
   gap: 24px;
-  transition: background var(--dur-fast) var(--ease-out);
   height: 78px;
   padding: 12px 41px;
-  background: var(--color-nav-pill-bg);
+  background: var(--nav-pill-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--nav-border);
   border-radius: var(--radius-infinite);
-  color: var(--color-nav-pill-text);
+  box-shadow: var(--nav-shadow);
+  color: var(--nav-fg);
   pointer-events: auto;
+  transition: background var(--dur-nav-theme) var(--ease-out),
+    color var(--dur-nav-theme) var(--ease-out),
+    border-color var(--dur-nav-theme) var(--ease-out),
+    box-shadow var(--dur-nav-theme) var(--ease-out);
 }
 
-.nav-logo-img {
+/* Logo and icons are SVG masks painted with currentColor, so they follow
+   the theme's text color. */
+.nav-logo {
+  width: 102px;
   height: 19px;
-  width: auto;
-  display: block;
-  /* Source SVG is already white — sits directly on the dark frosted pill. */
+  background: currentColor;
 }
 
 .nav-icon {
   width: 18px;
   height: 18px;
-  display: block;
-  /* Source SVGs are dark (#1E252F); render white to stay visible on dark. */
-  filter: brightness(0) invert(1);
+  background: currentColor;
+}
+
+.nav-account .nav-icon {
+  width: 24px; /* Figma: 24px person */
+  height: 24px;
 }
 
 .menu-btn {
@@ -96,7 +123,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--color-nav-pill-text);
+  color: inherit;
   font-family: var(--font-body);
   font-size: 20px;
   font-weight: 400;
@@ -112,8 +139,9 @@
 .nav-divider {
   width: 1px;
   height: 30px;
-  background: rgba(255, 255, 255, 0.4);
+  background: var(--nav-divider);
   flex-shrink: 0;
+  transition: background var(--dur-nav-theme) var(--ease-out);
 }
 
 /* Active (nav modal open): Figma "selected" fill on the pill. */
@@ -133,23 +161,27 @@
   width: 71px;
   height: 71px;
   border-radius: var(--radius-round);
-  background: var(--color-nav-account-bg);
+  background: var(--nav-account-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--color-nav-account-text);
+  border: 1px solid var(--nav-border);
+  box-shadow: var(--nav-shadow);
+  color: var(--nav-fg);
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: auto;
   outline: 3px solid transparent;
   outline-offset: 3px;
-  transition: background var(--dur-fast) var(--ease-out),
+  transition: background var(--dur-nav-theme) var(--ease-out),
+    color var(--dur-nav-theme) var(--ease-out),
+    border-color var(--dur-nav-theme) var(--ease-out),
+    box-shadow var(--dur-nav-theme) var(--ease-out),
     transform var(--dur-fast) var(--ease-out);
 }
 
 .nav-account:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--nav-hover-bg);
 }
 
 /* Active (account modal open): Figma "selected" fill. */
@@ -159,5 +191,5 @@
 
 /* Pinging state hook (GSAP drives the outline animation). */
 .nav-account.is-pinging {
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--nav-hover-bg);
 }

@@ -610,30 +610,3 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-
-/* ---- Utility: recolorable icon (SVG used as a mask; set --icon) ---- */
-.icon-mask {
-  display: inline-block;
-  flex-shrink: 0;
-  -webkit-mask: var(--icon) center / contain no-repeat;
-  mask: var(--icon) center / contain no-repeat;
-}
-
-/* Account modal on shorter viewports (< 1000px tall): tighten the vertical
-   rhythm so intro + sentence + Saved row + cards all clear the sticky prompt.
-   Taller viewports keep the Figma spacing above. */
-@media (max-height: 999px) {
-  .account-modal__inner {
-    padding-top: 112px;
-    gap: 44px;
-  }
-  .account-modal__persona {
-    gap: 34px;
-  }
-  .account-modal__intro {
-    margin-bottom: -12px; /* 22px above the first line */
-  }
-  .account-modal__persona .persona-status {
-    margin-top: -10px; /* 24px below the last line */
-  }
-}

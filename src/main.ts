@@ -150,6 +150,9 @@ async function init(): Promise<void> {
       root.style.setProperty('--scrollbar-comp', `${comp}px`);
     }
     root.classList.toggle('is-scroll-locked', lock);
+    // Every modal (and the chat's dark vignette) sits behind the nav as a
+    // dark surface; return to auto-detect when they close.
+    navBar.setThemeOverride(lock ? 'dark' : null);
   };
 
   // --- Nav Bar controls -> modals (mutually exclusive) ---------------------

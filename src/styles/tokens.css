@@ -38,11 +38,25 @@
   --color-surface: #ffffff;
   --color-skeleton-base: #d8d8dc;
   --color-skeleton-shine: #e8e8ec;
-  --color-nav-pill-bg: rgba(255, 255, 255, 0.15);        /* frosted on dark */
-  --color-nav-pill-bg-light: rgba(255, 255, 255, 0.1);   /* frosted on light */
-  --color-nav-pill-text: #ffffff;
-  --color-nav-account-bg: rgba(255, 255, 255, 0.15);
-  --color-nav-account-text: #ffffff;
+  /* Nav bar themes — NavBar.ts sets data-theme from the surface behind it.
+     dark  = Figma Home 1/5 (white on frosted dark)
+     light = Figma Home 4/6 (#1E252F on frosted light; shadow added so the
+             pill reads on pure white) */
+  --nav-dark-fg: #ffffff;
+  --nav-dark-pill-bg: rgba(255, 255, 255, 0.15);
+  --nav-dark-account-bg: rgba(255, 255, 255, 0.15);
+  --nav-dark-hover-bg: rgba(255, 255, 255, 0.25);
+  --nav-dark-border: rgba(255, 255, 255, 0.12);
+  --nav-dark-divider: rgba(255, 255, 255, 0.4);
+  --nav-dark-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  --nav-light-fg: #1e252f;
+  --nav-light-pill-bg: rgba(255, 255, 255, 0.6);
+  --nav-light-account-bg: rgba(255, 255, 255, 0.6);
+  --nav-light-hover-bg: rgba(255, 255, 255, 0.9);
+  --nav-light-border: rgba(30, 37, 47, 0.08);
+  --nav-light-divider: rgba(30, 37, 47, 0.3);
+  --nav-light-shadow: 0 8px 32px rgba(0, 57, 131, 0.1);
+  --dur-nav-theme: 0.35s;
   --color-prompt-bg: #ffffff;
   --color-prompt-border: #c5cce0;
   --color-prompt-focus: #0066ff;

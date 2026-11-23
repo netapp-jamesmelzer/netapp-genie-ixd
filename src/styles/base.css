@@ -47,6 +47,15 @@ textarea {
   color: inherit;
 }
 
+/* Recolorable icon: the SVG (set as --icon) is a mask; `background` paints it
+   (use currentColor to follow text color). */
+.icon-mask {
+  display: inline-block;
+  flex-shrink: 0;
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+}
+
 /* Page scroll is locked while any modal is open (main.ts toggles the class);
    padding replaces the scrollbar so the layout doesn't shift. */
 html.is-scroll-locked {
