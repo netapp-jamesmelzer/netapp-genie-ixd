@@ -21,9 +21,9 @@
  * value, and [data-persona-article="<field>"] shows "a"/"an" for it.
  *
  * Saved status (`createPersonaStatus`): a row under each persona form that
- * appears on the first change — "[SAVED] We'll customize your site experience
- * based on this choice." The form never hides (people will play with it);
- * each further change re-acknowledges the save with a quick tag pulse.
+ * appears on a change — "[SAVED] We'll customize your site experience based
+ * on this choice." — then fades out after SAVED_HOLD_S. The form never hides
+ * (people will play with it); each further change brings it back.
  */
 import gsap from 'gsap';
 import { iconUrl } from '../utils/assets';
@@ -57,6 +57,10 @@ export class PersonaPicker {
  * it is already showing); a change made in the *other* form just marks this
  * one as saved, without animating, since the choice is shared.
  */
+/** How long the Saved row stays before fading, and the fade length (s). */
+const SAVED_HOLD_S = 3;
+const SAVED_FADE_S = 0.5;
+
 export function createPersonaStatus(source: PersonaSource): HTMLElement {
   const el = document.createElement('p');
   el.className = 'persona-status';
@@ -68,35 +72,40 @@ export function createPersonaStatus(source: PersonaSource): HTMLElement {
   const tag = el.querySelector('.persona-status__tag') as HTMLSpanElement;
   const text = el.querySelector('.persona-status__text') as HTMLSpanElement;
 
+  let tl: gsap.core.Timeline | null = null;
+
   document.addEventListener('persona-change', (e) => {
     const local = (e as CustomEvent<PersonaChangeDetail>).detail.source === source;
-    const wasShown = el.classList.contains('is-shown');
-    el.classList.add('is-shown');
+    // A change made in the other form is reflected there, not here.
     if (!local) return;
 
-    if (!wasShown) {
-      gsap
-        .timeline({ delay: 0.12 })
-        .fromTo(
-          tag,
-          { scale: 0.6, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2.2)' }
-        )
-        .fromTo(
-          text,
-          { x: -12, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
-          '-=0.15'
-        );
+    const showing = tl?.isActive() ?? false;
+    tl?.kill();
+    el.classList.add('is-shown');
+    gsap.set(el, { opacity: 1 });
+
+    tl = gsap.timeline({
+      onComplete: () => el.classList.remove('is-shown'), // space stays reserved
+    });
+    if (showing) {
+      // Already visible: a quick pulse acknowledges the new choice.
+      tl.fromTo(tag, { scale: 1.18 }, { scale: 1, duration: 0.45, ease: 'elastic.out(1, 0.45)' })
+        .fromTo(text, { opacity: 0.35 }, { opacity: 1, duration: 0.4, ease: 'power1.out' }, 0);
     } else {
-      // Already saved once: a quick pulse acknowledges the new choice.
-      gsap.fromTo(
+      tl.fromTo(
         tag,
-        { scale: 1.18 },
-        { scale: 1, duration: 0.45, ease: 'elastic.out(1, 0.45)', overwrite: 'auto' }
+        { scale: 0.6, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2.2)' },
+        0.12
+      ).fromTo(
+        text,
+        { x: -12, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
+        '-=0.15'
       );
-      gsap.fromTo(text, { opacity: 0.35 }, { opacity: 1, duration: 0.4, ease: 'power1.out' });
     }
+    // Hold, then fade the whole row out.
+    tl.to(el, { opacity: 0, duration: SAVED_FADE_S, ease: 'power1.out' }, `+=${SAVED_HOLD_S}`);
   });
   return el;
 }

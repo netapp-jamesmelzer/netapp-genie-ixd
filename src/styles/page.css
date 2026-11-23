@@ -354,6 +354,18 @@
 /* "[SAVED] We'll customize your site experience…" under a persona form.
    Always takes up its space (visibility, not display) so it never shifts the
    form when it appears. */
+/* Small white note type, shared by the Saved message and the account
+   modal's "Tell us about yourself" intro. */
+.persona-note,
+.persona-status {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-ui-lg);
+  line-height: 1.4;
+  letter-spacing: 0.8px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
 .persona-status {
   display: flex;
   align-items: center;
@@ -361,12 +373,6 @@
   gap: 14px;
   margin: var(--persona-line-gap) 0 0;
   visibility: hidden;
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: var(--text-ui-lg);
-  line-height: 1.4;
-  letter-spacing: 0.8px;
-  color: rgba(255, 255, 255, 0.88);
 }
 
 .persona-status.is-shown {

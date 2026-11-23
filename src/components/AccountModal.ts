@@ -4,7 +4,8 @@
  * A near-full-screen modal (z-index 20) activated by the account control.
  * Figma ("Account modal", 1:727):
  *   - Background: account.mp4 looping video under two 20% black scrims.
- *   - Persona sentence on three centered lines, each an inline dropdown bound
+ *   - "Tell us about yourself" intro (small white note type), then the
+ *     persona sentence on three centered lines, each an inline dropdown bound
  *     to the shared persona store (edits here update the page picker too):
  *       I'm a/an [role ▾] / focused on [goal ▾] / in the [industry ▾]
  *   - Under the sentence, the shared "[SAVED] We'll customize…" status row
@@ -66,6 +67,7 @@ export class AccountModal {
       </button>
       <div class="account-modal__inner">
         <div class="account-modal__persona">
+          <p class="account-modal__intro persona-note">Tell us about yourself</p>
           <p class="account-modal__line">I’m <span data-persona-article="role">a</span> <span data-account-dd="role"></span></p>
           <p class="account-modal__line">focused on <span data-account-dd="goal"></span></p>
           <p class="account-modal__line">in the <span data-account-dd="industry"></span></p>
@@ -108,7 +110,7 @@ export class AccountModal {
     this.el.style.display = 'flex';
     void this.video.play().catch(() => {});
 
-    const lines = this.el.querySelectorAll('.account-modal__line');
+    const lines = this.el.querySelectorAll('.account-modal__intro, .account-modal__line');
     const cards = this.el.querySelectorAll('.account-card');
     gsap
       .timeline({ defaults: { overwrite: 'auto' } })

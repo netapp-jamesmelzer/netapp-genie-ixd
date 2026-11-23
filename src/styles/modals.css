@@ -214,6 +214,12 @@
   text-align: center;
 }
 
+/* "Tell us about yourself": sits 28px above the first line. */
+.account-modal__intro {
+  margin: 0 0 -18px;
+  text-align: center;
+}
+
 /* Inside the account sentence the flex gap already provides the spacing. */
 .account-modal__persona .persona-status {
   margin-top: -16px; /* 30px below the last line */
@@ -611,4 +617,23 @@
   flex-shrink: 0;
   -webkit-mask: var(--icon) center / contain no-repeat;
   mask: var(--icon) center / contain no-repeat;
+}
+
+/* Account modal on shorter viewports (< 1000px tall): tighten the vertical
+   rhythm so intro + sentence + Saved row + cards all clear the sticky prompt.
+   Taller viewports keep the Figma spacing above. */
+@media (max-height: 999px) {
+  .account-modal__inner {
+    padding-top: 112px;
+    gap: 44px;
+  }
+  .account-modal__persona {
+    gap: 34px;
+  }
+  .account-modal__intro {
+    margin-bottom: -12px; /* 22px above the first line */
+  }
+  .account-modal__persona .persona-status {
+    margin-top: -10px; /* 24px below the last line */
+  }
 }

@@ -113,7 +113,8 @@
   --ls-eyebrow: 0.14em;
 
   /* ---- Radii ---- */
-  --radius-pill: 100px;
+  --radius-pill: 4px;                /* tags, buttons */
+  --radius-nav: 100px;               /* nav bar pill — its own shape */
   --radius-round: 50%;
   --radius-modal: 20px;
   --radius-card: 8px;
