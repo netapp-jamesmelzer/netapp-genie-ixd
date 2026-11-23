@@ -25,7 +25,9 @@
  * (#1E252F text). Page surfaces declare what they are with
  * [data-nav-theme="dark" | "light"]; a ScrollTrigger per surface reports
  * which one is behind the nav's vertical centre line, in both scroll
- * directions. setThemeOverride() pins a theme while a modal is open.
+ * directions. A surface may change its own data-nav-theme (e.g. the story
+ * after its video fades to white); the nav re-reads it. setThemeOverride()
+ * pins a theme while a modal is open.
  */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -48,7 +50,7 @@ export class NavBar {
   private navHeight = 0;
   private state: NavState = 'flow';
   private pageEl: HTMLElement | null = null;
-  private surfaceTheme: NavTheme = 'dark';
+  private surface: HTMLElement | null = null;
   private themeOverride: NavTheme | null = null;
 
   constructor() {
@@ -109,7 +111,8 @@ export class NavBar {
   }
 
   private applyTheme(): void {
-    this.wrapper.dataset.theme = this.themeOverride ?? this.surfaceTheme;
+    const surfaceTheme: NavTheme = this.surface?.dataset.navTheme === 'light' ? 'light' : 'dark';
+    this.wrapper.dataset.theme = this.themeOverride ?? surfaceTheme;
   }
 
   private initTheme(): void {
@@ -119,19 +122,22 @@ export class NavBar {
       const top = parseFloat(getComputedStyle(this.wrapper.querySelector('.nav-bar-inner')!).paddingTop) || 24;
       return Math.round(top + pill.offsetHeight / 2);
     };
-    document.querySelectorAll<HTMLElement>('[data-nav-theme]').forEach((el) => {
-      const theme = el.dataset.navTheme === 'light' ? 'light' : 'dark';
+    const surfaces = document.querySelectorAll<HTMLElement>('[data-nav-theme]');
+    surfaces.forEach((el) => {
       ScrollTrigger.create({
         trigger: el,
         start: () => `top ${line()}px`,
         end: () => `bottom ${line()}px`,
         onToggle: (self) => {
           if (!self.isActive) return;
-          this.surfaceTheme = theme;
+          this.surface = el;
           this.applyTheme();
         },
       });
     });
+    // A surface flipping its own theme while it's behind the nav.
+    const mo = new MutationObserver(() => this.applyTheme());
+    surfaces.forEach((el) => mo.observe(el, { attributes: true, attributeFilter: ['data-nav-theme'] }));
     this.applyTheme();
   }
 

@@ -21,7 +21,9 @@
  *     - video eases from a push-in to rest on enter, pushes in again on exit
  *     - eyebrow, then the headline, then the button rise in
  *     - ESA logo slides in from the right
- *     - exit: content lifts and fades
+ *     - exit: content lifts and fades; then the video + scrim fade out
+ *       (300px → 100px of the section left) and the section flips to white
+ *       with dark copy (storyFadeOut)
  *
  * Rule of thumb: enter tweens animate children, exit tweens animate the
  * wrapper, so the two never fight over the same property.
@@ -41,6 +43,9 @@ export class ScrollScenes {
       this.recommended();
       this.story();
     });
+
+    // A fade, not motion — runs under reduced motion too.
+    this.storyFadeOut();
 
     // Layout shifts after fonts swap in; re-measure trigger positions.
     void document.fonts?.ready.then(() => ScrollTrigger.refresh());
@@ -145,4 +150,39 @@ export class ScrollScenes {
       scrollTrigger: { trigger: '#moment-5', start: 'bottom 70%', end: 'bottom top', scrub: 0.4 },
     });
   }
+
+  /**
+   * Customer story → white: as the story scrolls out, its video and scrim
+   * fade to 0 between "300px of the section left" and "100px left" (scrubbed,
+   * reverses). At the start of that window — when the copy is already above
+   * the viewport — the section flips to its light variant (.is-faded: white
+   * background, dark copy) and tells the nav it is now a light surface.
+   */
+  private storyFadeOut(): void {
+    const story = document.querySelector<HTMLElement>('#moment-5');
+    if (!story) return;
+    gsap.fromTo(
+      ['#moment-5 .moment__video', '#moment-5 .moment__overlay--story'],
+      { opacity: 1 },
+      {
+        opacity: 0,
+        ease: 'none',
+        immediateRender: false,
+        scrollTrigger: { trigger: story, start: 'bottom 300px', end: 'bottom 100px', scrub: true },
+      }
+    );
+    const flip = (light: boolean): void => {
+      story.classList.toggle('is-faded', light);
+      story.dataset.navTheme = light ? 'light' : 'dark';
+    };
+    ScrollTrigger.create({
+      trigger: story,
+      start: 'bottom 300px',
+      end: 'max',
+      onEnter: () => flip(true),
+      onLeaveBack: () => flip(false),
+      onRefresh: (self) => flip(self.progress > 0),
+    });
+  }
+
 }
