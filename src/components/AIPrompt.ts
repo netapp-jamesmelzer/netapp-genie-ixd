@@ -7,7 +7,9 @@
  *   huge  (initial, 5 rows = 125px) — the first view
  *   large (3 rows = 75px)           — collapsed by ScrollTrigger on first scroll
  *                                     past the hero; never returns to huge
- *   small (1 row = 25px)            — toggled by the collapse/expand control
+ *   small (1 row = 25px)            — toggled by the collapse/expand control;
+ *                                     the box becomes a single line (sparkle ·
+ *                                     text · send · toggle), chip hidden
  *
  * Transitions:
  *   huge  → large  : ScrollTrigger fires once when the hero bottom passes 70% vp
@@ -29,6 +31,7 @@ export class AIPrompt {
   private readonly sizeToggleIcon: HTMLImageElement;
   private readonly sendBtn: HTMLButtonElement;
   private sizeState: SizeState = 'huge';
+  private readonly glow: HTMLDivElement;
 
   /** Pixel heights for each state (line-height 25px × n lines). */
   private readonly HEIGHTS: Record<SizeState, number> = {
@@ -70,8 +73,18 @@ export class AIPrompt {
     this.sendBtn = this.el.querySelector('.send-btn') as HTMLButtonElement;
 
     // Focus outline.
-    this.textarea.addEventListener('focus', () => this.el.classList.add('is-focused'));
-    this.textarea.addEventListener('blur', () => this.el.classList.remove('is-focused'));
+    // Focus: outline on the box + the viewport glow beneath it.
+    this.glow = document.createElement('div');
+    this.glow.className = 'ai-prompt-glow';
+    this.glow.setAttribute('aria-hidden', 'true');
+    this.textarea.addEventListener('focus', () => {
+      this.el.classList.add('is-focused');
+      this.glow.classList.add('is-visible');
+    });
+    this.textarea.addEventListener('blur', () => {
+      this.el.classList.remove('is-focused');
+      this.glow.classList.remove('is-visible');
+    });
 
     // Submit on Enter (without Shift).
     this.textarea.addEventListener('keydown', (e: KeyboardEvent) => {
@@ -86,6 +99,7 @@ export class AIPrompt {
   }
 
   mount(parent: HTMLElement = document.body): void {
+    parent.appendChild(this.glow);
     parent.appendChild(this.el);
     this.publishStackHeight();
     // Lock initial huge height via GSAP inline style (overrides rows attr).
@@ -109,8 +123,12 @@ export class AIPrompt {
    */
   private publishStackHeight(): void {
     const update = (): void => {
-      const stack = window.innerHeight - this.el.getBoundingClientRect().top;
-      document.documentElement.style.setProperty('--prompt-stack', `${Math.ceil(stack)}px`);
+      const r = this.el.getBoundingClientRect();
+      const root = document.documentElement.style;
+      root.setProperty('--prompt-stack', `${Math.ceil(window.innerHeight - r.top)}px`);
+      // Centre of the box, for the focus glow's radial gradient.
+      root.setProperty('--prompt-cx', `${Math.round(r.left + r.width / 2)}px`);
+      root.setProperty('--prompt-cy', `${Math.round(r.top + r.height / 2)}px`);
     };
     new ResizeObserver(update).observe(this.el);
     window.addEventListener('resize', update);

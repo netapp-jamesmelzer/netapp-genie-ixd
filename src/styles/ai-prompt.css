@@ -32,6 +32,46 @@
   box-shadow: var(--shadow-prompt), 0 0 0 3px rgba(0, 102, 255, 0.18);
 }
 
+/* Focus glow: a full-viewport wash just under the prompt, centred on it
+   (--prompt-cx/--prompt-cy are kept live by AIPrompt.ts). Never blocks
+   clicks; fades with the focus outline. */
+.ai-prompt-glow {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-prompt-glow);
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    circle farthest-corner at var(--prompt-cx, 50%) var(--prompt-cy, 85%),
+    var(--prompt-glow-from) 0%,
+    var(--prompt-glow-to) 100%
+  );
+  transition: opacity var(--dur-prompt-glow) var(--ease-out);
+}
+
+.ai-prompt-glow.is-visible {
+  opacity: 1;
+}
+
+/* ---- Small mode: everything on one line ----
+   sparkle · text (1 line) · send · size toggle; "Solve problems" hidden. */
+.ai-prompt.is-small {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px 14px 24px;
+}
+
+.ai-prompt.is-small .ai-prompt__top {
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+}
+
+.ai-prompt.is-small .quick-action-chip {
+  display: none;
+}
+
 /* ---- Top row: AI icon + textarea + gradient send ---- */
 .ai-prompt__top {
   display: flex;

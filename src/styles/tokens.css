@@ -60,6 +60,10 @@
   --color-prompt-bg: #ffffff;
   --color-prompt-border: #c5cce0;
   --color-prompt-focus: #0066ff;
+  /* Focus glow: radial from the prompt's centre out to the farthest corner. */
+  --prompt-glow-from: rgba(123, 39, 255, 0.1);   /* #7B27FF @ 10% */
+  --prompt-glow-to: rgba(123, 39, 255, 0);
+  --dur-prompt-glow: 0.35s;
   --color-prompt-shadow: rgba(83, 101, 133, 0.06);
   --color-modal-bg: rgba(244, 241, 237, 0.98);
   --color-nav-modal-scrim: rgba(37, 25, 58, 0.55);   /* over menu.jpg */
@@ -154,6 +158,7 @@
   --z-chat-modal: 10;
   --z-nav-modal: 20;
   --z-account-modal: 20;
+  --z-prompt-glow: 29;               /* focus glow, just under the prompt */
   --z-ai-prompt: 30;
   --z-nav-bar: 40;
 }
