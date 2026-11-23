@@ -227,6 +227,17 @@ async function init(): Promise<void> {
   const DEFAULT_PLACEHOLDER = aiPrompt.textarea.placeholder;
   aiPrompt.onSubmit = (text: string) => {
     if (aiChatModal.opened) return; // demo: one scripted conversation
+    // The chat (z 10) sits under the nav/account modals (z 20): dismiss them
+    // so the conversation isn't hidden. Their fade-out overlaps the chat's
+    // expansion beneath.
+    if (navModal.opened) {
+      navModal.close();
+      navBar.setMenuActive(false);
+    }
+    if (accountModal.opened) {
+      accountModal.close();
+      navBar.setAccountActive(false);
+    }
     aiChatModal.open(aiPrompt.getRect(), text);
     aiPrompt.leaveHuge();
     aiPrompt.setPlaceholder('Make a selection or type something else…');
