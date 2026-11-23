@@ -21,14 +21,19 @@
       <!-- ============================================================= -->
       <div class="stage" id="stage">
         <div class="stage__bg" aria-hidden="true">
-          <video
-            class="stage__video"
-            autoplay
-            muted
-            loop
-            playsinline
-            data-video="space_video_1.mp4"
-          ></video>
+          <!-- The zoom wrapper carries the scroll push-in, so the video element
+               itself stays transform-free: VideoMorph.ts moves this one video
+               into the featured card on the way to Recommended. -->
+          <div class="stage__zoom">
+            <video
+              class="stage__video"
+              autoplay
+              muted
+              loop
+              playsinline
+              data-video="space_video_1.mp4"
+            ></video>
+          </div>
           <div class="moment__overlay moment__overlay--top"></div>
           <div class="moment__overlay moment__overlay--bottom"></div>
           <div class="stage__dim"></div>
@@ -97,7 +102,10 @@
             </div>
           </div>
           <div class="recommended__grid">
-            <article class="feature-card" data-bg="card-1.jpg">
+            <article class="feature-card">
+              <!-- Receives the stage video at the end of the persona → Recommended
+                   morph (VideoMorph.ts). -->
+              <div class="feature-card__media" aria-hidden="true"></div>
               <div class="feature-card__overlay"></div>
               <div class="feature-card__body">
                 <p class="eyebrow eyebrow--muted">Data infrastructure at scale</p>

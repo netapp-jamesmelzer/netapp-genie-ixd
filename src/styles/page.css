@@ -185,14 +185,52 @@
   z-index: 0;
 }
 
+.stage__zoom {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 60%;
+}
+
+/* The one shared video. Fills whichever host holds it (stage zoom, card);
+   while flying, VideoMorph sets left/top/width/height inline. */
 .stage__video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform-origin: 50% 60%;
 }
+
+/* ---- Video morph layer (persona → Recommended) ------------------------ */
+/* Fixed, clipped to an interpolated rect. Stacking: z 1 and placed before the
+   stage moments, so it paints above Recommended's white background but below
+   every section's content (persona text exits over it; Recommended content
+   arrives over it). */
+.video-morph {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+  background: var(--color-bg-dark);
+}
+
+.video-morph.is-active {
+  visibility: visible;
+}
+
+.video-morph__box {
+  position: absolute;
+  inset: 0;
+}
+
+.video-morph__dim {
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg-dark);
+}
+
 
 /* Scrubbed from 0 to darker as the persona moment arrives. */
 .stage__dim {
@@ -577,10 +615,17 @@
   border-radius: var(--radius-card);
   overflow: hidden;
   min-height: 520px;
-  background-size: cover;
-  background-position: center;
+  /* Transparent on purpose: during the morph the flying video (below this
+     content layer) shows through the card; afterwards the card hosts it. */
+  background: transparent;
   display: flex;
   align-items: flex-end;
+}
+
+/* Holds the stage video once it has landed (VideoMorph.ts). */
+.feature-card__media {
+  position: absolute;
+  inset: 0;
 }
 
 .feature-card__overlay {

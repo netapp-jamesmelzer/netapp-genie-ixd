@@ -15,6 +15,8 @@
  *     - enter: headline rises in, then each sentence line, then the cyan
  *       underlines draw left→right (CSS var --u on .persona-dd__button)
  *     - exit: the whole block lifts and fades
+ *   Recommended (moment 4): heading, side card, then the featured card's
+ *     copy rise in while VideoMorph shrinks the stage video into the card.
  *   Customer story (moment 5):
  *     - video eases from a push-in to rest on enter, pushes in again on exit
  *     - eyebrow, then the headline, then the button rise in
@@ -36,6 +38,7 @@ export class ScrollScenes {
       this.stage();
       this.hero();
       this.persona();
+      this.recommended();
       this.story();
     });
 
@@ -45,7 +48,7 @@ export class ScrollScenes {
 
   private stage(): void {
     gsap.fromTo(
-      '.stage__video',
+      '.stage__zoom',
       { scale: 1 },
       {
         scale: 1.18,
@@ -101,6 +104,18 @@ export class ScrollScenes {
       ease: 'none',
       scrollTrigger: { trigger: '#moment-2', start: 'center 35%', end: 'bottom top', scrub: 0.4 },
     });
+  }
+
+  /** Recommended arrives over the morphing video; the card copy lands last. */
+  private recommended(): void {
+    gsap
+      .timeline({
+        defaults: { ease: 'power2.out' },
+        scrollTrigger: { trigger: '#moment-4', start: 'top 75%', end: 'top top', scrub: 0.4 },
+      })
+      .fromTo('.recommended__head', { y: 40, opacity: 0 }, { y: 0, opacity: 1 }, 0)
+      .fromTo('.recommended__side', { y: 60, opacity: 0 }, { y: 0, opacity: 1 }, 0.15)
+      .fromTo('.feature-card__body', { y: 30, opacity: 0 }, { y: 0, opacity: 1 }, 0.55);
   }
 
   private story(): void {
