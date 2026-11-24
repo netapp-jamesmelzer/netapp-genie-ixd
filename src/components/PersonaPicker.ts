@@ -15,7 +15,8 @@
  *
  * Dropdowns are bound to the shared persona store (src/state/persona.ts), so
  * the page picker and the Account Modal stay in sync. `PersonaDropdown` is
- * exported for reuse by AccountModal.
+ * exported for reuse by AccountModal; the generic `InlineDropdown` underneath
+ * also drives the Account Modal's Language control.
  *
  * Live text: any element with [data-persona-text="<field>"] shows the current
  * value, and [data-persona-article="<field>"] shows "a"/"an" for it.
@@ -131,28 +132,48 @@ export function bindPersonaText(root: ParentNode): void {
 
 let instanceCount = 0;
 
-export class PersonaDropdown {
-  readonly el: HTMLSpanElement;
-  private readonly button: HTMLButtonElement;
-  private readonly listbox: HTMLUListElement;
-  private readonly textEl: HTMLSpanElement;
-  private readonly options: string[];
-  private readonly idBase: string;
-  private selectedIndex: number;
-  private activeIndex: number;
-  private open = false;
+export interface InlineDropdownConfig {
+  /** Used for element ids. */
+  key: string;
+  options: string[];
+  selectedIndex?: number;
+  /** Fixed trigger text; when omitted the trigger shows the selected option. */
+  label?: string;
+  /** Accessible name for the trigger (defaults to the visible text). */
+  ariaLabel?: string;
+  /** Open the list above the trigger (for controls near the viewport bottom). */
+  openUp?: boolean;
+  onSelect?: (value: string, index: number) => void;
+}
 
-  constructor(
-    private readonly field: PersonaField,
-    private readonly source: PersonaSource
-  ) {
-    this.options = PERSONA_OPTIONS[field];
-    this.idBase = `persona-dd-${field}-${++instanceCount}`;
-    this.selectedIndex = Math.max(0, this.options.indexOf(getPersona(field)));
+/**
+ * The text + cyan underline + cyan arrow listbox used inline in the persona
+ * sentences, sized by whatever text it sits in. Generic: `PersonaDropdown`
+ * binds it to the persona store; the Account Modal's Language control uses it
+ * directly.
+ */
+export class InlineDropdown {
+  readonly el: HTMLSpanElement;
+  protected readonly button: HTMLButtonElement;
+  protected readonly listbox: HTMLUListElement;
+  protected readonly textEl: HTMLSpanElement;
+  protected readonly options: string[];
+  protected readonly idBase: string;
+  protected selectedIndex: number;
+  protected activeIndex: number;
+  protected open = false;
+  private readonly config: InlineDropdownConfig;
+
+  constructor(config: InlineDropdownConfig) {
+    this.config = config;
+    this.options = config.options;
+    this.idBase = `inline-dd-${config.key}-${++instanceCount}`;
+    this.selectedIndex = Math.max(0, Math.min(this.options.length - 1, config.selectedIndex ?? 0));
     this.activeIndex = this.selectedIndex;
 
     this.el = document.createElement('span');
     this.el.className = 'persona-dd';
+    if (config.openUp) this.el.classList.add('persona-dd--up');
 
     // --- Trigger button ---
     this.button = document.createElement('button');
@@ -162,10 +183,11 @@ export class PersonaDropdown {
     this.button.setAttribute('aria-haspopup', 'listbox');
     this.button.setAttribute('aria-expanded', 'false');
     this.button.setAttribute('aria-controls', `${this.idBase}-list`);
+    if (config.ariaLabel) this.button.setAttribute('aria-label', config.ariaLabel);
 
     this.textEl = document.createElement('span');
     this.textEl.className = 'persona-dd__text';
-    this.textEl.textContent = this.options[this.selectedIndex];
+    this.textEl.textContent = config.label ?? this.options[this.selectedIndex];
 
     // Cyan drop arrow: the SVG is used as a mask so it can take any color.
     const arrow = document.createElement('span');
@@ -180,6 +202,7 @@ export class PersonaDropdown {
     this.listbox.className = 'persona-dd__list';
     this.listbox.id = `${this.idBase}-list`;
     this.listbox.setAttribute('role', 'listbox');
+    if (config.ariaLabel) this.listbox.setAttribute('aria-label', config.ariaLabel);
     this.listbox.tabIndex = -1;
     this.listbox.hidden = true;
 
@@ -204,13 +227,6 @@ export class PersonaDropdown {
     this.listbox.addEventListener('keydown', (e) => this.onListKeydown(e));
     document.addEventListener('click', (e) => {
       if (this.open && !this.el.contains(e.target as Node)) this.close();
-    });
-    // Reflect changes made by other dropdowns bound to the same field.
-    document.addEventListener('persona-change', (e) => {
-      const { field, value } = (e as CustomEvent<PersonaChangeDetail>).detail;
-      if (field !== this.field) return;
-      const i = this.options.indexOf(value);
-      if (i >= 0 && i !== this.selectedIndex) this.render(i);
     });
   }
 
@@ -302,17 +318,37 @@ export class PersonaDropdown {
     }
   }
 
-  private render(index: number): void {
+  protected render(index: number): void {
     this.selectedIndex = index;
-    this.textEl.textContent = this.options[index];
+    if (this.config.label === undefined) this.textEl.textContent = this.options[index];
     Array.from(this.listbox.children).forEach((li, i) => {
       li.setAttribute('aria-selected', String(i === index));
     });
   }
 
-  private select(index: number): void {
+  protected select(index: number): void {
     this.render(index);
     this.close(true);
-    setPersona(this.field, this.options[index], this.source);
+    this.config.onSelect?.(this.options[index], index);
+  }
+}
+
+/** An InlineDropdown bound to one persona field in the shared store. */
+export class PersonaDropdown extends InlineDropdown {
+  constructor(field: PersonaField, source: PersonaSource) {
+    const options = PERSONA_OPTIONS[field];
+    super({
+      key: field,
+      options,
+      selectedIndex: options.indexOf(getPersona(field)),
+      onSelect: (value) => setPersona(field, value, source),
+    });
+    // Reflect changes made by other dropdowns bound to the same field.
+    document.addEventListener('persona-change', (e) => {
+      const detail = (e as CustomEvent<PersonaChangeDetail>).detail;
+      if (detail.field !== field) return;
+      const i = this.options.indexOf(detail.value);
+      if (i >= 0 && i !== this.selectedIndex) this.render(i);
+    });
   }
 }

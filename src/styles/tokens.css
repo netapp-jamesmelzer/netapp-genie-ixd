@@ -69,6 +69,11 @@
   --color-nav-modal-scrim: rgba(37, 25, 58, 0.55);   /* over menu.jpg */
   --color-account-scrim: rgba(0, 0, 0, 0.2);          /* Figma: 2 × 20% black */
   --account-video-opacity: 0.1;                       /* account.mp4 strength */
+  --account-card-max: 386px;                          /* Figma card width */
+  --account-grid-max: calc(3 * var(--account-card-max) + 2 * 31px);
+  --account-utility-offset: -24px;                    /* 32px below the cards */
+  --account-language-gap: 6px;                        /* text ↔ arrow */
+  --account-language-underline-gap: 4px;              /* text ↔ underline */
   --color-nav-selected: rgba(207, 221, 230, 0.53);    /* Figma selected nav control */
   --color-nav-resting-on-modal: rgba(0, 0, 0, 0.15);
   --color-chat-card: rgba(255, 255, 255, 0.95);

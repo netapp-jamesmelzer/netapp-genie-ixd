@@ -225,7 +225,7 @@
 
 .account-modal__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 386px));
+  grid-template-columns: repeat(3, minmax(0, var(--account-card-max)));
   justify-content: center;
   gap: 31px;
   width: 100%;
@@ -285,6 +285,64 @@
   text-decoration: underline;
   text-underline-offset: 4px;
   text-decoration-thickness: 1px;
+}
+
+/* Utility row under the cards: Contact (left) · Language dropdown (right).
+   Same width as the card grid; type matches the card body text. */
+.account-modal__utility {
+  position: relative;
+  z-index: 3; /* an open Language list overlays the cards above it */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: var(--account-grid-max);
+  margin-top: var(--account-utility-offset);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--text-ui-lg);
+  line-height: 1.5;
+  letter-spacing: 0.8px;
+  color: #ffffff;
+}
+
+.account-modal__contact {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.account-modal__contact:hover {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+.account-modal__contact:focus-visible {
+  outline: 2px solid var(--color-eyebrow-cyan);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* The persona dropdown, scaled down to body text. */
+.account-modal__language .persona-dd__button {
+  gap: var(--account-language-gap);
+  padding-bottom: var(--account-language-underline-gap);
+}
+
+.account-modal__language .persona-dd__button::after {
+  height: 1px;
+}
+
+.account-modal__language .persona-dd__arrow {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+/* Right-aligned trigger: anchor its list to the right edge. */
+.account-modal__language .persona-dd__list {
+  left: auto;
+  right: 0;
 }
 
 /* =============================================================== */

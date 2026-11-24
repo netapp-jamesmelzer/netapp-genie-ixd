@@ -519,6 +519,12 @@
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
 }
 
+/* Opens upward (controls near the bottom of the viewport). */
+.persona-dd--up .persona-dd__list {
+  top: auto;
+  bottom: calc(100% + 10px);
+}
+
 .persona-dd__list[hidden] {
   display: none;
 }

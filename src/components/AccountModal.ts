@@ -12,6 +12,8 @@
  *     (createPersonaStatus) — the form stays editable.
  *   - Three translucent cards (cyan eyebrow + body link): Dashboard, Account,
  *     Console.
+ *   - A utility row under the cards: a plain white "Contact" link (left) and
+ *     a "Language" InlineDropdown sized like the card body text (right).
  *   - Plain close X, top-right.
  *   - The sticky AI prompt (z 30) sits over the bottom; layout reserves room.
  *
@@ -20,7 +22,12 @@
  */
 import gsap from 'gsap';
 import { iconUrl, mediaUrl } from '../utils/assets';
-import { PersonaDropdown, bindPersonaText, createPersonaStatus } from './PersonaPicker';
+import {
+  InlineDropdown,
+  PersonaDropdown,
+  bindPersonaText,
+  createPersonaStatus,
+} from './PersonaPicker';
 import type { PersonaField } from '../state/persona';
 
 interface AccountCard {
@@ -28,6 +35,19 @@ interface AccountCard {
   body: string;
   link: string;
 }
+
+/** Placeholder list — selecting one doesn't translate anything (prototype). */
+const LANGUAGES = [
+  'English',
+  'Deutsch',
+  'Español',
+  'Français',
+  'Italiano',
+  'Português',
+  '日本語',
+  '한국어',
+  '简体中文',
+];
 
 const ACCOUNT_CARDS: AccountCard[] = [
   { eyebrow: 'Dashboard', body: 'Access support, communities and trainings,', link: 'Sign in' },
@@ -38,7 +58,7 @@ const ACCOUNT_CARDS: AccountCard[] = [
 export class AccountModal {
   readonly el: HTMLDivElement;
   private readonly video: HTMLVideoElement;
-  private readonly dropdowns: PersonaDropdown[] = [];
+  private readonly dropdowns: InlineDropdown[] = [];
   private isOpen = false;
 
   onClose: () => void = () => {};
@@ -73,6 +93,10 @@ export class AccountModal {
           <p class="account-modal__line">in the <span data-account-dd="industry"></span></p>
         </div>
         <div class="account-modal__grid">${cardsMarkup}</div>
+        <div class="account-modal__utility">
+          <a href="#" class="account-modal__contact" data-account-link>Contact</a>
+          <span class="account-modal__language" data-account-language></span>
+        </div>
       </div>
     `;
 
@@ -84,6 +108,16 @@ export class AccountModal {
       slot.appendChild(dd.el);
       this.dropdowns.push(dd);
     });
+    const language = new InlineDropdown({
+      key: 'language',
+      options: LANGUAGES,
+      label: 'Language',
+      ariaLabel: 'Language',
+      openUp: true, // the row sits just above the sticky prompt
+    });
+    this.el.querySelector('[data-account-language]')?.appendChild(language.el);
+    this.dropdowns.push(language);
+
     this.el.querySelector('.account-modal__persona')?.appendChild(createPersonaStatus('account'));
     bindPersonaText(this.el);
 
@@ -111,7 +145,7 @@ export class AccountModal {
     void this.video.play().catch(() => {});
 
     const lines = this.el.querySelectorAll('.account-modal__intro, .account-modal__line');
-    const cards = this.el.querySelectorAll('.account-card');
+    const cards = this.el.querySelectorAll('.account-card, .account-modal__utility');
     gsap
       .timeline({ defaults: { overwrite: 'auto' } })
       .fromTo(
